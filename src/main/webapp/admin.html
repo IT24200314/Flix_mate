@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FlixMate - Admin Panel</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  
+  <div class="container mt-5">
+    <!-- Header -->
+    <div class="row mb-4">
+      <div class="col-12">
+        <div class="card">
+          <div class="card-body">
+            <h1><i class="fas fa-cog me-2"></i>Admin Panel</h1>
+            <p class="text-muted">Manage your FlixMate cinema system</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Admin Stats -->
+    <div class="row mb-4">
+      <div class="col-md-3">
+        <div class="card text-center">
+          <div class="card-body">
+            <i class="fas fa-users fa-3x text-accent mb-3"></i>
+            <h3 id="total-users">0</h3>
+            <p class="text-muted">Total Users</p>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="card text-center">
+          <div class="card-body">
+            <i class="fas fa-film fa-3x text-accent mb-3"></i>
+            <h3 id="total-movies">0</h3>
+            <p class="text-muted">Movies</p>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="card text-center">
+          <div class="card-body">
+            <i class="fas fa-ticket-alt fa-3x text-accent mb-3"></i>
+            <h3 id="total-bookings">0</h3>
+            <p class="text-muted">Bookings</p>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="card text-center">
+          <div class="card-body">
+            <i class="fas fa-dollar-sign fa-3x text-accent mb-3"></i>
+            <h3 id="total-revenue">$0</h3>
+            <p class="text-muted">Revenue</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Admin Actions -->
+    <div class="row">
+      <div class="col-lg-8">
+        <div class="card">
+          <div class="card-body">
+            <h5><i class="fas fa-tools me-2"></i>Quick Actions</h5>
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <a href="movies.html" class="btn btn-outline w-100">
+                  <i class="fas fa-film me-2"></i>Manage Movies
+                </a>
+              </div>
+              <div class="col-md-6 mb-3">
+                <button class="btn btn-outline w-100" onclick="loadUserManagement()">
+                  <i class="fas fa-users me-2"></i>Manage Users
+                </button>
+              </div>
+              <div class="col-md-6 mb-3">
+                <button class="btn btn-outline w-100" onclick="loadBookingReports()">
+                  <i class="fas fa-chart-bar me-2"></i>Booking Reports
+                </button>
+              </div>
+              <div class="col-md-6 mb-3">
+                <button class="btn btn-outline w-100" onclick="loadPaymentLogs()">
+                  <i class="fas fa-credit-card me-2"></i>Payment Logs
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-lg-4">
+        <div class="card">
+          <div class="card-body">
+            <h5><i class="fas fa-bell me-2"></i>System Status</h5>
+            <div class="mb-3">
+              <div class="d-flex justify-content-between">
+                <span>Database</span>
+                <span class="badge bg-success" id="db-status">Online</span>
+              </div>
+            </div>
+            <div class="mb-3">
+              <div class="d-flex justify-content-between">
+                <span>API Server</span>
+                <span class="badge bg-success" id="api-status">Online</span>
+              </div>
+            </div>
+            <div class="mb-3">
+              <div class="d-flex justify-content-between">
+                <span>Payment Gateway</span>
+                <span class="badge bg-success" id="payment-status">Online</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="card mt-3">
+          <div class="card-body">
+            <h5><i class="fas fa-info-circle me-2"></i>System Info</h5>
+            <p><strong>Version:</strong> 1.0.0</p>
+            <p><strong>Last Updated:</strong> <span id="last-update">Loading...</span></p>
+            <p><strong>Uptime:</strong> <span id="uptime">Loading...</span></p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Dynamic Content Area -->
+    <div class="row mt-4" id="admin-content">
+      <!-- Content will be loaded here based on admin actions -->
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="script.js"></script>
+  <script>
+    // Load admin data on page load
+    document.addEventListener('DOMContentLoaded', () => {
+      loadAdminStats();
+      checkSystemStatus();
+      updateSystemInfo();
+    });
+
+    // Load admin statistics
+    async function loadAdminStats() {
+      try {
+        // Simulate loading admin stats (replace with actual API calls)
+        document.getElementById('total-users').textContent = '25';
+        document.getElementById('total-movies').textContent = '12';
+        document.getElementById('total-bookings').textContent = '156';
+        document.getElementById('total-revenue').textContent = '$2,340';
+        
+      } catch (error) {
+        console.error('Error loading admin stats:', error);
+        showAlert('error', 'Failed to load admin statistics');
+      }
+    }
+
+    // Check system status
+    async function checkSystemStatus() {
+      try {
+        // Test database connection
+        const dbStatus = document.getElementById('db-status');
+        const apiStatus = document.getElementById('api-status');
+        const paymentStatus = document.getElementById('payment-status');
+        
+        // Simulate status checks
+        dbStatus.textContent = 'Online';
+        dbStatus.className = 'badge bg-success';
+        
+        apiStatus.textContent = 'Online';
+        apiStatus.className = 'badge bg-success';
+        
+        paymentStatus.textContent = 'Online';
+        paymentStatus.className = 'badge bg-success';
+        
+      } catch (error) {
+        console.error('Error checking system status:', error);
+        showAlert('error', 'Failed to check system status');
+      }
+    }
+
+    // Update system information
+    function updateSystemInfo() {
+      document.getElementById('last-update').textContent = new Date().toLocaleDateString();
+      document.getElementById('uptime').textContent = '2 days, 14 hours';
+    }
+
+    // Load user management
+    function loadUserManagement() {
+      const content = document.getElementById('admin-content');
+      content.innerHTML = `
+        <div class="col-12">
+          <div class="card">
+            <div class="card-body">
+              <h5><i class="fas fa-users me-2"></i>User Management</h5>
+              <div class="table-responsive">
+                <table class="table table-hover">
+                  <thead>
+                    <tr>
+                      <th>User ID</th>
+                      <th>Name</th>
+                      <th>Email</th>
+                      <th>Status</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>1</td>
+                      <td>John Doe</td>
+                      <td>john@example.com</td>
+                      <td><span class="badge bg-primary">Standard</span></td>
+                      <td>
+                        <button class="btn btn-sm btn-outline">Edit</button>
+                        <button class="btn btn-sm btn-outline">Suspend</button>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>2</td>
+                      <td>Jane Smith</td>
+                      <td>jane@example.com</td>
+                      <td><span class="badge bg-warning">VIP</span></td>
+                      <td>
+                        <button class="btn btn-sm btn-outline">Edit</button>
+                        <button class="btn btn-sm btn-outline">Suspend</button>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    // Load booking reports
+    function loadBookingReports() {
+      const content = document.getElementById('admin-content');
+      content.innerHTML = `
+        <div class="col-12">
+          <div class="card">
+            <div class="card-body">
+              <h5><i class="fas fa-chart-bar me-2"></i>Booking Reports</h5>
+              <div class="row">
+                <div class="col-md-6">
+                  <h6>Recent Bookings</h6>
+                  <div class="list-group">
+                    <div class="list-group-item d-flex justify-content-between">
+                      <span>Booking #123</span>
+                      <span class="badge bg-primary">$25.00</span>
+                    </div>
+                    <div class="list-group-item d-flex justify-content-between">
+                      <span>Booking #124</span>
+                      <span class="badge bg-primary">$30.00</span>
+                    </div>
+                    <div class="list-group-item d-flex justify-content-between">
+                      <span>Booking #125</span>
+                      <span class="badge bg-primary">$20.00</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <h6>Revenue by Month</h6>
+                  <div class="list-group">
+                    <div class="list-group-item d-flex justify-content-between">
+                      <span>January 2025</span>
+                      <span class="badge bg-success">$1,200</span>
+                    </div>
+                    <div class="list-group-item d-flex justify-content-between">
+                      <span>February 2025</span>
+                      <span class="badge bg-success">$1,800</span>
+                    </div>
+                    <div class="list-group-item d-flex justify-content-between">
+                      <span>March 2025</span>
+                      <span class="badge bg-success">$2,100</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    // Load payment logs
+    function loadPaymentLogs() {
+      const content = document.getElementById('admin-content');
+      content.innerHTML = `
+        <div class="col-12">
+          <div class="card">
+            <div class="card-body">
+              <h5><i class="fas fa-credit-card me-2"></i>Payment Logs</h5>
+              <div class="table-responsive">
+                <table class="table table-hover">
+                  <thead>
+                    <tr>
+                      <th>Payment ID</th>
+                      <th>Amount</th>
+                      <th>Method</th>
+                      <th>Status</th>
+                      <th>Date</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>PAY001</td>
+                      <td>$25.00</td>
+                      <td>Credit Card</td>
+                      <td><span class="badge bg-success">Completed</span></td>
+                      <td>2025-01-15</td>
+                    </tr>
+                    <tr>
+                      <td>PAY002</td>
+                      <td>$30.00</td>
+                      <td>PayPal</td>
+                      <td><span class="badge bg-success">Completed</span></td>
+                      <td>2025-01-15</td>
+                    </tr>
+                    <tr>
+                      <td>PAY003</td>
+                      <td>$20.00</td>
+                      <td>Credit Card</td>
+                      <td><span class="badge bg-warning">Pending</span></td>
+                      <td>2025-01-15</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+  </script>
+</body>
+</html>

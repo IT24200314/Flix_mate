@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FlixMate - Movies</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- Navigation -->
+  <nav class="navbar navbar-expand-lg">
+    <div class="container">
+      <a class="navbar-brand" href="index.html">
+        <i class="fas fa-film me-2"></i>FlixMate
+      </a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav ms-auto" id="navbar-menu">
+          <li class="nav-item">
+            <a class="nav-link" href="index.html">Home</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link active" href="movies.html">Movies</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="booking.html">Book Tickets</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="booking-history.html">My Bookings</a>
+          </li>
+          <li class="nav-item" id="admin-nav-item" style="display: none;">
+            <a class="nav-link" href="admin-movie-management.html">
+              <i class="fas fa-user-shield me-1"></i>Admin
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="login.html">Login</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="register.html">Register</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+  
+  <div class="container mt-5">
+    <!-- Header Section -->
+    <div class="row mb-5">
+      <div class="col-md-8">
+        <h1 class="section-title">
+          <i class="fas fa-film me-3"></i>Movies
+        </h1>
+        <p class="text-muted fs-5">Discover and manage your favorite movies</p>
+      </div>
+      <div class="col-md-4 text-md-end" id="admin-controls" style="display: none;">
+        <button class="btn btn-accent" onclick="showAddMovieModal()">
+          <i class="fas fa-plus me-2"></i>Add Movie
+        </button>
+        <a href="admin-movie-management.html" class="btn btn-outline ms-2">
+          <i class="fas fa-cog me-2"></i>Admin Panel
+        </a>
+      </div>
+    </div>
+
+    <!-- Search and Filter Section -->
+    <div class="row mb-4">
+      <div class="col-md-6">
+        <div class="input-group">
+          <input type="text" id="movie-search" class="form-control" placeholder="Search movies...">
+          <button class="btn btn-outline" onclick="searchMovies()">
+            <i class="fas fa-search"></i>
+          </button>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <select id="genre-filter" class="form-select" onchange="filterMovies()">
+          <option value="">All Genres</option>
+          <option value="Action">Action</option>
+          <option value="Comedy">Comedy</option>
+          <option value="Drama">Drama</option>
+          <option value="Horror">Horror</option>
+          <option value="Sci-Fi">Sci-Fi</option>
+          <option value="Romance">Romance</option>
+        </select>
+      </div>
+      <div class="col-md-3">
+        <select id="year-filter" class="form-select" onchange="filterMovies()">
+          <option value="">All Years</option>
+          <option value="2025">2025</option>
+          <option value="2024">2024</option>
+          <option value="2023">2023</option>
+          <option value="2022">2022</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Movies Grid -->
+    <div class="row" id="movie-list">
+      <div class="col-12 text-center">
+        <div class="loading" id="loading">Loading movies...</div>
+      </div>
+    </div>
+
+    <!-- Pagination -->
+    <div class="row mt-4">
+      <div class="col-12">
+        <nav aria-label="Movie pagination">
+          <ul class="pagination justify-content-center" id="pagination">
+            <!-- Pagination will be generated here -->
+          </ul>
+        </nav>
+      </div>
+    </div>
+  </div>
+
+  <!-- Add/Edit Movie Modal -->
+  <div class="modal fade" id="movieModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="movieModalTitle">Add New Movie</h5>
+          <button type="button" class="btn-close" onclick="closeModal(this)">&times;</button>
+        </div>
+        <div class="modal-body">
+          <form id="movie-form">
+            <input type="hidden" id="movie-id">
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <label for="movie-title" class="form-label">Movie Title</label>
+                <input type="text" class="form-control" id="movie-title" required>
+              </div>
+              <div class="col-md-6 mb-3">
+                <label for="movie-genre" class="form-label">Genre</label>
+                <select class="form-select" id="movie-genre" required>
+                  <option value="">Select Genre</option>
+                  <option value="Action">Action</option>
+                  <option value="Comedy">Comedy</option>
+                  <option value="Drama">Drama</option>
+                  <option value="Horror">Horror</option>
+                  <option value="Sci-Fi">Sci-Fi</option>
+                  <option value="Romance">Romance</option>
+                  <option value="Thriller">Thriller</option>
+                  <option value="Adventure">Adventure</option>
+                </select>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <label for="movie-year" class="form-label">Release Year</label>
+                <input type="number" class="form-control" id="movie-year" min="1900" max="2030" required>
+              </div>
+              <div class="col-md-6 mb-3">
+                <label for="movie-duration" class="form-label">Duration (minutes)</label>
+                <input type="number" class="form-control" id="movie-duration" min="1" max="300" required>
+              </div>
+            </div>
+            <div class="mb-3">
+              <label for="movie-description" class="form-label">Description</label>
+              <textarea class="form-control" id="movie-description" rows="3" required></textarea>
+            </div>
+            <div class="mb-3">
+              <label for="movie-director" class="form-label">Director</label>
+              <input type="text" class="form-control" id="movie-director">
+            </div>
+            <div class="mb-3">
+              <label for="movie-cast" class="form-label">Cast</label>
+              <input type="text" class="form-control" id="movie-cast" placeholder="Separate names with commas">
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline" onclick="closeModal(this)">Cancel</button>
+          <button type="button" class="btn" onclick="saveMovie()">Save Movie</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="script.js"></script>
+  <script>
+    let allMovies = [];
+    let filteredMovies = [];
+    let currentPage = 1;
+    const moviesPerPage = 9;
+
+    // Load movies on page load
+    document.addEventListener('DOMContentLoaded', () => {
+      checkUserRole();
+      loadMovies();
+      
+      // Add search functionality
+      const searchInput = document.getElementById('movie-search');
+      if (searchInput) {
+        searchInput.addEventListener('input', debounce(searchMovies, 300));
+      }
+    });
+
+    // Check user role and show/hide admin controls
+    function checkUserRole() {
+      if (currentUser && currentUser.role === 'ADMIN') {
+        document.getElementById('admin-controls').style.display = 'block';
+        document.getElementById('admin-nav-item').style.display = 'block';
+      } else {
+        document.getElementById('admin-controls').style.display = 'none';
+        document.getElementById('admin-nav-item').style.display = 'none';
+      }
+    }
+
+    // Load movies from API
+    async function loadMovies() {
+      try {
+        const movies = await apiCall('/movies', 'GET', null, false);
+        allMovies = movies;
+        filteredMovies = [...movies];
+        displayMovies();
+        updatePagination();
+      } catch (error) {
+        console.error('Error loading movies:', error);
+        showAlert('error', 'Failed to load movies');
+      }
+    }
+
+    // Display movies in grid
+    function displayMovies() {
+      const container = document.getElementById('movie-list');
+      const loading = document.getElementById('loading');
+      
+      if (loading) loading.style.display = 'none';
+      
+      const startIndex = (currentPage - 1) * moviesPerPage;
+      const endIndex = startIndex + moviesPerPage;
+      const moviesToShow = filteredMovies.slice(startIndex, endIndex);
+      
+      if (moviesToShow.length === 0) {
+        container.innerHTML = `
+          <div class="col-12 text-center">
+            <div class="card">
+              <div class="card-body">
+                <i class="fas fa-film fa-3x text-muted mb-3"></i>
+                <h5>No movies found</h5>
+                <p class="text-muted">Try adjusting your search or filters</p>
+              </div>
+            </div>
+          </div>
+        `;
+        return;
+      }
+      
+      container.innerHTML = moviesToShow.map((movie, index) => `
+        <div class="col-lg-4 col-md-6 mb-4">
+          <div class="card movie-card h-100" style="animation-delay: ${index * 0.1}s">
+            <div class="card-body">
+              <div class="d-flex justify-content-between align-items-start mb-2">
+                <h5 class="card-title">${movie.title || 'Unknown Movie'}</h5>
+                ${currentUser && currentUser.role === 'ADMIN' ? `
+                <div class="dropdown">
+                  <button class="btn btn-sm btn-outline" data-bs-toggle="dropdown">
+                    <i class="fas fa-ellipsis-v"></i>
+                  </button>
+                  <ul class="dropdown-menu">
+                    <li><a class="dropdown-item" href="#" onclick="editMovie(${movie.movieId})">
+                      <i class="fas fa-edit me-2"></i>Edit
+                    </a></li>
+                    <li><a class="dropdown-item" href="#" onclick="deleteMovie(${movie.movieId})">
+                      <i class="fas fa-trash me-2"></i>Delete
+                    </a></li>
+                  </ul>
+                </div>
+                ` : ''}
+              </div>
+              
+              <div class="mb-2">
+                <span class="badge bg-primary me-2">${movie.genre || 'Action'}</span>
+                <span class="badge bg-secondary">${movie.releaseYear || '2025'}</span>
+              </div>
+              
+              <p class="card-text small">${(movie.description || 'No description available.').substring(0, 100)}...</p>
+              
+              <div class="d-flex justify-content-between align-items-center">
+                <small class="text-muted">
+                  <i class="fas fa-clock me-1"></i>${movie.duration || 120} min
+                </small>
+                <div>
+                  <a href="reviews.html?movieId=${movie.movieId}" class="btn btn-sm btn-outline me-1" title="Reviews">
+                    <i class="fas fa-star"></i>
+                  </a>
+                  <a href="booking.html?movieId=${movie.movieId}" class="btn btn-sm" title="Book Now">
+                    <i class="fas fa-ticket-alt"></i>
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      `).join('');
+      
+      // Add animation to cards
+      document.querySelectorAll('.movie-card').forEach(card => {
+        card.classList.add('fade-in');
+      });
+    }
+
+    // Search movies
+    function searchMovies() {
+      const searchTerm = document.getElementById('movie-search').value.toLowerCase();
+      filteredMovies = allMovies.filter(movie => 
+        (movie.title || '').toLowerCase().includes(searchTerm) ||
+        (movie.description || '').toLowerCase().includes(searchTerm) ||
+        (movie.genre || '').toLowerCase().includes(searchTerm)
+      );
+      currentPage = 1;
+      displayMovies();
+      updatePagination();
+    }
+
+    // Filter movies by genre and year
+    function filterMovies() {
+      const genreFilter = document.getElementById('genre-filter').value;
+      const yearFilter = document.getElementById('year-filter').value;
+      
+      filteredMovies = allMovies.filter(movie => {
+        const genreMatch = !genreFilter || (movie.genre || '').toLowerCase() === genreFilter.toLowerCase();
+        const yearMatch = !yearFilter || (movie.releaseYear || '').toString() === yearFilter;
+        return genreMatch && yearMatch;
+      });
+      
+      currentPage = 1;
+      displayMovies();
+      updatePagination();
+    }
+
+    // Update pagination
+    function updatePagination() {
+      const totalPages = Math.ceil(filteredMovies.length / moviesPerPage);
+      const pagination = document.getElementById('pagination');
+      
+      if (totalPages <= 1) {
+        pagination.innerHTML = '';
+        return;
+      }
+      
+      let paginationHTML = '';
+      
+      // Previous button
+      paginationHTML += `
+        <li class="page-item ${currentPage === 1 ? 'disabled' : ''}">
+          <a class="page-link" href="#" onclick="changePage(${currentPage - 1})">Previous</a>
+        </li>
+      `;
+      
+      // Page numbers
+      for (let i = 1; i <= totalPages; i++) {
+        if (i === 1 || i === totalPages || (i >= currentPage - 1 && i <= currentPage + 1)) {
+          paginationHTML += `
+            <li class="page-item ${i === currentPage ? 'active' : ''}">
+              <a class="page-link" href="#" onclick="changePage(${i})">${i}</a>
+            </li>
+          `;
+        } else if (i === currentPage - 2 || i === currentPage + 2) {
+          paginationHTML += '<li class="page-item disabled"><span class="page-link">...</span></li>';
+        }
+      }
+      
+      // Next button
+      paginationHTML += `
+        <li class="page-item ${currentPage === totalPages ? 'disabled' : ''}">
+          <a class="page-link" href="#" onclick="changePage(${currentPage + 1})">Next</a>
+        </li>
+      `;
+      
+      pagination.innerHTML = paginationHTML;
+    }
+
+    // Change page
+    function changePage(page) {
+      const totalPages = Math.ceil(filteredMovies.length / moviesPerPage);
+      if (page >= 1 && page <= totalPages) {
+        currentPage = page;
+        displayMovies();
+        updatePagination();
+        window.scrollTo(0, 0);
+      }
+    }
+
+    // Show add movie modal
+    function showAddMovieModal() {
+      // Check if user is admin
+      if (!currentUser || currentUser.role !== 'ADMIN') {
+        showAlert('error', 'Admin privileges required to add movies');
+        return;
+      }
+
+      document.getElementById('movieModalTitle').textContent = 'Add New Movie';
+      document.getElementById('movie-form').reset();
+      document.getElementById('movie-id').value = '';
+      const modal = new bootstrap.Modal(document.getElementById('movieModal'));
+      modal.show();
+    }
+
+    // Edit movie
+    function editMovie(movieId) {
+      // Check if user is admin
+      if (!currentUser || currentUser.role !== 'ADMIN') {
+        showAlert('error', 'Admin privileges required to edit movies');
+        return;
+      }
+
+      const movie = allMovies.find(m => m.movieId === movieId);
+      if (movie) {
+        document.getElementById('movieModalTitle').textContent = 'Edit Movie';
+        document.getElementById('movie-id').value = movie.movieId;
+        document.getElementById('movie-title').value = movie.title || '';
+        document.getElementById('movie-genre').value = movie.genre || '';
+        document.getElementById('movie-year').value = movie.releaseYear || '';
+        document.getElementById('movie-duration').value = movie.duration || '';
+        document.getElementById('movie-description').value = movie.description || '';
+        document.getElementById('movie-director').value = movie.director || '';
+        document.getElementById('movie-cast').value = movie.cast || '';
+        const modal = new bootstrap.Modal(document.getElementById('movieModal'));
+        modal.show();
+      }
+    }
+
+    // Save movie
+    async function saveMovie() {
+      // Check if user is admin
+      if (!currentUser || currentUser.role !== 'ADMIN') {
+        showAlert('error', 'Admin privileges required to manage movies');
+        return;
+      }
+
+      const formData = {
+        title: document.getElementById('movie-title').value,
+        genre: document.getElementById('movie-genre').value,
+        releaseYear: parseInt(document.getElementById('movie-year').value),
+        duration: parseInt(document.getElementById('movie-duration').value),
+        description: document.getElementById('movie-description').value,
+        director: document.getElementById('movie-director').value,
+        language: 'English' // Default language
+      };
+      
+      const movieId = document.getElementById('movie-id').value;
+      
+      if (!validateForm('movie-form')) {
+        showAlert('error', 'Please fill in all required fields');
+        return;
+      }
+      
+      try {
+        if (movieId) {
+          // Update existing movie using admin API
+          await apiCall(`/admin/movies/${movieId}`, 'PUT', formData, true);
+          showAlert('success', 'Movie updated successfully');
+        } else {
+          // Add new movie using admin API
+          await apiCall('/admin/movies', 'POST', formData, true);
+          showAlert('success', 'Movie added successfully');
+        }
+        
+        const modal = bootstrap.Modal.getInstance(document.getElementById('movieModal'));
+        modal.hide();
+        loadMovies();
+      } catch (error) {
+        console.error('Error saving movie:', error);
+        if (error.message.includes('403')) {
+          showAlert('error', 'Access denied. Admin privileges required.');
+        } else {
+          showAlert('error', 'Failed to save movie: ' + error.message);
+        }
+      }
+    }
+
+    // Delete movie
+    async function deleteMovie(movieId) {
+      // Check if user is admin
+      if (!currentUser || currentUser.role !== 'ADMIN') {
+        showAlert('error', 'Admin privileges required to delete movies');
+        return;
+      }
+
+      if (confirm('Are you sure you want to delete this movie?')) {
+        try {
+          await apiCall(`/admin/movies/${movieId}`, 'DELETE', null, true);
+          showAlert('success', 'Movie deleted successfully');
+          loadMovies();
+        } catch (error) {
+          console.error('Error deleting movie:', error);
+          if (error.message.includes('403')) {
+            showAlert('error', 'Access denied. Admin privileges required.');
+          } else if (error.message.includes('400')) {
+            showAlert('error', 'Cannot delete movie. It may have active showtimes.');
+          } else {
+            showAlert('error', 'Failed to delete movie: ' + error.message);
+          }
+        }
+      }
+    }
+
+    // Close modal
+    function closeModal(button) {
+      const modal = bootstrap.Modal.getInstance(button.closest('.modal'));
+      modal.hide();
+    }
+  </script>
+</body>
+</html>
+

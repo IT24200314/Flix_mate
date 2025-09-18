@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FlixMate - Booking History</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- Navigation -->
+  <nav class="navbar navbar-expand-lg">
+    <div class="container">
+      <a class="navbar-brand" href="index.html">
+        <i class="fas fa-film me-2"></i>FlixMate
+      </a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav ms-auto">
+          <li class="nav-item">
+            <a class="nav-link" href="index.html">Home</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="movies.html">Movies</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="booking.html">Book Tickets</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link active" href="booking-history.html">My Bookings</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="login.html">Login</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="register.html">Register</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+  
+  <div class="container mt-5">
+    <div class="row mb-5">
+      <div class="col-12">
+        <h1 class="section-title">
+          <i class="fas fa-history me-3"></i>My Booking History
+        </h1>
+        <p class="text-muted fs-5">View and manage your movie bookings</p>
+      </div>
+    </div>
+    
+    <div class="row">
+      <div class="col-12">
+        <div class="card">
+          <div class="card-header d-flex justify-content-between align-items-center">
+            <h4><i class="fas fa-ticket-alt me-2"></i>Your Bookings</h4>
+            <a href="booking.html" class="btn btn-accent">
+              <i class="fas fa-plus me-2"></i>New Booking
+            </a>
+          </div>
+          <div class="card-body">
+            <div id="loading" class="text-center py-4">
+              <div class="spinner-border" role="status">
+                <span class="visually-hidden">Loading...</span>
+              </div>
+              <p class="mt-2">Loading your booking history...</p>
+            </div>
+            
+            <div id="no-bookings" class="text-center py-5" style="display: none;">
+              <i class="fas fa-ticket-alt fa-3x text-muted mb-3"></i>
+              <h5 class="text-muted">No bookings found</h5>
+              <p class="text-muted">You haven't made any bookings yet.</p>
+              <a href="booking.html" class="btn btn-primary">Make Your First Booking</a>
+            </div>
+            
+            <div id="bookings-list" style="display: none;">
+              <!-- Bookings will be loaded here -->
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="script.js"></script>
+  <script>
+    let bookings = []; // Store bookings globally for modal access
+    
+    document.addEventListener('DOMContentLoaded', () => {
+      loadBookingHistory();
+    });
+
+    async function loadBookingHistory() {
+      try {
+        bookings = await apiCall('/bookings/history', 'GET', null, true);
+        
+        document.getElementById('loading').style.display = 'none';
+        
+        if (!bookings || bookings.length === 0) {
+          document.getElementById('no-bookings').style.display = 'block';
+          return;
+        }
+        
+        displayBookings(bookings);
+        document.getElementById('bookings-list').style.display = 'block';
+        
+      } catch (error) {
+        console.error('Error loading booking history:', error);
+        document.getElementById('loading').style.display = 'none';
+        showAlert('error', 'Failed to load booking history');
+      }
+    }
+
+    function displayBookings(bookings) {
+      const bookingsList = document.getElementById('bookings-list');
+      
+      bookingsList.innerHTML = bookings.map(booking => `
+        <div class="card mb-3">
+          <div class="card-body">
+            <div class="row">
+              <div class="col-md-8">
+                <h6 class="card-title">
+                  <i class="fas fa-film me-2"></i>
+                  ${booking.showtime?.movie?.title || 'Unknown Movie'}
+                </h6>
+                <p class="card-text">
+                  <i class="fas fa-calendar me-2"></i>
+                  ${formatDate(booking.showtime?.startTime || '')}
+                </p>
+                <p class="card-text">
+                  <i class="fas fa-chair me-2"></i>
+                  ${booking.totalSeats} seat(s) - 
+                  ${booking.seats?.map(seat => seat.row + seat.number).join(', ') || 'N/A'}
+                </p>
+                <p class="card-text">
+                  <i class="fas fa-dollar-sign me-2"></i>
+                  Total: ${formatCurrency(booking.totalAmount)}
+                </p>
+              </div>
+              <div class="col-md-4 text-end">
+                <span class="badge ${getStatusBadgeClass(booking.status)} mb-2">
+                  ${booking.status}
+                </span>
+                <div class="btn-group-vertical d-grid gap-2">
+                  <button class="btn btn-outline-primary btn-sm" onclick="viewBookingDetails(${booking.bookingId})">
+                    <i class="fas fa-eye me-1"></i>View Details
+                  </button>
+                  ${booking.status === 'CANCELLED' ? '' : `
+                    <button class="btn btn-outline-warning btn-sm" onclick="updateBooking(${booking.bookingId})">
+                      <i class="fas fa-edit me-1"></i>Update
+                    </button>
+                    <button class="btn btn-outline-danger btn-sm" onclick="cancelBooking(${booking.bookingId})">
+                      <i class="fas fa-times me-1"></i>Cancel
+                    </button>
+                  `}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function getStatusBadgeClass(status) {
+      switch (status) {
+        case 'PENDING': return 'bg-warning';
+        case 'CONFIRMED': return 'bg-success';
+        case 'UPDATED': return 'bg-info';
+        case 'CANCELLED': return 'bg-danger';
+        default: return 'bg-secondary';
+      }
+    }
+
+    function viewBookingDetails(bookingId) {
+      // Find the booking and show detailed information
+      const booking = bookings.find(b => b.bookingId === bookingId);
+      if (booking) {
+        showBookingDetailsModal(booking);
+      } else {
+        showAlert('error', 'Booking details not found');
+      }
+    }
+
+    function showBookingDetailsModal(booking) {
+      const modalHtml = `
+        <div class="modal fade" id="bookingDetailsModal" tabindex="-1">
+          <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title">
+                  <i class="fas fa-ticket-alt me-2"></i>Booking Details #${booking.bookingId}
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+              </div>
+              <div class="modal-body">
+                <div class="row">
+                  <div class="col-md-6">
+                    <h6><i class="fas fa-film me-2"></i>Movie Information</h6>
+                    <p><strong>Title:</strong> ${booking.showtime?.movie?.title || 'Unknown'}</p>
+                    <p><strong>Genre:</strong> ${booking.showtime?.movie?.genre || 'N/A'}</p>
+                    <p><strong>Duration:</strong> ${booking.showtime?.movie?.duration || 'N/A'} minutes</p>
+                    <p><strong>Director:</strong> ${booking.showtime?.movie?.director || 'N/A'}</p>
+                  </div>
+                  <div class="col-md-6">
+                    <h6><i class="fas fa-calendar me-2"></i>Showtime Information</h6>
+                    <p><strong>Date & Time:</strong> ${formatDate(booking.showtime?.startTime || '')}</p>
+                    <p><strong>End Time:</strong> ${formatDate(booking.showtime?.endTime || '')}</p>
+                    <p><strong>Price per Seat:</strong> ${formatCurrency(booking.showtime?.price || 0)}</p>
+                    <p><strong>Cinema Hall:</strong> Hall ${booking.showtime?.cinemaHall?.hallId || 'N/A'}</p>
+                  </div>
+                </div>
+                <hr>
+                <div class="row">
+                  <div class="col-md-6">
+                    <h6><i class="fas fa-chair me-2"></i>Seat Information</h6>
+                    <p><strong>Total Seats:</strong> ${booking.totalSeats}</p>
+                    <p><strong>Seat Numbers:</strong> ${booking.seats?.map(seat => seat.row + seat.number).join(', ') || 'N/A'}</p>
+                  </div>
+                  <div class="col-md-6">
+                    <h6><i class="fas fa-dollar-sign me-2"></i>Payment Information</h6>
+                    <p><strong>Total Amount:</strong> ${formatCurrency(booking.totalAmount)}</p>
+                    <p><strong>Booking Date:</strong> ${formatDate(booking.bookingDate)}</p>
+                    <p><strong>Status:</strong> <span class="badge ${getStatusBadgeClass(booking.status)}">${booking.status}</span></p>
+                  </div>
+                </div>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                ${booking.status === 'CANCELLED' ? '' : `
+                  <button type="button" class="btn btn-warning" onclick="updateBooking(${booking.bookingId}); bootstrap.Modal.getInstance(document.getElementById('bookingDetailsModal')).hide();">
+                    <i class="fas fa-edit me-1"></i>Update Booking
+                  </button>
+                  <button type="button" class="btn btn-danger" onclick="cancelBooking(${booking.bookingId}); bootstrap.Modal.getInstance(document.getElementById('bookingDetailsModal')).hide();">
+                    <i class="fas fa-times me-1"></i>Cancel Booking
+                  </button>
+                `}
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+      
+      // Remove existing modal if any
+      const existingModal = document.getElementById('bookingDetailsModal');
+      if (existingModal) {
+        existingModal.remove();
+      }
+      
+      // Add modal to page
+      document.body.insertAdjacentHTML('beforeend', modalHtml);
+      
+      // Show modal
+      const modal = new bootstrap.Modal(document.getElementById('bookingDetailsModal'));
+      modal.show();
+    }
+
+    async function updateBooking(bookingId) {
+      // Redirect to booking update page
+      window.location.href = `booking-update.html?update=${bookingId}`;
+    }
+
+    async function cancelBooking(bookingId) {
+      if (confirm('Are you sure you want to cancel this booking? This will mark it as cancelled and release the seats.')) {
+        try {
+          console.log('Cancelling booking ID:', bookingId);
+          const response = await apiCall(`/bookings/${bookingId}`, 'DELETE', null, true);
+          console.log('Cancel response:', response);
+          showAlert('success', 'Booking cancelled successfully - seats have been released');
+          loadBookingHistory(); // Reload the list
+        } catch (error) {
+          console.error('Error cancelling booking:', error);
+          let errorMessage = 'Failed to cancel booking';
+          if (error.message) {
+            errorMessage += ': ' + error.message;
+          }
+          showAlert('error', errorMessage);
+        }
+      }
+    }
+
+    function formatDate(dateString) {
+      if (!dateString) return 'N/A';
+      try {
+        const date = new Date(dateString);
+        return date.toLocaleDateString() + ' ' + date.toLocaleTimeString();
+      } catch (e) {
+        return dateString;
+      }
+    }
+
+    function formatCurrency(amount) {
+      return new Intl.NumberFormat('en-US', {
+        style: 'currency',
+        currency: 'USD'
+      }).format(amount || 0);
+    }
+  </script>
+</body>
+</html>
