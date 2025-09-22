@@ -1,0 +1,1108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FlixMate - Movies | Scope Cinemas Style</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- Navigation -->
+  <div id="navbar-container"></div>
+  
+  <!-- Alert Container -->
+  <div id="alert-container" class="position-fixed" style="top: 20px; right: 20px; z-index: 9999;"></div>
+  
+  <div class="container mt-5">
+    <!-- Header Section -->
+    <div class="row mb-5">
+      <div class="col-md-8">
+        <h1 class="section-title">
+          <i class="fas fa-film me-3"></i>Movies
+        </h1>
+        <p class="text-muted fs-5">Discover and manage your favorite movies</p>
+      </div>
+      <div class="col-md-4 text-md-end" id="admin-controls" style="display: none;">
+        <button class="btn btn-accent" onclick="showAddMovieModal()">
+          <i class="fas fa-plus me-2"></i>Add Movie
+        </button>
+        <a href="admin-movies.html" class="btn btn-outline ms-2">
+          <i class="fas fa-cog me-2"></i>Admin Panel
+        </a>
+      </div>
+    </div>
+
+    <!-- Search and Filter Section -->
+    <div class="row mb-4">
+      <div class="col-md-6">
+        <div class="input-group">
+          <input type="text" id="movie-search" class="form-control" placeholder="Search movies...">
+          <button class="btn btn-outline" onclick="searchMovies()">
+            <i class="fas fa-search"></i>
+          </button>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <select id="genre-filter" class="form-select" onchange="filterMovies()">
+          <option value="">All Genres</option>
+          <option value="Action">Action</option>
+          <option value="Comedy">Comedy</option>
+          <option value="Drama">Drama</option>
+          <option value="Horror">Horror</option>
+          <option value="Sci-Fi">Sci-Fi</option>
+          <option value="Romance">Romance</option>
+        </select>
+      </div>
+      <div class="col-md-3">
+        <select id="year-filter" class="form-select" onchange="filterMovies()">
+          <option value="">All Years</option>
+          <option value="2025">2025</option>
+          <option value="2024">2024</option>
+          <option value="2023">2023</option>
+          <option value="2022">2022</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Movies Grid -->
+    <div class="row" id="movie-list">
+      <div class="col-12 text-center">
+        <div class="loading" id="loading">Loading movies...</div>
+      </div>
+    </div>
+
+    <!-- Pagination -->
+    <div class="row mt-4">
+      <div class="col-12">
+        <nav aria-label="Movie pagination">
+          <ul class="pagination justify-content-center" id="pagination">
+            <!-- Pagination will be generated here -->
+          </ul>
+        </nav>
+      </div>
+    </div>
+  </div>
+
+  <!-- Add/Edit Movie Modal -->
+  <div class="modal fade" id="movieModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="movieModalTitle">Add New Movie</h5>
+          <button type="button" class="btn-close" onclick="closeModal(this)">&times;</button>
+        </div>
+        <div class="modal-body">
+          <form id="movie-form">
+            <input type="hidden" id="movie-id">
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <label for="movie-title" class="form-label">Movie Title</label>
+                <input type="text" class="form-control" id="movie-title" required>
+              </div>
+              <div class="col-md-6 mb-3">
+                <label for="movie-genre" class="form-label">Genre</label>
+                <select class="form-select" id="movie-genre" required>
+                  <option value="">Select Genre</option>
+                  <option value="Action">Action</option>
+                  <option value="Comedy">Comedy</option>
+                  <option value="Drama">Drama</option>
+                  <option value="Horror">Horror</option>
+                  <option value="Sci-Fi">Sci-Fi</option>
+                  <option value="Romance">Romance</option>
+                  <option value="Thriller">Thriller</option>
+                  <option value="Adventure">Adventure</option>
+                </select>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <label for="movie-year" class="form-label">Release Year</label>
+                <input type="number" class="form-control" id="movie-year" min="1900" max="2030" required>
+              </div>
+              <div class="col-md-6 mb-3">
+                <label for="movie-duration" class="form-label">Duration (minutes)</label>
+                <input type="number" class="form-control" id="movie-duration" min="1" max="300" required>
+              </div>
+            </div>
+            <div class="mb-3">
+              <label for="movie-description" class="form-label">Description</label>
+              <textarea class="form-control" id="movie-description" rows="3" required></textarea>
+            </div>
+            <div class="mb-3">
+              <label for="movie-director" class="form-label">Director</label>
+              <input type="text" class="form-control" id="movie-director">
+            </div>
+            <div class="mb-3">
+              <label for="movie-cast" class="form-label">Cast</label>
+              <input type="text" class="form-control" id="movie-cast" placeholder="Separate names with commas">
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline" onclick="closeModal(this)">Cancel</button>
+          <button type="button" class="btn" onclick="saveMovie()">Save Movie</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    let allMovies = [];
+    let filteredMovies = [];
+    let currentPage = 1;
+    const moviesPerPage = 9;
+
+    // Debounce function for search
+    function debounce(func, wait) {
+      let timeout;
+      return function executedFunction(...args) {
+        const later = () => {
+          clearTimeout(timeout);
+          func(...args);
+        };
+        clearTimeout(timeout);
+        timeout = setTimeout(later, wait);
+      };
+    }
+
+    // Load navigation
+    async function loadNavigation() {
+      try {
+        const response = await fetch('navigation.html');
+        const html = await response.text();
+        document.getElementById('navbar-container').innerHTML = html;
+      } catch (error) {
+        console.error('Error loading navigation:', error);
+      }
+    }
+
+    // Load movies on page load
+    document.addEventListener('DOMContentLoaded', () => {
+      console.log('🎬 Movies page DOM loaded, starting initialization...');
+      
+      try {
+        console.log('📍 Step 1: Loading navigation...');
+        loadNavigation();
+        
+        console.log('📍 Step 2: Checking user role...');
+        checkUserRole();
+        
+        console.log('📍 Step 3: Loading movies...');
+        loadMovies();
+        
+        console.log('📍 Step 4: Setting up search functionality...');
+        // Add search functionality
+        const searchInput = document.getElementById('movie-search');
+        if (searchInput) {
+          searchInput.addEventListener('input', debounce(searchMovies, 300));
+          console.log('✅ Search functionality initialized');
+        } else {
+          console.warn('⚠️ Search input element not found');
+        }
+        
+        console.log('✅ Movies page initialization completed successfully');
+        
+      } catch (error) {
+        console.error('❌ Error initializing movies page:', error);
+        console.error('Error stack:', error.stack);
+        console.error('Error name:', error.name);
+        console.error('Error message:', error.message);
+        
+        // More detailed error for debugging
+        showAlert('error', `Failed to initialize movies page: ${error.message}. Check console for details.`);
+        
+        // Try to initialize components individually for debugging
+        setTimeout(() => {
+          debugInitialization();
+        }, 1000);
+      }
+    });
+
+    // Check user role and show/hide admin controls
+    function checkUserRole() {
+      console.log('🔐 Checking user role...', currentUser ? currentUser.role : 'No user');
+      
+      try {
+        const adminControls = document.getElementById('admin-controls');
+        const adminNavItem = document.getElementById('admin-nav-item');
+        
+        if (currentUser && currentUser.role === 'ADMIN') {
+          console.log('✅ User is admin, showing admin controls');
+          if (adminControls) {
+            adminControls.style.display = 'block';
+            console.log('✅ Admin controls shown');
+          } else {
+            console.warn('⚠️ admin-controls element not found');
+          }
+          if (adminNavItem) {
+            adminNavItem.style.display = 'block';
+            console.log('✅ Admin nav item shown');
+          } else {
+            console.warn('⚠️ admin-nav-item element not found (normal for movies page)');
+          }
+        } else {
+          console.log('👤 User is not admin, hiding admin controls');
+          if (adminControls) {
+            adminControls.style.display = 'none';
+            console.log('✅ Admin controls hidden');
+          }
+          if (adminNavItem) {
+            adminNavItem.style.display = 'none';
+            console.log('✅ Admin nav item hidden');
+          }
+        }
+      } catch (error) {
+        console.error('❌ Error in checkUserRole:', error);
+        console.error('This is usually caused by missing DOM elements');
+      }
+    }
+
+    // Load movies from API
+    async function loadMovies() {
+      console.log('🎬 ========== LOADING MOVIES START ==========');
+      
+      try {
+        // Step 1: Check dependencies
+        console.log('📍 Step 1: Checking dependencies...');
+        if (typeof apiCall === 'undefined') {
+          console.error('❌ apiCall function not available');
+          throw new Error('API call function not available. Please check if script.js is loaded.');
+        }
+        console.log('✅ apiCall function is available');
+        
+        if (typeof showAlert === 'undefined') {
+          console.error('❌ showAlert function not available');
+          throw new Error('showAlert function not available. Please check if script.js is loaded.');
+        }
+        console.log('✅ showAlert function is available');
+        
+        // Step 2: Check database connection
+        console.log('📍 Step 2: Checking database connection...');
+        try {
+          console.log('🔄 Making request to /api/health/database...');
+          const dbResponse = await fetch('/api/health/database');
+          console.log('📡 Database health response status:', dbResponse.status);
+          
+          if (!dbResponse.ok) {
+            throw new Error(`Database health check HTTP ${dbResponse.status}: ${dbResponse.statusText}`);
+          }
+          
+          const dbData = await dbResponse.json();
+          console.log('📊 Database health data:', dbData);
+          
+          if (dbData.status !== 'success') {
+            throw new Error(`Database connection failed: ${dbData.message}`);
+          }
+          
+          console.log(`✅ Database connected. Found ${dbData.movieCount} movies in database.`);
+          
+          if (dbData.movieCount === 0) {
+            console.warn('⚠️ Database has no movies');
+            showAlert('warning', 'Database is connected but contains no movies.');
+          }
+          
+        } catch (dbError) {
+          console.error('❌ Database health check failed:', dbError);
+          console.error('Database error details:', {
+            name: dbError.name,
+            message: dbError.message,
+            stack: dbError.stack
+          });
+          // Continue with movie loading even if health check fails
+        }
+        
+        // Step 3: Load movies from API
+        console.log('📍 Step 3: Loading movies from API...');
+        console.log('🔄 Making API call to /public/movies...');
+        
+        const movies = await apiCall('/public/movies', 'GET', null, false);
+        console.log('📽️ Raw API response:', movies);
+        console.log('📽️ Response type:', typeof movies);
+        console.log('📽️ Is array:', Array.isArray(movies));
+        
+        if (!movies) {
+          throw new Error('API returned null or undefined response');
+        }
+        
+        if (!Array.isArray(movies)) {
+          console.error('❌ Invalid response format. Expected array, got:', typeof movies);
+          console.error('❌ Response content:', movies);
+          throw new Error(`Invalid response format from API. Expected array, got: ${typeof movies}`);
+        }
+        
+        console.log(`📊 API returned ${movies.length} movies`);
+        
+        if (movies.length === 0) {
+          console.warn('⚠️ No movies returned from API');
+          showAlert('warning', 'No movies found. The database may be empty or the API may have issues.');
+          displayNoMoviesState();
+          return;
+        }
+        
+        // Step 4: Process and validate movie data
+        console.log('📍 Step 4: Processing movie data...');
+        
+        let validMovies = 0;
+        let invalidMovies = 0;
+        
+        movies.forEach((movie, index) => {
+          if (movie && movie.movieId && movie.title) {
+            validMovies++;
+            console.log(`📽️ Movie ${index + 1}:`, {
+              id: movie.movieId,
+              title: movie.title,
+              genre: movie.genre || 'Unknown',
+              year: movie.releaseYear || 'Unknown',
+              poster: movie.posterUrl || 'None',
+              active: movie.isActive,
+              description: movie.description ? movie.description.substring(0, 50) + '...' : 'None'
+            });
+          } else {
+            invalidMovies++;
+            console.warn(`⚠️ Invalid movie data at index ${index}:`, movie);
+          }
+        });
+        
+        console.log(`📊 Movie validation: ${validMovies} valid, ${invalidMovies} invalid`);
+        
+        // Step 5: Set global variables and display
+        console.log('📍 Step 5: Setting global variables and displaying movies...');
+        
+        allMovies = movies;
+        filteredMovies = [...movies];
+        
+        console.log('📍 Step 6: Calling displayMovies()...');
+        displayMovies();
+        
+        console.log('📍 Step 7: Calling updatePagination()...');
+        updatePagination();
+        
+        console.log(`✅ Successfully loaded and displayed ${movies.length} movies`);
+        console.log('🎬 ========== LOADING MOVIES COMPLETE ==========');
+        
+      } catch (error) {
+        console.error('❌ ========== LOADING MOVIES ERROR ==========');
+        console.error('Error type:', error.constructor.name);
+        console.error('Error message:', error.message);
+        console.error('Error stack:', error.stack);
+        console.error('Current URL:', window.location.href);
+        console.error('User agent:', navigator.userAgent);
+        console.error('Global variables state:', {
+          allMovies: typeof allMovies,
+          filteredMovies: typeof filteredMovies,
+          currentPage: currentPage,
+          apiCall: typeof apiCall,
+          showAlert: typeof showAlert
+        });
+        console.error('🎬 ========== LOADING MOVIES ERROR END ==========');
+        
+        // Show user-friendly error message
+        const errorMessage = error.message || 'Failed to load movies';
+        showAlert('error', `Movies Loading Error: ${errorMessage}. Check console for detailed information.`);
+        
+        // Show fallback content
+        displayErrorState();
+      }
+    }
+
+    // Display error state when movies fail to load
+    function displayErrorState() {
+      const container = document.getElementById('movie-list');
+      const loading = document.getElementById('loading');
+      
+      if (loading) loading.style.display = 'none';
+      
+      container.innerHTML = `
+        <div class="col-12 text-center">
+          <div class="card">
+            <div class="card-body">
+              <i class="fas fa-exclamation-triangle fa-3x text-warning mb-3"></i>
+              <h5>Unable to load movies</h5>
+              <p class="text-muted">There was an error loading the movies. Please try again.</p>
+              <div class="d-flex gap-2 justify-content-center flex-wrap">
+                <button class="btn btn-primary" onclick="loadMovies()">
+                  <i class="fas fa-refresh me-2"></i>Retry
+                </button>
+                <a href="/debug.html" class="btn btn-outline-secondary" target="_blank">
+                  <i class="fas fa-bug me-2"></i>Debug Console
+                </a>
+                <button class="btn btn-outline-info" onclick="checkDatabaseConnection()">
+                  <i class="fas fa-database me-2"></i>Check Database
+                </button>
+              </div>
+              <div class="mt-3">
+                <small class="text-muted">
+                  <i class="fas fa-info-circle me-1"></i>
+                  Check the browser console for detailed error information
+                </small>
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    // Display movies in grid
+    function displayMovies() {
+      console.log('🎭 ========== DISPLAY MOVIES START ==========');
+      
+      try {
+        console.log('📍 Step 1: Getting DOM elements...');
+        const container = document.getElementById('movie-list');
+        const loading = document.getElementById('loading');
+        
+        if (!container) {
+          console.error('❌ Movie list container not found');
+          throw new Error('Movie list container element not found in DOM');
+        }
+        console.log('✅ Movie list container found');
+        
+        if (loading) {
+          loading.style.display = 'none';
+          console.log('✅ Loading indicator hidden');
+        } else {
+          console.warn('⚠️ Loading indicator not found');
+        }
+        
+        console.log('📍 Step 2: Checking movie data...');
+        console.log('Current page:', currentPage);
+        console.log('Movies per page:', moviesPerPage);
+        console.log('Filtered movies count:', filteredMovies ? filteredMovies.length : 'undefined');
+        console.log('All movies count:', allMovies ? allMovies.length : 'undefined');
+        
+        const startIndex = (currentPage - 1) * moviesPerPage;
+        const endIndex = startIndex + moviesPerPage;
+        const moviesToShow = filteredMovies.slice(startIndex, endIndex);
+        
+        if (moviesToShow.length === 0) {
+          container.innerHTML = `
+            <div class="col-12 text-center">
+              <div class="card">
+                <div class="card-body">
+                  <i class="fas fa-film fa-3x text-muted mb-3"></i>
+                  <h5>No movies found</h5>
+                  <p class="text-muted">Try adjusting your search or filters</p>
+                </div>
+              </div>
+            </div>
+          `;
+          return;
+        }
+        
+        container.innerHTML = moviesToShow.map((movie, index) => {
+          try {
+            // Generate a poster image path or use a default placeholder
+            const posterUrl = movie.posterUrl || generateMoviePosterUrl(movie.movieId) || 'https://via.placeholder.com/300x450/2c3e50/ffffff?text=' + encodeURIComponent(movie.title || 'Movie');
+            
+            return `
+        <div class="col-lg-4 col-md-6 mb-4">
+          <div class="card movie-card h-100" style="animation-delay: ${index * 0.1}s">
+            <div class="position-relative overflow-hidden">
+              <img src="${posterUrl}" 
+                   class="card-img-top movie-poster" 
+                   alt="${movie.title || 'Movie Poster'}"
+                   style="height: 300px; object-fit: cover; transition: transform 0.3s ease;"
+                   onload="this.style.opacity='1'" 
+                   onerror="this.src='https://via.placeholder.com/300x450/2c3e50/ffffff?text=' + encodeURIComponent('${movie.title || 'Movie'}'); this.style.opacity='1';">
+              <div class="position-absolute top-0 end-0 m-2">
+                <span class="badge bg-primary">${movie.genre || 'Drama'}</span>
+              </div>
+              <div class="position-absolute bottom-0 start-0 end-0 bg-gradient-dark p-2 text-white">
+                <small><i class="fas fa-calendar me-1"></i>${movie.releaseYear || '2025'}</small>
+              </div>
+            </div>
+            <div class="card-body d-flex flex-column">
+              <h5 class="card-title text-truncate" title="${movie.title || 'Unknown Movie'}">${movie.title || 'Unknown Movie'}</h5>
+              <p class="card-text small text-muted mb-2">
+                <i class="fas fa-clock me-1"></i>${movie.duration || 120} min
+                ${movie.director ? ` • <i class="fas fa-user-tie ms-2 me-1"></i>${movie.director}` : ''}
+              </p>
+              <p class="card-text flex-grow-1">${(movie.description || 'No description available.').substring(0, 120)}${(movie.description || '').length > 120 ? '...' : ''}</p>
+              
+              <div class="d-flex justify-content-between align-items-center mt-auto">
+                <div class="btn-group" role="group">
+                  <a href="reviews.html?movieId=${movie.movieId}" class="btn btn-sm btn-outline-primary" title="Reviews">
+                    <i class="fas fa-star"></i>
+                  </a>
+                  <a href="booking.html?movieId=${movie.movieId}" class="btn btn-sm btn-primary" title="Book Now">
+                    <i class="fas fa-ticket-alt me-1"></i>Book
+                  </a>
+                </div>
+                ${currentUser && currentUser.role === 'ADMIN' ? `
+                <div class="dropdown">
+                  <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                    <i class="fas fa-ellipsis-h"></i>
+                  </button>
+                  <ul class="dropdown-menu">
+                    <li><a class="dropdown-item" href="#" onclick="editMovie(${movie.movieId})"><i class="fas fa-edit me-2"></i>Edit</a></li>
+                    <li><a class="dropdown-item text-danger" href="#" onclick="deleteMovie(${movie.movieId})"><i class="fas fa-trash me-2"></i>Delete</a></li>
+                  </ul>
+                </div>
+                ` : ''}
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+          } catch (error) {
+            console.error('Error rendering movie card:', error, movie);
+            return `
+              <div class="col-lg-4 col-md-6 mb-4">
+                <div class="card movie-card h-100">
+                  <div class="card-body text-center d-flex flex-column justify-content-center">
+                    <i class="fas fa-exclamation-triangle text-warning fa-3x mb-3"></i>
+                    <h6>Error loading movie</h6>
+                    <p class="text-muted small">Movie ID: ${movie.movieId || 'Unknown'}</p>
+                    <button class="btn btn-sm btn-outline-primary" onclick="loadMovies()">Retry</button>
+                  </div>
+                </div>
+              </div>
+            `;
+          }
+        }).join('');
+        
+        // Add animation to cards
+        document.querySelectorAll('.movie-card').forEach((card, index) => {
+          // Stagger animation for better visual effect
+          setTimeout(() => {
+            card.classList.add('fade-in');
+          }, index * 100);
+        });
+        
+        // Add interactive effects to movie cards
+        setTimeout(() => {
+          addMovieCardInteractions();
+          console.log('✅ Movie card interactions added');
+        }, moviesToShow.length * 100 + 200);
+        
+        console.log('🎭 ========== DISPLAY MOVIES COMPLETE ==========');
+        
+      } catch (error) {
+        console.error('❌ ========== DISPLAY MOVIES ERROR ==========');
+        console.error('Error type:', error.constructor.name);
+        console.error('Error message:', error.message);
+        console.error('Error stack:', error.stack);
+        console.error('Movies data state:', {
+          allMovies: allMovies ? allMovies.length : 'undefined',
+          filteredMovies: filteredMovies ? filteredMovies.length : 'undefined',
+          currentPage: currentPage,
+          moviesPerPage: moviesPerPage
+        });
+        console.error('🎭 ========== DISPLAY MOVIES ERROR END ==========');
+        
+        displayErrorState();
+      }
+    }
+
+    // Search movies
+    function searchMovies() {
+      try {
+        const searchInput = document.getElementById('movie-search');
+        if (!searchInput) {
+          console.error('Search input not found');
+          return;
+        }
+        
+        const searchTerm = searchInput.value.toLowerCase();
+        console.log('Searching for:', searchTerm);
+        
+        filteredMovies = allMovies.filter(movie => 
+          (movie.title || '').toLowerCase().includes(searchTerm) ||
+          (movie.description || '').toLowerCase().includes(searchTerm) ||
+          (movie.genre || '').toLowerCase().includes(searchTerm)
+        );
+        
+        console.log(`Found ${filteredMovies.length} movies matching "${searchTerm}"`);
+        currentPage = 1;
+        displayMovies();
+        updatePagination();
+      } catch (error) {
+        console.error('Error in searchMovies:', error);
+        showAlert('error', 'Error searching movies. Please try again.');
+      }
+    }
+
+    // Filter movies by genre and year
+    function filterMovies() {
+      try {
+        const genreFilter = document.getElementById('genre-filter');
+        const yearFilter = document.getElementById('year-filter');
+        
+        if (!genreFilter || !yearFilter) {
+          console.error('Filter elements not found');
+          return;
+        }
+        
+        const genreValue = genreFilter.value;
+        const yearValue = yearFilter.value;
+        
+        console.log('Filtering by genre:', genreValue, 'year:', yearValue);
+        
+        filteredMovies = allMovies.filter(movie => {
+          const genreMatch = !genreValue || (movie.genre || '').toLowerCase() === genreValue.toLowerCase();
+          const yearMatch = !yearValue || (movie.releaseYear || '').toString() === yearValue;
+          return genreMatch && yearMatch;
+        });
+        
+        console.log(`Filtered to ${filteredMovies.length} movies`);
+        currentPage = 1;
+        displayMovies();
+        updatePagination();
+      } catch (error) {
+        console.error('Error in filterMovies:', error);
+        showAlert('error', 'Error filtering movies. Please try again.');
+      }
+    }
+
+    // Update pagination
+    function updatePagination() {
+      try {
+        const totalPages = Math.ceil(filteredMovies.length / moviesPerPage);
+        const pagination = document.getElementById('pagination');
+        
+        if (!pagination) {
+          console.error('Pagination element not found');
+          return;
+        }
+        
+        if (totalPages <= 1) {
+          pagination.innerHTML = '';
+          return;
+        }
+        
+        let paginationHTML = '';
+        
+        // Previous button
+        paginationHTML += `
+          <li class="page-item ${currentPage === 1 ? 'disabled' : ''}">
+            <a class="page-link" href="#" onclick="changePage(${currentPage - 1})">Previous</a>
+          </li>
+        `;
+        
+        // Page numbers
+        for (let i = 1; i <= totalPages; i++) {
+          if (i === 1 || i === totalPages || (i >= currentPage - 1 && i <= currentPage + 1)) {
+            paginationHTML += `
+              <li class="page-item ${i === currentPage ? 'active' : ''}">
+                <a class="page-link" href="#" onclick="changePage(${i})">${i}</a>
+              </li>
+            `;
+          } else if (i === currentPage - 2 || i === currentPage + 2) {
+            paginationHTML += '<li class="page-item disabled"><span class="page-link">...</span></li>';
+          }
+        }
+        
+        // Next button
+        paginationHTML += `
+          <li class="page-item ${currentPage === totalPages ? 'disabled' : ''}">
+            <a class="page-link" href="#" onclick="changePage(${currentPage + 1})">Next</a>
+          </li>
+        `;
+        
+        pagination.innerHTML = paginationHTML;
+      } catch (error) {
+        console.error('Error in updatePagination:', error);
+      }
+    }
+
+    // Change page
+    function changePage(page) {
+      try {
+        const totalPages = Math.ceil(filteredMovies.length / moviesPerPage);
+        if (page >= 1 && page <= totalPages) {
+          currentPage = page;
+          displayMovies();
+          updatePagination();
+          window.scrollTo(0, 0);
+        } else {
+          console.warn('Invalid page number:', page);
+        }
+      } catch (error) {
+        console.error('Error in changePage:', error);
+        showAlert('error', 'Error changing page. Please try again.');
+      }
+    }
+
+    // Show add movie modal
+    function showAddMovieModal() {
+      // Check if user is admin
+      if (!currentUser || currentUser.role !== 'ADMIN') {
+        showAlert('error', 'Admin privileges required to add movies');
+        return;
+      }
+
+      document.getElementById('movieModalTitle').textContent = 'Add New Movie';
+      document.getElementById('movie-form').reset();
+      document.getElementById('movie-id').value = '';
+      const modal = new bootstrap.Modal(document.getElementById('movieModal'));
+      modal.show();
+    }
+
+    // Edit movie
+    function editMovie(movieId) {
+      // Check if user is admin
+      if (!currentUser || currentUser.role !== 'ADMIN') {
+        showAlert('error', 'Admin privileges required to edit movies');
+        return;
+      }
+
+      const movie = allMovies.find(m => m.movieId === movieId);
+      if (movie) {
+        document.getElementById('movieModalTitle').textContent = 'Edit Movie';
+        document.getElementById('movie-id').value = movie.movieId;
+        document.getElementById('movie-title').value = movie.title || '';
+        document.getElementById('movie-genre').value = movie.genre || '';
+        document.getElementById('movie-year').value = movie.releaseYear || '';
+        document.getElementById('movie-duration').value = movie.duration || '';
+        document.getElementById('movie-description').value = movie.description || '';
+        document.getElementById('movie-director').value = movie.director || '';
+        document.getElementById('movie-cast').value = movie.cast || '';
+        const modal = new bootstrap.Modal(document.getElementById('movieModal'));
+        modal.show();
+      }
+    }
+
+    // Save movie
+    async function saveMovie() {
+      // Check if user is admin
+      if (!currentUser || currentUser.role !== 'ADMIN') {
+        showAlert('error', 'Admin privileges required to manage movies');
+        return;
+      }
+
+      const formData = {
+        title: document.getElementById('movie-title').value,
+        genre: document.getElementById('movie-genre').value,
+        releaseYear: parseInt(document.getElementById('movie-year').value),
+        duration: parseInt(document.getElementById('movie-duration').value),
+        description: document.getElementById('movie-description').value,
+        director: document.getElementById('movie-director').value,
+        language: 'English', // Default language
+        isActive: true // Add this to default new movies to active
+      };
+      
+      const movieId = document.getElementById('movie-id').value;
+      
+      if (!validateForm('movie-form')) {
+        showAlert('error', 'Please fill in all required fields');
+        return;
+      }
+      
+      try {
+        if (movieId) {
+          // Update existing movie using admin API
+          await apiCall(`/admin/movies/${movieId}`, 'PUT', formData, true);
+          showAlert('success', 'Movie updated successfully');
+        } else {
+          // Add new movie using admin API
+          await apiCall('/admin/movies', 'POST', formData, true);
+          showAlert('success', 'Movie added successfully');
+        }
+        
+        const modal = bootstrap.Modal.getInstance(document.getElementById('movieModal'));
+        modal.hide();
+        loadMovies();
+      } catch (error) {
+        console.error('Error saving movie:', error);
+        if (error.message.includes('403')) {
+          showAlert('error', 'Access denied. Admin privileges required.');
+        } else {
+          showAlert('error', 'Failed to save movie: ' + error.message);
+        }
+      }
+    }
+
+    // Delete movie
+    async function deleteMovie(movieId) {
+      // Check if user is admin
+      if (!currentUser || currentUser.role !== 'ADMIN') {
+        showAlert('error', 'Admin privileges required to delete movies');
+        return;
+      }
+
+      if (confirm('Are you sure you want to delete this movie?')) {
+        try {
+          await apiCall(`/admin/movies/${movieId}`, 'DELETE', null, true);
+          showAlert('success', 'Movie deleted successfully');
+          loadMovies();
+        } catch (error) {
+          console.error('Error deleting movie:', error);
+          if (error.message.includes('403')) {
+            showAlert('error', 'Access denied. Admin privileges required.');
+          } else if (error.message.includes('400')) {
+            showAlert('error', 'Cannot delete movie. It may have active showtimes.');
+          } else {
+            showAlert('error', 'Failed to delete movie: ' + error.message);
+          }
+        }
+      }
+    }
+
+    // Close modal
+    function closeModal(button) {
+      const modal = bootstrap.Modal.getInstance(button.closest('.modal'));
+      modal.hide();
+    }
+
+    // Generate movie poster URL from available static images
+    function generateMoviePosterUrl(movieId) {
+      if (!movieId) return null;
+      
+      // List of available movie poster images in the static folder
+      const availablePosters = [
+        'movie_12bcc189-4bcf-4780-aaa4-1c5360b1e8f1.png',
+        'movie_1ea930ff-f2e9-42d6-b560-5eba79dc4112.png',
+        'movie_244ff64f-00d4-4c7d-91f8-6a186603ff41.png',
+        'movie_9c136ae0-1345-4de0-8205-3c9d7a74ccae.png',
+        'movie_9c3b2a8e-de38-4374-8608-41ccdacef4ac.png',
+        'movie_a3c0501b-7516-4be0-8804-0b9ff66cbbf9.png',
+        'movie_ad41b530-1a80-4db6-91af-c318e8a3b2d3.png',
+        'movie_b1b55829-8f62-4e42-8e97-5e7b4209835c.png',
+        'movie_b92cb7c6-bd0c-4e39-8a48-7d805c0944ac.png',
+        'movie_bc4bbf60-c9d4-46c5-a95b-7ce8c44ed68c.png',
+        'movie_e2f1ce42-0f35-4e2f-bb6c-fcf57f8c02cd.png'
+      ];
+      
+      // Use movie ID to consistently assign a poster image
+      const posterIndex = (movieId % availablePosters.length);
+      return `static/images/${availablePosters[posterIndex]}`;
+    }
+
+    // Enhanced search with live results
+    const debouncedSearch = debounce(() => {
+      searchMovies();
+    }, 300);
+
+    // Add hover effects to movie cards
+    function addMovieCardInteractions() {
+      document.querySelectorAll('.movie-card').forEach(card => {
+        const poster = card.querySelector('.movie-poster');
+        if (poster) {
+          card.addEventListener('mouseenter', () => {
+            poster.style.transform = 'scale(1.05)';
+          });
+          card.addEventListener('mouseleave', () => {
+            poster.style.transform = 'scale(1)';
+          });
+        }
+      });
+    }
+
+    // Enhanced error state with retry functionality
+    function displayErrorState() {
+      const container = document.getElementById('movie-list');
+      const loading = document.getElementById('loading');
+      
+      if (loading) loading.style.display = 'none';
+      
+      container.innerHTML = `
+        <div class="col-12">
+          <div class="card text-center p-4">
+            <div class="card-body">
+              <i class="fas fa-film fa-4x text-muted mb-4"></i>
+              <h3 class="mb-3">Unable to Load Movies</h3>
+              <p class="text-muted mb-4">We're having trouble loading the movies. This could be due to:</p>
+              <div class="row g-3 mb-4">
+                <div class="col-md-4">
+                  <div class="alert alert-light">
+                    <i class="fas fa-server text-warning me-2"></i>
+                    <strong>Server Issue</strong><br>
+                    <small>The backend service may be down</small>
+                  </div>
+                </div>
+                <div class="col-md-4">
+                  <div class="alert alert-light">
+                    <i class="fas fa-database text-danger me-2"></i>
+                    <strong>Database Problem</strong><br>
+                    <small>Unable to connect to the database</small>
+                  </div>
+                </div>
+                <div class="col-md-4">
+                  <div class="alert alert-light">
+                    <i class="fas fa-wifi text-info me-2"></i>
+                    <strong>Network Issue</strong><br>
+                    <small>Check your internet connection</small>
+                  </div>
+                </div>
+              </div>
+              <div class="d-flex gap-3 justify-content-center flex-wrap">
+                <button class="btn btn-primary btn-lg" onclick="retryLoadMovies()">
+                  <i class="fas fa-refresh me-2"></i>Try Again
+                </button>
+                <a href="/debug.html" class="btn btn-outline-secondary" target="_blank">
+                  <i class="fas fa-bug me-2"></i>Debug Console
+                </a>
+                <button class="btn btn-outline-info" onclick="checkSystemHealth()">
+                  <i class="fas fa-heart-pulse me-2"></i>System Health
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    // Retry loading movies with improved feedback
+    async function retryLoadMovies() {
+      showAlert('info', 'Retrying to load movies...');
+      try {
+        await loadMovies();
+      } catch (error) {
+        showAlert('error', 'Still having trouble loading movies. Please check the system status.');
+      }
+    }
+
+    // Check system health
+    async function checkSystemHealth() {
+      showAlert('info', 'Checking system health...');
+      try {
+        const health = await checkDatabaseConnection();
+        if (health.status === 'success') {
+          showAlert('success', `System is healthy! Found ${health.movieCount} movies in database.`);
+          await loadMovies();
+        } else {
+          showAlert('error', `System health check failed: ${health.message}`);
+        }
+      } catch (error) {
+        showAlert('error', 'Unable to check system health. Please contact administrator.');
+      }
+    }
+
+    // Debug initialization function
+    async function debugInitialization() {
+      console.log('🔧 ========== DEBUG INITIALIZATION START ==========');
+      
+      try {
+        console.log('🔍 Checking DOM elements...');
+        
+        // Check required DOM elements
+        const requiredElements = [
+          'navbar-container',
+          'movie-list',
+          'loading',
+          'movie-search',
+          'genre-filter',
+          'year-filter',
+          'pagination'
+        ];
+        
+        requiredElements.forEach(id => {
+          const element = document.getElementById(id);
+          if (element) {
+            console.log(`✅ Element found: ${id}`);
+          } else {
+            console.error(`❌ Element missing: ${id}`);
+          }
+        });
+        
+        console.log('🔍 Checking global functions...');
+        
+        // Check required functions
+        const requiredFunctions = [
+          'apiCall',
+          'showAlert',
+          'loadNavigation',
+          'checkUserRole',
+          'loadMovies',
+          'displayMovies',
+          'updatePagination'
+        ];
+        
+        requiredFunctions.forEach(funcName => {
+          if (typeof window[funcName] === 'function') {
+            console.log(`✅ Function available: ${funcName}`);
+          } else {
+            console.error(`❌ Function missing: ${funcName}`);
+          }
+        });
+        
+        console.log('🔍 Checking script loading...');
+        
+        // Check if script.js is loaded
+        const scripts = Array.from(document.scripts);
+        const scriptJsLoaded = scripts.some(script => script.src.includes('script.js'));
+        
+        if (scriptJsLoaded) {
+          console.log('✅ script.js is loaded');
+        } else {
+          console.error('❌ script.js not found');
+        }
+        
+        console.log('🔍 Testing API connectivity...');
+        
+        try {
+          const response = await fetch('/api/health/database');
+          console.log('✅ API is reachable, status:', response.status);
+        } catch (apiError) {
+          console.error('❌ API not reachable:', apiError.message);
+        }
+        
+        console.log('🔧 ========== DEBUG INITIALIZATION END ==========');
+        
+      } catch (debugError) {
+        console.error('❌ Debug initialization failed:', debugError);
+      }
+    }
+
+    // Display state when no movies are found
+    function displayNoMoviesState() {
+      console.log('📺 Displaying no movies state...');
+      
+      const container = document.getElementById('movie-list');
+      const loading = document.getElementById('loading');
+      
+      if (loading) loading.style.display = 'none';
+      
+      if (container) {
+        container.innerHTML = `
+          <div class="col-12">
+            <div class="card text-center p-4">
+              <div class="card-body">
+                <i class="fas fa-film fa-4x text-muted mb-4"></i>
+                <h3 class="mb-3">No Movies Available</h3>
+                <p class="text-muted mb-4">The database is connected but contains no movies to display.</p>
+                <div class="d-flex gap-3 justify-content-center flex-wrap">
+                  <button class="btn btn-primary" onclick="loadMovies()">
+                    <i class="fas fa-refresh me-2"></i>Refresh
+                  </button>
+                  <a href="/admin-movies.html" class="btn btn-outline-secondary">
+                    <i class="fas fa-plus me-2"></i>Add Movies
+                  </a>
+                  <button class="btn btn-outline-info" onclick="debugInitialization()">
+                    <i class="fas fa-bug me-2"></i>Debug Info
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        `;
+      }
+    }
+
+    // Enhanced error logging
+    window.addEventListener('error', (event) => {
+      console.error('🚨 Global JavaScript Error:', {
+        message: event.message,
+        filename: event.filename,
+        lineno: event.lineno,
+        colno: event.colno,
+        error: event.error
+      });
+    });
+
+    window.addEventListener('unhandledrejection', (event) => {
+      console.error('🚨 Unhandled Promise Rejection:', {
+        reason: event.reason,
+        promise: event.promise
+      });
+    });
+  </script>
+  
+  <!-- Include the main script file -->
+  <script src="script.js"></script>
+</body>
+</html>
+

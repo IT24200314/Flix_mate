@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FlixMate — Movies & Showtimes</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="navbar-container"></div>
+
+  <main class="page-main">
+    <section class="surface hero stack gap-md">
+      <p class="eyebrow">Now showing</p>
+      <h1 class="page-title">Discover the latest releases</h1>
+      <p class="page-subtitle">Browse the catalogue, reserve your seat, and enjoy a premium cinema experience.</p>
+      <div class="action-row">
+        <a class="btn primary" href="booking.html"><i class="fas fa-ticket-alt me-2"></i>Book tickets</a>
+        <a class="btn ghost" href="reviews.html"><i class="fas fa-star me-2"></i>Read reviews</a>
+      </div>
+    </section>
+
+    <section class="surface stack gap-md">
+      <div class="section-header">
+        <h2 class="section-title">Featured titles</h2>
+        <button class="btn ghost" id="refreshFeatured" type="button">
+          <i class="fas fa-rotate me-2"></i>Refresh
+        </button>
+      </div>
+      <ul class="movie-list" id="featuredMovies">
+        <li class="movie-list-item skeleton"></li>
+        <li class="movie-list-item skeleton"></li>
+        <li class="movie-list-item skeleton"></li>
+      </ul>
+    </section>
+
+    <section class="surface stack gap-md">
+      <div class="section-header align-start">
+        <h2 class="section-title">All movies</h2>
+        <div class="stack gap-xxs">
+          <input type="search" id="movieSearch" class="input" placeholder="Search by title" aria-label="Search movies">
+          <div class="action-row wrap gap-xs">
+            <span class="chip" id="movieCount">0 titles</span>
+            <a class="btn ghost" href="booking-history.html">View my bookings</a>
+          </div>
+        </div>
+      </div>
+      <ul class="movie-list" id="allMovies">
+        <li class="movie-list-item skeleton"></li>
+        <li class="movie-list-item skeleton"></li>
+        <li class="movie-list-item skeleton"></li>
+        <li class="movie-list-item skeleton"></li>
+      </ul>
+    </section>
+
+    <section class="surface stack gap-md">
+      <div class="section-header">
+        <h2 class="section-title">Latest promotions</h2>
+        <a class="link-muted" href="booking.html">Redeem at checkout</a>
+      </div>
+      <ul class="movie-list" id="promoList">
+        <li class="movie-list-item muted">Promotional updates will appear here.</li>
+      </ul>
+    </section>
+  </main>
+
+  <footer class="app-footer">
+    <div class="container text-center text-muted small">
+      <p class="mb-1">&copy; <span id="homeFooterYear"></span> FlixMate. Bringing stories to the big screen.</p>
+      <p class="mb-0">Need help? <a class="link-muted" href="login.html">Sign in</a> or <a class="link-muted" href="register.html">create an account</a>.</p>
+    </div>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="js/error-boundary.js"></script>
+  <script src="script.js"></script>
+  <script>
+    const featuredList = document.getElementById('featuredMovies');
+    const allMoviesList = document.getElementById('allMovies');
+    const promoList = document.getElementById('promoList');
+    const movieSearch = document.getElementById('movieSearch');
+    const movieCount = document.getElementById('movieCount');
+    const refreshFeaturedButton = document.getElementById('refreshFeatured');
+    let cachedMovies = [];
+
+    async function loadNavigation() {
+      try {
+        const response = await fetch('navigation.html');
+        document.getElementById('navbar-container').innerHTML = await response.text();
+      } catch (error) {
+        console.error('Navigation load failed:', error);
+      }
+    }
+
+    function renderMovieNames(target, movies) {
+      if (!movies || movies.length === 0) {
+        target.innerHTML = '<li class="movie-list-item muted">No movies available at the moment.</li>';
+        return;
+      }
+
+      target.innerHTML = movies.map((movie) => `
+        <li class="movie-list-item">
+          <span class="movie-name">${movie?.title || 'Untitled Movie'}</span>
+        </li>
+      `).join('');
+    }
+
+    function renderFeatured() {
+      if (!cachedMovies.length) {
+        renderMovieNames(featuredList, []);
+        return;
+      }
+
+      const shuffled = [...cachedMovies]
+        .sort(() => Math.random() - 0.5)
+        .slice(0, Math.min(5, cachedMovies.length));
+      renderMovieNames(featuredList, shuffled);
+    }
+
+    function renderAllMovies(filterTerm = '') {
+      if (!cachedMovies.length) {
+        renderMovieNames(allMoviesList, []);
+        movieCount.textContent = '0 titles';
+        return;
+      }
+
+      const normalized = filterTerm.trim().toLowerCase();
+      const filtered = normalized
+        ? cachedMovies.filter((movie) => (movie?.title || '').toLowerCase().includes(normalized))
+        : cachedMovies;
+
+      renderMovieNames(allMoviesList, filtered);
+      movieCount.textContent = `${filtered.length} ${filtered.length === 1 ? 'title' : 'titles'}`;
+    }
+
+    async function loadMovies() {
+      featuredList.classList.add('loading');
+      allMoviesList.classList.add('loading');
+      try {
+        const response = await fetch('/public/movies');
+        if (!response.ok) {
+          throw new Error(`Failed with status ${response.status}`);
+        }
+
+        cachedMovies = await response.json();
+        renderFeatured();
+        renderAllMovies(movieSearch.value || '');
+      } catch (error) {
+        console.error('Unable to retrieve movies:', error);
+        showAlert('error', 'There was a problem loading the current catalogue.');
+        renderMovieNames(featuredList, []);
+        renderMovieNames(allMoviesList, []);
+        movieCount.textContent = '0 titles';
+      } finally {
+        featuredList.classList.remove('loading');
+        allMoviesList.classList.remove('loading');
+      }
+    }
+
+    async function loadPromotions() {
+      try {
+        const response = await fetch('/public/banners');
+        if (!response.ok) {
+          throw new Error(`Failed with status ${response.status}`);
+        }
+
+        const banners = await response.json();
+        if (!Array.isArray(banners) || banners.length === 0) {
+          promoList.innerHTML = '<li class="movie-list-item muted">No active promotions right now.</li>';
+          return;
+        }
+
+        promoList.innerHTML = banners.map((banner) => `
+          <li class="movie-list-item">
+            <span class="movie-name">${banner?.title || 'Unnamed promotion'}</span>
+          </li>
+        `).join('');
+      } catch (error) {
+        console.error('Unable to load promotions:', error);
+        promoList.innerHTML = '<li class="movie-list-item muted">Unable to load promotions.</li>';
+      }
+    }
+
+    function handleSearch(event) {
+      renderAllMovies(event.target.value);
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      document.getElementById('homeFooterYear').textContent = new Date().getFullYear();
+      loadNavigation();
+      loadMovies();
+      loadPromotions();
+
+      movieSearch.addEventListener('input', handleSearch);
+      refreshFeaturedButton.addEventListener('click', renderFeatured);
+    });
+  </script>
+</body>
+</html>

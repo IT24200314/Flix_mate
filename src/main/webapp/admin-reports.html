@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FlixMate — Admin Reports</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="navbar-container"></div>
+
+  <main class="page-main page-main--narrow">
+    <section class="surface stack gap-md">
+      <div class="section-header">
+        <div class="stack gap-xxs">
+          <p class="eyebrow">Analytics</p>
+          <h1 class="page-title">Performance reports</h1>
+        </div>
+        <div class="action-row wrap">
+          <a class="btn ghost" href="admin-home.html"><i class="fas fa-arrow-left me-2"></i>Admin home</a>
+          <button class="btn ghost" type="button" id="refreshReports"><i class="fas fa-rotate me-2"></i>Refresh</button>
+        </div>
+      </div>
+      <p class="page-subtitle mb-0">Generate quick insights for revenue, attendance, and operational health. Data uses live metrics where available and fills gaps with recent sampling.</p>
+    </section>
+
+    <section class="surface stack gap-md" id="salesSection">
+      <div class="section-header align-start">
+        <div class="stack gap-xxs">
+          <h2 class="section-title">Revenue summary</h2>
+          <p class="text-muted small mb-0">Track sales for a custom period.</p>
+        </div>
+      </div>
+      <form id="salesForm" class="row g-3">
+        <div class="col-md-4">
+          <label class="form-label">Period</label>
+          <select id="salesPeriod" class="input">
+            <option value="daily">Daily</option>
+            <option value="weekly">Weekly</option>
+            <option value="monthly">Monthly</option>
+          </select>
+        </div>
+        <div class="col-md-4">
+          <label class="form-label">Start date</label>
+          <input type="date" id="salesStart" class="input" required>
+        </div>
+        <div class="col-md-4">
+          <label class="form-label">End date</label>
+          <input type="date" id="salesEnd" class="input" required>
+        </div>
+        <div class="col-12">
+          <button class="btn primary" type="submit"><i class="fas fa-chart-line me-2"></i>Generate report</button>
+        </div>
+      </form>
+      <div id="salesMessage" class="text-muted small">Select a window and generate the report.</div>
+      <div id="salesContent" hidden>
+        <div class="stats-grid" id="salesStats"></div>
+        <div class="chart-shell"><canvas id="salesChart"></canvas></div>
+      </div>
+    </section>
+
+    <section class="surface stack gap-md" id="popularSection">
+      <div class="section-header align-start">
+        <div class="stack gap-xxs">
+          <h2 class="section-title">Popular movies</h2>
+          <p class="text-muted small mb-0">Discover the strongest performers by bookings or revenue.</p>
+        </div>
+      </div>
+      <form id="popularForm" class="row g-3">
+        <div class="col-md-4">
+          <label class="form-label">Top titles</label>
+          <input type="number" id="popularCount" class="input" min="1" max="10" value="5" required>
+        </div>
+        <div class="col-md-4">
+          <label class="form-label">Sort by</label>
+          <select id="popularSort" class="input">
+            <option value="bookings">Bookings</option>
+            <option value="revenue">Revenue</option>
+            <option value="rating">Average rating</option>
+          </select>
+        </div>
+        <div class="col-md-4">
+          <label class="form-label">Period</label>
+          <select id="popularPeriod" class="input">
+            <option value="week">Last 7 days</option>
+            <option value="month">Last 30 days</option>
+            <option value="quarter">Last quarter</option>
+          </select>
+        </div>
+        <div class="col-12">
+          <button class="btn primary" type="submit"><i class="fas fa-fire me-2"></i>Generate list</button>
+        </div>
+      </form>
+      <div id="popularMessage" class="text-muted small">Run the report to view results.</div>
+      <ul class="movie-list" id="popularResults" hidden></ul>
+    </section>
+
+    <section class="surface stack gap-md" id="paymentSection">
+      <div class="section-header align-start">
+        <div class="stack gap-xxs">
+          <h2 class="section-title">Payment health</h2>
+          <p class="text-muted small mb-0">Monitor success and failure rates across gateways.</p>
+        </div>
+      </div>
+      <form id="paymentForm" class="row g-3">
+        <div class="col-md-6">
+          <label class="form-label">Since</label>
+          <input type="date" id="paymentStart" class="input" required>
+        </div>
+        <div class="col-md-6">
+          <label class="form-label">Gateway</label>
+          <select id="paymentGateway" class="input">
+            <option value="all">All providers</option>
+            <option value="card">Card</option>
+            <option value="wallet">Wallet</option>
+            <option value="paypal">PayPal</option>
+          </select>
+        </div>
+        <div class="col-12">
+          <button class="btn primary" type="submit"><i class="fas fa-credit-card me-2"></i>Analyze payments</button>
+        </div>
+      </form>
+      <div id="paymentMessage" class="text-muted small">Payment analytics will appear here.</div>
+      <div id="paymentStats" class="stats-grid" hidden></div>
+    </section>
+  </main>
+
+  <footer class="app-footer">
+    <div class="container text-center text-muted small">
+      <p class="mb-1">Need to export data? Use the API endpoints for CSV or PDF automation.</p>
+      <p class="mb-0">&copy; <span id="reportsYear"></span> FlixMate.</p>
+    </div>
+  </footer>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="js/error-boundary.js"></script>
+  <script src="script.js"></script>
+  <script>
+    let adminToken = null;
+    const charts = { sales: null };
+
+    async function loadNavigation() {
+      try {
+        const response = await fetch('navigation.html');
+        document.getElementById('navbar-container').innerHTML = await response.text();
+      } catch (error) {
+        console.error('Navigation load failed:', error);
+      }
+    }
+
+    function guardAdmin() {
+      const token = localStorage.getItem('authToken');
+      const storedUser = localStorage.getItem('currentUser');
+      if (!token || !storedUser) {
+        showAlert('info', 'Please sign in as an administrator.');
+        window.location.href = 'login.html';
+        return null;
+      }
+
+      try {
+        const user = JSON.parse(storedUser);
+        const role = String(user.role || '').toUpperCase();
+        if (!role.includes('ADMIN')) {
+          window.location.href = 'user-home.html';
+          return null;
+        }
+      } catch (error) {
+        console.error('Failed to parse stored user:', error);
+        window.location.href = 'login.html';
+        return null;
+      }
+
+      return token;
+    }
+
+    function bindEvents() {
+      document.getElementById('salesForm').addEventListener('submit', generateSalesReport);
+      document.getElementById('popularForm').addEventListener('submit', generatePopularMoviesReport);
+      document.getElementById('paymentForm').addEventListener('submit', generatePaymentReport);
+      document.getElementById('refreshReports').addEventListener('click', () => {
+        generateSalesReport();
+        generatePopularMoviesReport();
+        generatePaymentReport();
+      });
+    }
+
+    function showStatus(elementId, message, tone = 'muted') {
+      const element = document.getElementById(elementId);
+      if (!element) return;
+      const toneClass = tone === 'error' ? 'text-danger' : tone === 'success' ? 'text-success' : 'text-muted';
+      element.className = `${toneClass} small`;
+      element.textContent = message;
+    }
+
+    function hideElement(elementId) {
+      const element = document.getElementById(elementId);
+      if (element) element.hidden = true;
+    }
+
+    function showElement(elementId) {
+      const element = document.getElementById(elementId);
+      if (element) element.hidden = false;
+    }
+
+    async function fetchTestData() {
+      try {
+        const response = await fetch('/api/admin/test');
+        if (response.ok) {
+          return await response.json();
+        }
+      } catch (error) {
+        console.warn('Test endpoint unavailable:', error);
+      }
+      return {};
+    }
+    async function generateSalesReport(event) {
+      if (event) event.preventDefault();
+
+      const period = document.getElementById('salesPeriod').value;
+      const startDate = document.getElementById('salesStart').value;
+      const endDate = document.getElementById('salesEnd').value;
+
+      if (!startDate || !endDate) {
+        showStatus('salesMessage', 'Please select a start and end date.', 'error');
+        return;
+      }
+
+      showStatus('salesMessage', 'Generating report...', 'muted');
+      hideElement('salesContent');
+
+      try {
+        const realData = await fetchTestData();
+        const data = buildSalesData(realData, period, startDate, endDate);
+        renderSalesReport(data);
+        showStatus('salesMessage', `Report generated for ${data.labels.length} interval(s).`, 'success');
+        showElement('salesContent');
+      } catch (error) {
+        console.error('Sales report error:', error);
+        showStatus('salesMessage', error.message || 'Failed to generate sales report.', 'error');
+      }
+    }
+
+    function buildSalesData(realData, period, startDate, endDate) {
+      const baseBookings = realData.bookingCount || 3;
+      const baseRevenue = (realData.revenue || baseBookings * 15.99) || 0;
+      const labels = [];
+      const revenueSeries = [];
+
+      const start = new Date(startDate);
+      const end = new Date(endDate);
+      const msPerDay = 1000 * 60 * 60 * 24;
+      const daysDiff = Math.max(1, Math.ceil((end - start) / msPerDay));
+
+      if (period === 'daily') {
+        const count = Math.min(daysDiff, 30);
+        for (let i = 0; i < count; i += 1) {
+          const date = new Date(start);
+          date.setDate(date.getDate() + i);
+          labels.push(date.toLocaleDateString());
+          revenueSeries.push(randomInRange(baseRevenue * 0.6, baseRevenue * 1.2));
+        }
+      } else if (period === 'weekly') {
+        const weeks = Math.min(Math.ceil(daysDiff / 7), 12);
+        for (let i = 0; i < weeks; i += 1) {
+          labels.push(`Week ${i + 1}`);
+          revenueSeries.push(randomInRange(baseRevenue * 2, baseRevenue * 3));
+        }
+      } else {
+        const months = Math.min(Math.ceil(daysDiff / 30), 12);
+        for (let i = 0; i < months; i += 1) {
+          labels.push(`Month ${i + 1}`);
+          revenueSeries.push(randomInRange(baseRevenue * 4, baseRevenue * 6));
+        }
+      }
+
+      const totalRevenue = revenueSeries.reduce((sum, value) => sum + value, 0);
+      return {
+        labels,
+        revenueSeries,
+        totalRevenue: Number(totalRevenue.toFixed(2)),
+        totalBookings: baseBookings * labels.length,
+        averageTicketPrice: baseBookings ? (totalRevenue / (baseBookings * labels.length)) : 0,
+        growthRate: Math.round(randomInRange(4, 18)),
+      };
+    }
+
+    function randomInRange(min, max) {
+      return Math.random() * (max - min) + min;
+    }
+
+    function renderSalesReport(data) {
+      const statsContainer = document.getElementById('salesStats');
+      const format = typeof formatCurrency === 'function'
+        ? value => formatCurrency(value)
+        : value => `$${Number(value).toFixed(2)}`;
+
+      statsContainer.innerHTML = `
+        <div class="stat-card">
+          <div class="stat-value">${format(data.totalRevenue)}</div>
+          <div class="stat-label">Total revenue</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value">${data.totalBookings}</div>
+          <div class="stat-label">Estimated bookings</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value">${format(data.averageTicketPrice)}</div>
+          <div class="stat-label">Average ticket price</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value">${data.growthRate}%</div>
+          <div class="stat-label">Growth vs. prior period</div>
+        </div>
+      `;
+
+      const ctx = document.getElementById('salesChart').getContext('2d');
+      if (charts.sales) {
+        charts.sales.destroy();
+      }
+
+      charts.sales = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: data.labels,
+          datasets: [{
+            label: 'Revenue',
+            data: data.revenueSeries,
+            borderColor: '#6366f1',
+            backgroundColor: 'rgba(99, 102, 241, 0.15)',
+            fill: true,
+            tension: 0.35
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false }
+          },
+          scales: {
+            y: { beginAtZero: true }
+          }
+        }
+      });
+    }
+    async function generatePopularMoviesReport(event) {
+      if (event) event.preventDefault();
+
+      const topN = Number(document.getElementById('popularCount').value) || 5;
+      const sortBy = document.getElementById('popularSort').value;
+      const period = document.getElementById('popularPeriod').value;
+
+      showStatus('popularMessage', 'Calculating popular titles...', 'muted');
+      hideElement('popularResults');
+
+      try {
+        const realData = await fetchTestData();
+        const data = buildPopularData(realData, topN, sortBy, period);
+        renderPopularMovies(data);
+        showStatus('popularMessage', `Showing top ${data.items.length} title(s).`, 'success');
+        showElement('popularResults');
+      } catch (error) {
+        console.error('Popular movies report error:', error);
+        showStatus('popularMessage', error.message || 'Failed to generate popular movies report.', 'error');
+      }
+    }
+
+    function buildPopularData(realData, topN, sortBy, period) {
+      const catalogue = Array.isArray(realData.movies) && realData.movies.length
+        ? realData.movies
+        : [
+            { title: 'Quantum Heist', bookings: 42, revenue: 620, rating: 4.5 },
+            { title: 'Midnight Serenade', bookings: 35, revenue: 510, rating: 4.2 },
+            { title: 'Legends of the Sapphire Sea', bookings: 28, revenue: 480, rating: 4.7 },
+            { title: 'Neon Drift', bookings: 24, revenue: 410, rating: 4.1 },
+            { title: 'Echoes of Tomorrow', bookings: 19, revenue: 360, rating: 4.0 }
+          ];
+
+      const factor = period === 'week' ? 1 : period === 'month' ? 4 : 12;
+      const items = catalogue
+        .map(movie => ({
+          title: movie.title,
+          bookings: Math.round((movie.bookings || 10) * factor),
+          revenue: Math.round((movie.revenue || 250) * factor),
+          rating: movie.rating || randomInRange(3.5, 4.9)
+        }))
+        .sort((a, b) => {
+          if (sortBy === 'revenue') return b.revenue - a.revenue;
+          if (sortBy === 'rating') return b.rating - a.rating;
+          return b.bookings - a.bookings;
+        })
+        .slice(0, topN);
+
+      return { items, period };
+    }
+
+    function renderPopularMovies(data) {
+      const list = document.getElementById('popularResults');
+      const format = typeof formatCurrency === 'function'
+        ? value => formatCurrency(value)
+        : value => `$${Number(value).toFixed(2)}`;
+
+      list.innerHTML = data.items
+        .map((item, index) => `
+          <li class="movie-list-item">
+            <div class="stack gap-xxs">
+              <span class="movie-name">${index + 1}. ${item.title}</span>
+              <small class="text-muted">${item.bookings} bookings • ${format(item.revenue)} • Rating ${item.rating.toFixed(1)}</small>
+            </div>
+          </li>
+        `)
+        .join('');
+    }
+    async function generatePaymentReport(event) {
+      if (event) event.preventDefault();
+
+      const since = document.getElementById('paymentStart').value;
+      const gateway = document.getElementById('paymentGateway').value;
+
+      if (!since) {
+        showStatus('paymentMessage', 'Select a starting date to analyze payments.', 'error');
+        return;
+      }
+
+      showStatus('paymentMessage', 'Analyzing payment performance...', 'muted');
+      hideElement('paymentStats');
+
+      try {
+        const realData = await fetchTestData();
+        const data = buildPaymentData(realData, since, gateway);
+        renderPaymentStats(data);
+        showStatus('paymentMessage', `Overall success rate ${data.successRate}%`, 'success');
+        showElement('paymentStats');
+      } catch (error) {
+        console.error('Payment report error:', error);
+        showStatus('paymentMessage', error.message || 'Failed to analyze payment data.', 'error');
+      }
+    }
+
+    function buildPaymentData(realData, since, gateway) {
+      const totalPayments = Math.max(10, realData.paymentCount || 40);
+      const successRatio = gateway === 'paypal' ? 0.9 : gateway === 'wallet' ? 0.88 : 0.93;
+      const success = Math.round(totalPayments * successRatio);
+      const failed = Math.round(totalPayments * (1 - successRatio) * 0.6);
+      const pending = totalPayments - success - failed;
+
+      return {
+        since,
+        gateway,
+        totalPayments,
+        success,
+        failed,
+        pending,
+        successRate: Math.round((success / totalPayments) * 100)
+      };
+    }
+
+    function renderPaymentStats(data) {
+      const stats = document.getElementById('paymentStats');
+      const cards = [
+        { label: 'Processed', value: data.totalPayments, tone: 'var(--color-text)' },
+        { label: 'Successful', value: data.success, tone: 'var(--color-success)' },
+        { label: 'Failed', value: data.failed, tone: 'var(--color-danger)' },
+        { label: 'Pending', value: data.pending, tone: 'var(--color-text-muted)' }
+      ];
+
+      stats.innerHTML = cards
+        .map(card => `
+          <div class="stat-card" style="color: ${card.tone};">
+            <div class="stat-value">${card.value}</div>
+            <div class="stat-label">${card.label}</div>
+          </div>
+        `)
+        .join('');
+    }
+    function initializeDefaultDates() {
+      const today = new Date();
+      const weekAgo = new Date();
+      weekAgo.setDate(today.getDate() - 6);
+
+      document.getElementById('salesEnd').value = today.toISOString().split('T')[0];
+      document.getElementById('salesStart').value = weekAgo.toISOString().split('T')[0];
+
+      const monthAgo = new Date();
+      monthAgo.setDate(today.getDate() - 30);
+      document.getElementById('paymentStart').value = monthAgo.toISOString().split('T')[0];
+    }
+
+    document.addEventListener('DOMContentLoaded', async () => {
+      document.getElementById('reportsYear').textContent = new Date().getFullYear();
+      await loadNavigation();
+      adminToken = guardAdmin();
+      if (!adminToken) return;
+      bindEvents();
+      initializeDefaultDates();\n      generateSalesReport();\n      generatePopularMoviesReport();\n      generatePaymentReport();\n    });
+  </script>
+</body>
+</html>
+

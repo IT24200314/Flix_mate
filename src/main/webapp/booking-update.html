@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FlixMate - Update Booking</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- Navigation -->
+  <nav class="navbar navbar-expand-lg">
+    <div class="container">
+      <a class="navbar-brand" href="index.html">
+        <i class="fas fa-film me-2"></i>FlixMate
+      </a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav ms-auto">
+          <li class="nav-item">
+            <a class="nav-link" href="index.html">Home</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="movies.html">Movies</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="booking.html">Book Tickets</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link active" href="booking-history.html">My Bookings</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="login.html">Login</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="register.html">Register</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+  
+  <div class="container mt-5">
+    <div class="row mb-5">
+      <div class="col-12">
+        <h1 class="section-title">
+          <i class="fas fa-edit me-3"></i>Update Your Booking
+        </h1>
+        <p class="text-muted fs-5">Select new seats for your booking</p>
+      </div>
+    </div>
+    
+    <!-- Current Booking Info -->
+    <div class="row mb-4">
+      <div class="col-12">
+        <div class="card">
+          <div class="card-body">
+            <h4><i class="fas fa-ticket-alt me-2"></i>Current Booking Details</h4>
+            <div id="current-booking-info">
+              <!-- Current booking details will be loaded here -->
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- New Seat Selection -->
+    <div class="row">
+      <div class="col-lg-8">
+        <div class="card">
+          <div class="card-body">
+            <h5><i class="fas fa-chair me-2"></i>Select New Seats</h5>
+            
+            <!-- Screen -->
+            <div class="text-center mb-4">
+              <div class="screen">
+                <i class="fas fa-tv fa-2x text-muted"></i>
+                <div class="screen-text">SCREEN</div>
+              </div>
+            </div>
+            
+            <!-- Seat Map -->
+            <div id="seat-map" class="seat-map">
+              <!-- Seats will be generated here -->
+            </div>
+            
+            <!-- Seat Legend -->
+            <div class="seat-legend mt-3">
+              <div class="d-flex justify-content-center gap-4">
+                <div class="d-flex align-items-center">
+                  <div class="seat-legend-item available me-2"></div>
+                  <small>Available</small>
+                </div>
+                <div class="d-flex align-items-center">
+                  <div class="seat-legend-item selected me-2"></div>
+                  <small>Selected</small>
+                </div>
+                <div class="d-flex align-items-center">
+                  <div class="seat-legend-item occupied me-2"></div>
+                  <small>Occupied</small>
+                </div>
+                <div class="d-flex align-items-center">
+                  <div class="seat-legend-item current me-2"></div>
+                  <small>Your Current Seats</small>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Update Summary -->
+      <div class="col-lg-4">
+        <div class="card sticky-top">
+          <div class="card-body">
+            <h5><i class="fas fa-shopping-cart me-2"></i>Update Summary</h5>
+            
+            <div id="current-seats" class="mb-3">
+              <h6>Current Seats:</h6>
+              <div id="current-seat-list" class="mb-2"></div>
+            </div>
+            
+            <div id="new-seats" class="mb-3" style="display: none;">
+              <h6>New Seats:</h6>
+              <div id="new-seat-list" class="mb-2"></div>
+            </div>
+            
+            <div class="d-flex justify-content-between">
+              <span>Total Seats:</span>
+              <span id="seat-count">0</span>
+            </div>
+            <div class="d-flex justify-content-between">
+              <span>Price per Seat:</span>
+              <span id="seat-price">$10.00</span>
+            </div>
+            <hr>
+            <div class="d-flex justify-content-between fw-bold">
+              <span>Total Amount:</span>
+              <span id="total-amount">$0.00</span>
+            </div>
+            
+            <button class="btn w-100 mt-3" onclick="updateBooking()" id="update-btn" disabled>
+              <i class="fas fa-save me-2"></i>Update Booking
+            </button>
+            
+            <button class="btn btn-outline w-100 mt-2" onclick="cancelUpdate()">
+              <i class="fas fa-times me-2"></i>Cancel Update
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="script.js"></script>
+  <script>
+    let selectedSeats = [];
+    let currentBooking = null;
+    let currentShowtime = null;
+    let seatPrice = 10.00;
+    let currentBookingSeats = [];
+
+    // Load booking details on page load
+    document.addEventListener('DOMContentLoaded', () => {
+      const urlParams = new URLSearchParams(window.location.search);
+      const bookingId = urlParams.get('update');
+      if (bookingId) {
+        loadBookingDetails(bookingId);
+      } else {
+        showAlert('error', 'No booking ID provided');
+        setTimeout(() => window.location.href = 'booking-history.html', 2000);
+      }
+    });
+
+    async function loadBookingDetails(bookingId) {
+      try {
+        console.log('Loading booking details for ID:', bookingId);
+        const response = await apiCall(`/bookings/${bookingId}`, 'GET', null, true);
+        
+        if (!response) {
+          throw new Error('No booking data received');
+        }
+        
+        currentBooking = response;
+        currentShowtime = response.showtime;
+        
+        if (!currentShowtime) {
+          throw new Error('No showtime data found');
+        }
+        
+        seatPrice = currentShowtime.price || 10.00;
+        
+        console.log('Booking loaded:', {
+          bookingId: response.bookingId,
+          movieTitle: currentShowtime.movie?.title,
+          showtime: currentShowtime.startTime,
+          price: seatPrice
+        });
+        
+        // Display current booking info
+        displayCurrentBookingInfo(response);
+        
+        // Load seats for the showtime
+        await loadSeats();
+        
+        // Mark current seats
+        currentBookingSeats = response.seats || [];
+        markCurrentSeats();
+        
+      } catch (error) {
+        console.error('Error loading booking details:', error);
+        showAlert('error', 'Failed to load booking details: ' + error.message);
+        setTimeout(() => window.location.href = 'booking-history.html', 3000);
+      }
+    }
+
+    function displayCurrentBookingInfo(booking) {
+      const infoDiv = document.getElementById('current-booking-info');
+      infoDiv.innerHTML = `
+        <div class="row">
+          <div class="col-md-6">
+            <p><strong>Movie:</strong> ${booking.showtime?.movie?.title || 'Unknown'}</p>
+            <p><strong>Showtime:</strong> ${formatDate(booking.showtime?.startTime || '')}</p>
+            <p><strong>Current Seats:</strong> ${booking.seats?.map(seat => seat.row + seat.number).join(', ') || 'N/A'}</p>
+          </div>
+          <div class="col-md-6">
+            <p><strong>Total Amount:</strong> ${formatCurrency(booking.totalAmount)}</p>
+            <p><strong>Status:</strong> <span class="badge ${getStatusBadgeClass(booking.status)}">${booking.status}</span></p>
+            <p><strong>Booking Date:</strong> ${formatDate(booking.bookingDate)}</p>
+          </div>
+        </div>
+      `;
+    }
+
+    async function loadSeats() {
+      try {
+        const seats = await apiCall(`/seats/available/${currentShowtime.showtimeId}`, 'GET', null, true);
+        if (seats && seats.length > 0) {
+          displaySeats(seats);
+        } else {
+          showAlert('error', 'No seats available for this showtime');
+        }
+      } catch (error) {
+        console.error('Error loading seats:', error);
+        showAlert('error', 'Failed to load seats');
+      }
+    }
+
+    function displaySeats(seats) {
+      const seatMap = document.getElementById('seat-map');
+      seatMap.innerHTML = '';
+      
+      // Group seats by row
+      const seatsByRow = {};
+      seats.forEach(seat => {
+        const row = seat.row || seat.rowLetter || seat.row_letter;
+        if (!seatsByRow[row]) {
+          seatsByRow[row] = [];
+        }
+        seatsByRow[row].push(seat);
+      });
+      
+      // Create seat grid
+      Object.keys(seatsByRow).forEach(row => {
+        const rowDiv = document.createElement('div');
+        rowDiv.className = 'seat-row mb-2';
+        
+        const rowLabel = document.createElement('div');
+        rowLabel.className = 'seat-row-label';
+        rowLabel.textContent = row;
+        rowDiv.appendChild(rowLabel);
+        
+        const seatsDiv = document.createElement('div');
+        seatsDiv.className = 'd-flex justify-content-center gap-1';
+        
+        seatsByRow[row].forEach(seat => {
+          const seatButton = document.createElement('button');
+          const seatNumber = seat.number || seat.seatNumber || seat.seat_number;
+          const seatId = seat.seatId || seat.seat_id;
+          const status = seat.status || 'AVAILABLE';
+          
+          seatButton.className = `seat ${status.toLowerCase()}`;
+          seatButton.textContent = seatNumber;
+          seatButton.dataset.seatId = seatId;
+          seatButton.dataset.row = row;
+          seatButton.dataset.number = seatNumber;
+          
+          if (status === 'OCCUPIED' || status === 'RESERVED') {
+            seatButton.disabled = true;
+          } else {
+            seatButton.onclick = () => toggleSeat(seatButton);
+          }
+          
+          seatsDiv.appendChild(seatButton);
+        });
+        
+        rowDiv.appendChild(seatsDiv);
+        seatMap.appendChild(rowDiv);
+      });
+      
+      updateSummary();
+    }
+
+    function markCurrentSeats() {
+      currentBookingSeats.forEach(seat => {
+        const seatElement = document.querySelector(`[data-seat-id="${seat.seatId}"]`);
+        if (seatElement) {
+          seatElement.classList.add('current');
+          seatElement.disabled = true;
+        }
+      });
+    }
+
+    function toggleSeat(seatButton) {
+      const seatId = parseInt(seatButton.dataset.seatId);
+      const row = seatButton.dataset.row;
+      const number = seatButton.dataset.number;
+      
+      if (seatButton.classList.contains('selected')) {
+        // Deselect seat
+        seatButton.classList.remove('selected');
+        selectedSeats = selectedSeats.filter(seat => seat.seatId !== seatId);
+      } else {
+        // Select seat
+        seatButton.classList.add('selected');
+        selectedSeats.push({ seatId, row, number });
+      }
+      
+      updateSummary();
+    }
+
+    function updateSummary() {
+      const currentSeatList = document.getElementById('current-seat-list');
+      const newSeatsDiv = document.getElementById('new-seats');
+      const newSeatList = document.getElementById('new-seat-list');
+      const seatCount = document.getElementById('seat-count');
+      const totalAmount = document.getElementById('total-amount');
+      const updateBtn = document.getElementById('update-btn');
+      
+      // Display current seats
+      currentSeatList.innerHTML = currentBookingSeats.map(seat => 
+        `<span class="badge bg-secondary me-1">${seat.row}${seat.number}</span>`
+      ).join('');
+      
+      // Display new seats if any selected
+      if (selectedSeats.length > 0) {
+        newSeatsDiv.style.display = 'block';
+        newSeatList.innerHTML = selectedSeats.map(seat => 
+          `<span class="badge bg-primary me-1">${seat.row}${seat.number}</span>`
+        ).join('');
+      } else {
+        newSeatsDiv.style.display = 'none';
+      }
+      
+      // Update counts and totals
+      seatCount.textContent = selectedSeats.length;
+      totalAmount.textContent = formatCurrency(selectedSeats.length * seatPrice);
+      
+      // Enable/disable update button
+      updateBtn.disabled = selectedSeats.length === 0;
+    }
+
+    async function updateBooking() {
+      if (selectedSeats.length === 0) {
+        showAlert('error', 'Please select new seats');
+        return;
+      }
+      
+      try {
+        console.log('Updating booking ID:', currentBooking.bookingId);
+        console.log('New seat IDs:', selectedSeats.map(seat => seat.seatId));
+        
+        const seatIds = selectedSeats.map(seat => seat.seatId);
+        const response = await apiCall(`/bookings/${currentBooking.bookingId}`, 'PUT', seatIds, true);
+        
+        console.log('Update response:', response);
+        showAlert('success', 'Booking updated successfully!');
+        setTimeout(() => {
+          window.location.href = 'booking-history.html';
+        }, 2000);
+        
+      } catch (error) {
+        console.error('Error updating booking:', error);
+        let errorMessage = 'Failed to update booking';
+        if (error.message) {
+          errorMessage += ': ' + error.message;
+        }
+        showAlert('error', errorMessage);
+      }
+    }
+
+    function cancelUpdate() {
+      window.location.href = 'booking-history.html';
+    }
+
+    function getStatusBadgeClass(status) {
+      switch (status) {
+        case 'PENDING': return 'bg-warning';
+        case 'CONFIRMED': return 'bg-success';
+        case 'UPDATED': return 'bg-info';
+        case 'CANCELLED': return 'bg-danger';
+        default: return 'bg-secondary';
+      }
+    }
+
+    function formatDate(dateString) {
+      if (!dateString) return 'N/A';
+      try {
+        const date = new Date(dateString);
+        return date.toLocaleDateString() + ' ' + date.toLocaleTimeString();
+      } catch (e) {
+        return dateString;
+      }
+    }
+
+    function formatCurrency(amount) {
+      return new Intl.NumberFormat('en-US', {
+        style: 'currency',
+        currency: 'USD'
+      }).format(amount || 0);
+    }
+
+    // Add custom CSS for seat map
+    const style = document.createElement('style');
+    style.textContent = `
+      .screen {
+        background: linear-gradient(45deg, #333, #666);
+        color: white;
+        padding: 1rem 2rem;
+        border-radius: 8px;
+        margin: 0 auto;
+        max-width: 300px;
+        position: relative;
+      }
+      
+      .screen-text {
+        font-weight: bold;
+        letter-spacing: 2px;
+        margin-top: 0.5rem;
+      }
+      
+      .seat-row {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+      }
+      
+      .seat-row-label {
+        width: 20px;
+        font-weight: bold;
+        text-align: center;
+      }
+      
+      .seat-legend-item {
+        width: 20px;
+        height: 20px;
+        border-radius: 4px;
+        display: inline-block;
+      }
+      
+      .seat-legend-item.available {
+        background-color: var(--button-bg);
+      }
+      
+      .seat-legend-item.selected {
+        background-color: var(--success-color);
+      }
+      
+      .seat-legend-item.occupied {
+        background-color: var(--error-color);
+      }
+      
+      .seat-legend-item.current {
+        background-color: #6c757d;
+      }
+    `;
+    document.head.appendChild(style);
+  </script>
+</body>
+</html>
