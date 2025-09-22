@@ -1,0 +1,5 @@
+com\flixmate\flixmate\api\controller\BookingControllerIntegrationTest.class
+com\flixmate\flixmate\api\service\PaymentServiceTest.class
+com\flixmate\flixmate\api\service\BookingServiceTest.class
+com\flixmate\flixmate\api\service\UserServiceTest.class
+com\flixmate\flixmate\api\FlixMateApiApplicationTests.class
