@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - FlixMate</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .admin-container {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        .admin-header {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.98) 0%, rgba(248, 250, 252, 0.98) 100%);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            padding: 1rem 0;
+            color: #1f2937;
+            border-bottom: 3px solid #2563eb;
+        }
+        .admin-content {
+            flex: 1;
+            padding: 2rem 0;
+        }
+        .admin-card {
+            background: #ffffff;
+            backdrop-filter: blur(10px);
+            border-radius: 12px;
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+            border: 1px solid #d1d5db;
+            transition: all 0.3s ease;
+            height: 100%;
+            color: #1f2937;
+        }
+        .admin-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+        }
+        .admin-card-body {
+            padding: 3rem 2rem;
+            text-align: center;
+        }
+        .admin-icon {
+            font-size: 4rem;
+            margin-bottom: 1.5rem;
+            background: linear-gradient(135deg, #0066cc, #004499);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .admin-btn {
+            background: linear-gradient(135deg, #0066cc, #004499);
+            border: none;
+            border-radius: 15px;
+            padding: 1rem 2rem;
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: white;
+            text-decoration: none;
+            display: inline-block;
+            transition: all 0.3s ease;
+            min-width: 200px;
+        }
+        .admin-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 102, 204, 0.4);
+            color: white;
+        }
+        .admin-stats {
+            background: rgba(26, 26, 26, 0.9);
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            color: white;
+        }
+        .stat-item {
+            text-align: center;
+            padding: 1rem;
+        }
+        .stat-number {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #0066cc;
+        }
+        .stat-label {
+            color: #6c757d;
+            font-size: 0.9rem;
+        }
+        .logout-btn {
+            background: #dc3545;
+            border: none;
+            border-radius: 10px;
+            padding: 0.5rem 1rem;
+            color: white;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+        .logout-btn:hover {
+            background: #c82333;
+            color: white;
+            transform: translateY(-1px);
+        }
+    </style>
+</head>
+<body>
+    <div class="admin-container">
+        <!-- Admin Header -->
+        <div class="admin-header">
+            <div class="container">
+                <div class="row align-items-center">
+                    <div class="col-md-6">
+                        <h2 class="mb-0">
+                            <i class="fas fa-crown me-2"></i>
+                            Admin Dashboard
+                        </h2>
+                    </div>
+                    <div class="col-md-6 text-end">
+                        <span class="me-3" id="adminUserInfo">Welcome, Admin</span>
+                        <a href="#" class="logout-btn" onclick="logout()">
+                            <i class="fas fa-sign-out-alt me-1"></i>
+                            Logout
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Admin Content -->
+        <div class="admin-content">
+            <div class="container">
+                <!-- Quick Stats -->
+                <div class="admin-stats">
+                    <div class="row">
+                        <div class="col-md-3">
+                            <div class="stat-item">
+                                <div class="stat-number" id="totalMovies">-</div>
+                                <div class="stat-label">Total Movies</div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="stat-item">
+                                <div class="stat-number" id="totalBookings">-</div>
+                                <div class="stat-label">Total Bookings</div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="stat-item">
+                                <div class="stat-number" id="totalUsers">-</div>
+                                <div class="stat-label">Total Users</div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="stat-item">
+                                <div class="stat-number" id="totalRevenue">-</div>
+                                <div class="stat-label">Total Revenue</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Main Admin Actions -->
+                <div class="row">
+                    <div class="col-md-6 mb-4">
+                        <div class="admin-card">
+                            <div class="admin-card-body">
+                                <div class="admin-icon">
+                                    <i class="fas fa-chart-line"></i>
+                                </div>
+                                <h3 class="mb-3">Generate Reports</h3>
+                                <p class="text-muted mb-4">
+                                    Create comprehensive reports on sales, bookings, and user activity. 
+                                    Export data in PDF or Excel format.
+                                </p>
+                                <a href="admin-reports.html" class="admin-btn">
+                                    <i class="fas fa-file-alt me-2"></i>
+                                    Go to Reports
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6 mb-4">
+                        <div class="admin-card">
+                            <div class="admin-card-body">
+                                <div class="admin-icon">
+                                    <i class="fas fa-film"></i>
+                                </div>
+                                <h3 class="mb-3">Movie Management</h3>
+                                <p class="text-muted mb-4">
+                                    Add, edit, and delete movies. Manage movie information, 
+                                    showtimes, and availability.
+                                </p>
+                                <a href="admin-movies.html" class="admin-btn">
+                                    <i class="fas fa-edit me-2"></i>
+                                    Manage Movies
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Management Sections -->
+                <div class="row">
+                    <div class="col-md-4 mb-4">
+                        <div class="admin-card">
+                            <div class="admin-card-body">
+                                <div class="admin-icon">
+                                    <i class="fas fa-users"></i>
+                                </div>
+                                <h3 class="mb-3">User Management</h3>
+                                <p class="text-muted mb-4">
+                                    Manage user accounts, roles, and permissions. 
+                                    View user activity and manage access.
+                                </p>
+                                <a href="#" class="admin-btn" onclick="showUserManagement()">
+                                    <i class="fas fa-user-cog me-2"></i>
+                                    Manage Users
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4 mb-4">
+                        <div class="admin-card">
+                            <div class="admin-card-body">
+                                <div class="admin-icon">
+                                    <i class="fas fa-clock"></i>
+                                </div>
+                                <h3 class="mb-3">Showtime Management</h3>
+                                <p class="text-muted mb-4">
+                                    Schedule movie showtimes, manage cinema halls, 
+                                    and set ticket prices.
+                                </p>
+                                <a href="#" class="admin-btn" onclick="showShowtimeManagement()">
+                                    <i class="fas fa-calendar-alt me-2"></i>
+                                    Manage Showtimes
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4 mb-4">
+                        <div class="admin-card">
+                            <div class="admin-card-body">
+                                <div class="admin-icon">
+                                    <i class="fas fa-star"></i>
+                                </div>
+                                <h3 class="mb-3">Review Management</h3>
+                                <p class="text-muted mb-4">
+                                    Moderate user reviews, handle reported content, 
+                                    and manage review policies.
+                                </p>
+                                <a href="#" class="admin-btn" onclick="showReviewManagement()">
+                                    <i class="fas fa-comments me-2"></i>
+                                    Manage Reviews
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Additional Admin Actions -->
+                <div class="row">
+                    <div class="col-md-4 mb-4">
+                        <div class="admin-card">
+                            <div class="admin-card-body">
+                                <div class="admin-icon">
+                                    <i class="fas fa-users"></i>
+                                </div>
+                                <h4 class="mb-3">User Management</h4>
+                                <p class="text-muted mb-4">
+                                    View and manage user accounts and permissions.
+                                </p>
+                                <a href="admin-users.html" class="admin-btn">
+                                    <i class="fas fa-user-cog me-2"></i>
+                                    Manage Users
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4 mb-4">
+                        <div class="admin-card">
+                            <div class="admin-card-body">
+                                <div class="admin-icon">
+                                    <i class="fas fa-calendar-alt"></i>
+                                </div>
+                                <h4 class="mb-3">Showtime Management</h4>
+                                <p class="text-muted mb-4">
+                                    Schedule and manage movie showtimes.
+                                </p>
+                                <a href="admin-showtimes.html" class="admin-btn">
+                                    <i class="fas fa-clock me-2"></i>
+                                    Manage Showtimes
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4 mb-4">
+                        <div class="admin-card">
+                            <div class="admin-card-body">
+                                <div class="admin-icon">
+                                    <i class="fas fa-comments"></i>
+                                </div>
+                                <h4 class="mb-3">Review Management</h4>
+                                <p class="text-muted mb-4">
+                                    Moderate user reviews and reports.
+                                </p>
+                                <a href="admin-reviews.html" class="admin-btn">
+                                    <i class="fas fa-star me-2"></i>
+                                    Manage Reviews
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading Modal -->
+    <div class="modal fade" id="loadingModal" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-body text-center">
+                    <div class="spinner-border text-primary mb-3" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <p>Loading admin data...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Container -->
+    <div class="toast-container position-fixed top-0 end-0 p-3">
+        <div id="adminToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="toast-header">
+                <i class="fas fa-info-circle text-primary me-2"></i>
+                <strong class="me-auto">Admin Notification</strong>
+                <button type="button" class="btn-close" data-bs-dismiss="toast"></button>
+            </div>
+            <div class="toast-body" id="toastMessage">
+                <!-- Toast message will be inserted here -->
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="script.js"></script>
+    <script>
+        // Admin-specific functionality
+        let adminUser = null;
+
+        // Check admin authentication on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            checkAdminAuth();
+            
+            // Set immediate fallback values
+            document.getElementById('totalMovies').textContent = '0';
+            document.getElementById('totalBookings').textContent = '0';
+            document.getElementById('totalUsers').textContent = '0';
+            document.getElementById('totalRevenue').textContent = '$0';
+            
+            // Try to load stats, but don't block the UI
+            setTimeout(() => {
+                loadAdminStats();
+            }, 500);
+        });
+
+        async function checkAdminAuth() {
+            try {
+                const token = localStorage.getItem('authToken');
+                if (!token) {
+                    showToast('Please log in as admin', 'error');
+                    setTimeout(() => window.location.href = 'login.html', 2000);
+                    return;
+                }
+
+                // Verify admin role
+                const response = await fetch('/api/auth/user-role', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error('Authentication failed');
+                }
+
+                const userData = await response.json();
+                adminUser = userData;
+                
+                // Check if user has admin role
+                const hasAdminRole = userData.authorities && 
+                    userData.authorities.some(auth => auth === 'ROLE_ADMIN');
+                
+                if (!hasAdminRole) {
+                    showToast('Access denied. Admin privileges required.', 'error');
+                    setTimeout(() => window.location.href = 'index.html', 2000);
+                    return;
+                }
+
+                // Update UI with admin info
+                document.getElementById('adminUserInfo').textContent = `Welcome, ${userData.email}`;
+                
+            } catch (error) {
+                console.error('Admin auth check failed:', error);
+                showToast('Authentication failed. Please log in again.', 'error');
+                setTimeout(() => window.location.href = 'login.html', 2000);
+            }
+        }
+
+        async function loadAdminStats() {
+            console.log('Loading admin stats...');
+            
+            try {
+                // Use the working test endpoint to get real data
+                const testRes = await fetch('/api/admin/test');
+                if (testRes.ok) {
+                    const data = await testRes.json();
+                    console.log('Real data received:', data);
+                    
+                    // Update with real data
+                    document.getElementById('totalMovies').textContent = data.movieCount || 0;
+                    document.getElementById('totalBookings').textContent = data.bookingCount || 0;
+                    document.getElementById('totalUsers').textContent = data.userCount || 0;
+                    
+                    // Calculate revenue (mock for now - you can enhance this later)
+                    const estimatedRevenue = (data.bookingCount || 0) * 15.99; // Average ticket price
+                    document.getElementById('totalRevenue').textContent = `$${estimatedRevenue.toFixed(2)}`;
+                    
+                    console.log('Stats updated with real data');
+                } else {
+                    console.log('Test endpoint failed, using fallback values');
+                }
+            } catch (error) {
+                console.log('Failed to load stats:', error.message);
+                // Keep the fallback values that were set on page load
+            }
+        }
+
+        function showLoading(show) {
+            // Disabled loading modal to prevent UI blocking
+            console.log('Loading state:', show ? 'started' : 'finished');
+        }
+
+        function showToast(message, type = 'info') {
+            const toast = document.getElementById('adminToast');
+            const toastMessage = document.getElementById('toastMessage');
+            
+            toastMessage.textContent = message;
+            
+            // Update toast styling based on type
+            const toastHeader = toast.querySelector('.toast-header');
+            const icon = toastHeader.querySelector('i');
+            
+            toastHeader.className = 'toast-header';
+            icon.className = 'fas me-2';
+            
+            switch (type) {
+                case 'success':
+                    toastHeader.classList.add('bg-success', 'text-white');
+                    icon.classList.add('fa-check-circle', 'text-white');
+                    break;
+                case 'error':
+                    toastHeader.classList.add('bg-danger', 'text-white');
+                    icon.classList.add('fa-exclamation-circle', 'text-white');
+                    break;
+                case 'warning':
+                    toastHeader.classList.add('bg-warning', 'text-dark');
+                    icon.classList.add('fa-exclamation-triangle', 'text-dark');
+                    break;
+                default:
+                    toastHeader.classList.add('bg-primary', 'text-white');
+                    icon.classList.add('fa-info-circle', 'text-white');
+            }
+            
+            const bsToast = new bootstrap.Toast(toast);
+            bsToast.show();
+        }
+
+        function logout() {
+            localStorage.removeItem('authToken');
+            showToast('Logged out successfully', 'success');
+            setTimeout(() => window.location.href = 'index.html', 1000);
+        }
+
+        // Management section functions
+        function showUserManagement() {
+            showToast('User Management feature coming soon!', 'info');
+            // TODO: Implement user management modal or redirect to user management page
+        }
+
+        function showShowtimeManagement() {
+            showToast('Showtime Management feature coming soon!', 'info');
+            // TODO: Implement showtime management modal or redirect to showtime management page
+        }
+
+        function showReviewManagement() {
+            showToast('Review Management feature coming soon!', 'info');
+            // TODO: Implement review management modal or redirect to review management page
+        }
+    </script>
+</body>
+</html>

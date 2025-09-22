@@ -1,0 +1,732 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FlixMate - Book Tickets | Scope Cinemas Style</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- Navigation -->
+  <div id="navbar-container"></div>
+  
+  <div class="container mt-5">
+    <!-- Movie Selection -->
+    <div class="row mb-4">
+      <div class="col-12">
+        <div class="card">
+          <div class="card-body">
+            <h4><i class="fas fa-film me-2"></i>Select Movie & Showtime</h4>
+            <div class="row">
+              <div class="col-md-6">
+                <label for="movie-select" class="form-label">Movie</label>
+                <select id="movie-select" class="form-select" onchange="loadShowtimes()">
+                  <option value="">Select a movie</option>
+                </select>
+              </div>
+              <div class="col-md-6">
+                <label for="showtime-select" class="form-label">Showtime</label>
+                <select id="showtime-select" class="form-select" onchange="loadSeats()" disabled>
+                  <option value="">Select a showtime</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Cinema Hall Layout -->
+    <div class="row">
+      <div class="col-lg-8">
+        <div class="card">
+          <div class="card-body">
+            <h5><i class="fas fa-chair me-2"></i>Select Your Seats</h5>
+            
+            <!-- Screen -->
+            <div class="text-center mb-4">
+              <div class="screen">
+                <i class="fas fa-tv fa-2x text-muted"></i>
+                <div class="screen-text">SCREEN</div>
+              </div>
+            </div>
+            
+            <!-- Seat Map -->
+            <div id="seat-map" class="seat-map">
+              <!-- Seats will be generated here -->
+            </div>
+            
+            <!-- Seat Legend -->
+            <div class="seat-legend mt-3">
+              <div class="d-flex justify-content-center gap-4">
+                <div class="d-flex align-items-center">
+                  <div class="seat-legend-item available me-2"></div>
+                  <small>Available</small>
+                </div>
+                <div class="d-flex align-items-center">
+                  <div class="seat-legend-item selected me-2"></div>
+                  <small>Selected</small>
+                </div>
+                <div class="d-flex align-items-center">
+                  <div class="seat-legend-item occupied me-2"></div>
+                  <small>Occupied</small>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Booking Summary -->
+      <div class="col-lg-4">
+        <div class="card sticky-top">
+          <div class="card-body">
+            <h5><i class="fas fa-shopping-cart me-2"></i>Booking Summary</h5>
+            
+            <div id="booking-details">
+              <div class="text-center text-muted">
+                <i class="fas fa-ticket-alt fa-3x mb-3"></i>
+                <p>Select a movie and showtime to continue</p>
+              </div>
+            </div>
+            
+            <div id="selected-seats" class="mt-3" style="display: none;">
+              <h6>Selected Seats:</h6>
+              <div id="seat-list" class="mb-3"></div>
+              
+              <!-- Discount Code Section -->
+              <div class="mb-3">
+                <label for="discount-code" class="form-label">Discount Code (Optional)</label>
+                <div class="input-group">
+                  <input type="text" class="form-control" id="discount-code" placeholder="Enter discount code">
+                  <button class="btn btn-outline-secondary" type="button" onclick="applyDiscountCode()">
+                    <i class="fas fa-check"></i>
+                  </button>
+                </div>
+                <div id="discount-message" class="mt-1"></div>
+              </div>
+              
+              <!-- Loyalty Points Section -->
+              <div class="mb-3">
+                <label for="loyalty-points" class="form-label">Use Loyalty Points (Optional)</label>
+                <div class="input-group">
+                  <input type="number" class="form-control" id="loyalty-points" placeholder="Points to redeem" min="0" max="0">
+                  <button class="btn btn-outline-secondary" type="button" onclick="loadLoyaltyPoints()">
+                    <i class="fas fa-sync"></i>
+                  </button>
+                </div>
+                <small class="text-muted">Available: <span id="available-points">0</span> points</small>
+              </div>
+              
+              <div class="d-flex justify-content-between">
+                <span>Total Seats:</span>
+                <span id="seat-count">0</span>
+              </div>
+              <div class="d-flex justify-content-between">
+                <span>Price per Seat:</span>
+                <span id="seat-price">$10.00</span>
+              </div>
+              <div class="d-flex justify-content-between" id="discount-row" style="display: none;">
+                <span>Discount:</span>
+                <span id="discount-amount" class="text-success">-$0.00</span>
+              </div>
+              <div class="d-flex justify-content-between" id="loyalty-row" style="display: none;">
+                <span>Loyalty Points:</span>
+                <span id="loyalty-discount" class="text-success">-$0.00</span>
+              </div>
+              <hr>
+              <div class="d-flex justify-content-between fw-bold">
+                <span>Total Amount:</span>
+                <span id="total-amount">$0.00</span>
+              </div>
+              
+              <button class="btn w-100 mt-3" onclick="proceedToPayment()" id="proceed-btn" disabled>
+                <i class="fas fa-credit-card me-2"></i>Proceed to Payment
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="script.js"></script>
+  <script>
+    let selectedSeats = [];
+    let currentShowtime = null;
+    let seatPrice = 10.00;
+    let appliedDiscount = 0;
+    let appliedLoyaltyDiscount = 0;
+    let loyaltyPoints = 0;
+    let seatUpdateInterval = null;
+
+    // Load navigation
+    async function loadNavigation() {
+      try {
+        const response = await fetch('navigation.html');
+        const html = await response.text();
+        document.getElementById('navbar-container').innerHTML = html;
+      } catch (error) {
+        console.error('Error loading navigation:', error);
+      }
+    }
+
+    // Load movies on page load
+    document.addEventListener('DOMContentLoaded', () => {
+      loadNavigation();
+      // Check authentication first
+      if (!requireAuth()) {
+        return;
+      }
+      
+      loadMovies();
+      loadLoyaltyPoints();
+      
+      // Check if movieId is in URL
+      const urlParams = new URLSearchParams(window.location.search);
+      const movieId = urlParams.get('movieId');
+      if (movieId) {
+        document.getElementById('movie-select').value = movieId;
+        loadShowtimes();
+      }
+    });
+
+    // Load movies for selection
+    async function loadMovies() {
+      try {
+        const movies = await apiCall('/public/movies', 'GET', null, false);
+        const select = document.getElementById('movie-select');
+        
+        select.innerHTML = '<option value="">Select a movie</option>' +
+          movies.map(movie => 
+            `<option value="${movie.movieId}">${movie.title} (${movie.releaseYear})</option>`
+          ).join('');
+      } catch (error) {
+        console.error('Error loading movies:', error);
+        showAlert('error', 'Failed to load movies');
+      }
+    }
+
+    // Load showtimes for selected movie
+    async function loadShowtimes() {
+      const movieId = document.getElementById('movie-select').value;
+      const showtimeSelect = document.getElementById('showtime-select');
+      
+      if (!movieId) {
+        showtimeSelect.innerHTML = '<option value="">Select a showtime</option>';
+        showtimeSelect.disabled = true;
+        return;
+      }
+      
+      try {
+        // Load real showtimes from API
+        let showtimes = [];
+        try {
+          showtimes = await apiCall(`/theatre/showtimes?movieId=${movieId}`, 'GET', null, true);
+          console.log('API showtimes response:', showtimes);
+        } catch (apiError) {
+          console.warn('API showtimes not available, using simulated data:', apiError);
+          showtimes = [];
+        }
+        
+        if (showtimes && showtimes.length > 0) {
+          showtimeSelect.innerHTML = '<option value="">Select a showtime</option>' +
+            showtimes.map(showtime => 
+              `<option value="${showtime.showtimeId}" data-price="${showtime.price}">
+                ${formatDate(showtime.startTime)} - $${showtime.price}
+              </option>`
+            ).join('');
+        } else {
+          // Fallback to simulated data if no real showtimes
+          console.log('Using simulated showtimes data');
+          const simulatedShowtimes = [
+            { showtimeId: 1, startTime: '2025-01-20T14:00:00', endTime: '2025-01-20T16:16:00', price: 10.00 },
+            { showtimeId: 2, startTime: '2025-01-20T18:00:00', endTime: '2025-01-20T20:16:00', price: 12.00 },
+            { showtimeId: 3, startTime: '2025-01-20T15:00:00', endTime: '2025-01-20T17:28:00', price: 15.00 },
+            { showtimeId: 4, startTime: '2025-01-20T19:00:00', endTime: '2025-01-20T21:32:00', price: 18.00 }
+          ];
+          
+          showtimeSelect.innerHTML = '<option value="">Select a showtime</option>' +
+            simulatedShowtimes.map(showtime => 
+              `<option value="${showtime.showtimeId}" data-price="${showtime.price}">
+                ${formatDate(showtime.startTime)} - $${showtime.price}
+              </option>`
+            ).join('');
+        }
+        
+        showtimeSelect.disabled = false;
+      } catch (error) {
+        console.error('Error loading showtimes:', error);
+        // Even if there's an error, provide simulated data
+        const simulatedShowtimes = [
+          { showtimeId: 1, startTime: '2025-01-20T14:00:00', endTime: '2025-01-20T16:16:00', price: 10.00 },
+          { showtimeId: 2, startTime: '2025-01-20T18:00:00', endTime: '2025-01-20T20:16:00', price: 12.00 },
+          { showtimeId: 3, startTime: '2025-01-20T15:00:00', endTime: '2025-01-20T17:28:00', price: 15.00 },
+          { showtimeId: 4, startTime: '2025-01-20T19:00:00', endTime: '2025-01-20T21:32:00', price: 18.00 }
+        ];
+        
+        showtimeSelect.innerHTML = '<option value="">Select a showtime</option>' +
+          simulatedShowtimes.map(showtime => 
+            `<option value="${showtime.showtimeId}" data-price="${showtime.price}">
+              ${formatDate(showtime.startTime)} - $${showtime.price}
+            </option>`
+          ).join('');
+        showtimeSelect.disabled = false;
+      }
+    }
+
+    // Load seats for selected showtime
+    async function loadSeats() {
+      const showtimeId = document.getElementById('showtime-select').value;
+      const selectedOption = document.getElementById('showtime-select').selectedOptions[0];
+      
+      if (!showtimeId) {
+        document.getElementById('seat-map').innerHTML = '';
+        return;
+      }
+      
+      currentShowtime = {
+        showtimeId: parseInt(showtimeId),
+        price: parseFloat(selectedOption.dataset.price)
+      };
+      seatPrice = currentShowtime.price;
+      
+      // Clear any existing interval
+      if (seatUpdateInterval) {
+        clearInterval(seatUpdateInterval);
+      }
+      
+      try {
+        // Try to load real seats from API
+        try {
+          const seats = await apiCall(`/seats/available/${showtimeId}`, 'GET', null, true);
+          if (seats && seats.length > 0) {
+            displaySeats(seats);
+            // Start polling for seat updates every 5 seconds
+            startSeatPolling(showtimeId);
+            return;
+          }
+        } catch (apiError) {
+          console.warn('API seats not available, using simulated data:', apiError);
+        }
+        
+        // If API fails, create seats for the cinema hall
+        console.log('API seats not available, creating seats for cinema hall...');
+        try {
+          // Get the cinema hall ID from the showtime
+          const showtimeResponse = await apiCall(`/api/theatre/showtimes?movieId=${currentShowtime.movieId}`, 'GET', null, false);
+          if (showtimeResponse && showtimeResponse.length > 0) {
+            const showtime = showtimeResponse.find(st => st.showtimeId === currentShowtime.showtimeId);
+            if (showtime && showtime.cinemaHall) {
+              const hallId = showtime.cinemaHall.hallId;
+              const capacity = showtime.cinemaHall.capacity || 100;
+              const seats = generateRealSeats(hallId, capacity);
+              displaySeats(seats);
+              return;
+            }
+          }
+        } catch (hallError) {
+          console.warn('Could not get hall info:', hallError);
+        }
+        
+        // Final fallback - show error message
+        showAlert('error', 'Unable to load seat availability. Please try again or select a different showtime.');
+        document.getElementById('seat-map').innerHTML = `
+          <div class="text-center py-5">
+            <i class="fas fa-exclamation-triangle fa-3x text-warning mb-3"></i>
+            <h5>Seat Loading Error</h5>
+            <p class="text-muted">Unable to load seat availability for this showtime.</p>
+            <button class="btn btn-primary" onclick="loadSeats()">
+              <i class="fas fa-refresh me-2"></i>Try Again
+            </button>
+          </div>
+        `;
+      } catch (error) {
+        console.error('Error loading seats:', error);
+        showAlert('error', 'Failed to load seats');
+      }
+    }
+
+    // Generate seat map (simulated seats - not for production)
+    function generateSeatMap() {
+      const rows = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J'];
+      const seatsPerRow = 10;
+      const seats = [];
+      
+      rows.forEach((row, rowIndex) => {
+        for (let seatNum = 1; seatNum <= seatsPerRow; seatNum++) {
+          const seatId = rowIndex * seatsPerRow + seatNum;
+          const isOccupied = Math.random() < 0.3; // 30% chance of being occupied
+          
+          seats.push({
+            seatId: seatId,
+            row: row,
+            number: seatNum,
+            status: isOccupied ? 'OCCUPIED' : 'AVAILABLE'
+          });
+        }
+      });
+      
+      return seats;
+    }
+
+    // Generate real seats for a cinema hall (for fallback when API fails)
+    function generateRealSeats(hallId, capacity) {
+      const rows = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T'];
+      const seatsPerRow = Math.ceil(capacity / rows.length);
+      const seats = [];
+      let seatCounter = 1;
+      
+      rows.forEach((row, rowIndex) => {
+        const seatsInThisRow = Math.min(seatsPerRow, capacity - (rowIndex * seatsPerRow));
+        for (let seatNum = 1; seatNum <= seatsInThisRow; seatNum++) {
+          // Generate a realistic seat ID based on hall and seat position
+          const seatId = hallId * 1000 + seatCounter;
+          const isOccupied = Math.random() < 0.2; // 20% chance of being occupied
+          
+          seats.push({
+            seatId: seatId,
+            row: row,
+            number: seatNum,
+            status: isOccupied ? 'OCCUPIED' : 'AVAILABLE'
+          });
+          seatCounter++;
+        }
+      });
+      
+      return seats;
+    }
+
+    // Display seats
+    function displaySeats(seats) {
+      const seatMap = document.getElementById('seat-map');
+      seatMap.innerHTML = '';
+      
+      // Group seats by row
+      const seatsByRow = {};
+      seats.forEach(seat => {
+        const row = seat.row || seat.rowLetter || seat.row_letter;
+        if (!seatsByRow[row]) {
+          seatsByRow[row] = [];
+        }
+        seatsByRow[row].push(seat);
+      });
+      
+      // Create seat grid
+      Object.keys(seatsByRow).forEach(row => {
+        const rowDiv = document.createElement('div');
+        rowDiv.className = 'seat-row mb-2';
+        
+        const rowLabel = document.createElement('div');
+        rowLabel.className = 'seat-row-label';
+        rowLabel.textContent = row;
+        rowDiv.appendChild(rowLabel);
+        
+        const seatsDiv = document.createElement('div');
+        seatsDiv.className = 'd-flex justify-content-center gap-1';
+        
+        seatsByRow[row].forEach(seat => {
+          const seatButton = document.createElement('button');
+          const seatNumber = seat.number || seat.seatNumber || seat.seat_number;
+          const seatId = seat.seatId || seat.seat_id;
+          const status = seat.status || 'AVAILABLE';
+          
+          seatButton.className = `seat ${status.toLowerCase()}`;
+          seatButton.textContent = seatNumber;
+          seatButton.dataset.seatId = seatId;
+          seatButton.dataset.row = row;
+          seatButton.dataset.number = seatNumber;
+          
+          if (status === 'OCCUPIED' || status === 'RESERVED') {
+            seatButton.disabled = true;
+          } else {
+            seatButton.onclick = () => toggleSeat(seatButton);
+          }
+          
+          seatsDiv.appendChild(seatButton);
+        });
+        
+        rowDiv.appendChild(seatsDiv);
+        seatMap.appendChild(rowDiv);
+      });
+      
+      // Update booking summary
+      updateBookingSummary();
+    }
+
+    // Toggle seat selection
+    function toggleSeat(seatButton) {
+      const seatId = parseInt(seatButton.dataset.seatId);
+      const row = seatButton.dataset.row;
+      const number = seatButton.dataset.number;
+      
+      if (seatButton.classList.contains('selected')) {
+        // Deselect seat
+        seatButton.classList.remove('selected');
+        selectedSeats = selectedSeats.filter(seat => seat.seatId !== seatId);
+      } else {
+        // Select seat
+        seatButton.classList.add('selected');
+        selectedSeats.push({ seatId, row, number });
+      }
+      
+      updateBookingSummary();
+    }
+
+    // Update booking summary
+    function updateBookingSummary() {
+      const bookingDetails = document.getElementById('booking-details');
+      const selectedSeatsDiv = document.getElementById('selected-seats');
+      const seatList = document.getElementById('seat-list');
+      const seatCount = document.getElementById('seat-count');
+      const totalAmount = document.getElementById('total-amount');
+      const proceedBtn = document.getElementById('proceed-btn');
+      
+      if (selectedSeats.length === 0) {
+        bookingDetails.innerHTML = `
+          <div class="text-center text-muted">
+            <i class="fas fa-ticket-alt fa-3x mb-3"></i>
+            <p>Select seats to continue</p>
+          </div>
+        `;
+        selectedSeatsDiv.style.display = 'none';
+        return;
+      }
+      
+      // Show selected seats
+      selectedSeatsDiv.style.display = 'block';
+      
+      // Update seat list
+      seatList.innerHTML = selectedSeats.map(seat => 
+        `<span class="badge bg-primary me-1">${seat.row}${seat.number}</span>`
+      ).join('');
+      
+      // Update counts and totals
+      seatCount.textContent = selectedSeats.length;
+      const baseAmount = selectedSeats.length * seatPrice;
+      const finalAmount = Math.max(0, baseAmount - appliedDiscount - appliedLoyaltyDiscount);
+      totalAmount.textContent = formatCurrency(finalAmount);
+      
+      // Update discount rows
+      updateDiscountRows();
+      
+      // Enable/disable proceed button
+      proceedBtn.disabled = selectedSeats.length === 0;
+    }
+
+    // Proceed to payment
+    function proceedToPayment() {
+      if (selectedSeats.length === 0) {
+        showAlert('error', 'Please select at least one seat');
+        return;
+      }
+      
+      if (!currentShowtime) {
+        showAlert('error', 'Please select a showtime');
+        return;
+      }
+      
+      // Store booking data in session storage
+      const bookingData = {
+        showtimeId: currentShowtime.showtimeId,
+        seatIds: selectedSeats.map(seat => seat.seatId),
+        selectedSeats: selectedSeats,
+        totalAmount: Math.max(0, selectedSeats.length * seatPrice - appliedDiscount - appliedLoyaltyDiscount),
+        seatPrice: seatPrice,
+        discountCode: document.getElementById('discount-code').value,
+        loyaltyPointsToRedeem: parseInt(document.getElementById('loyalty-points').value) || 0
+      };
+      
+      sessionStorage.setItem('bookingData', JSON.stringify(bookingData));
+      
+      // Redirect to payment page
+      window.location.href = 'payment.html';
+    }
+
+    // Add custom CSS for seat map
+    const style = document.createElement('style');
+    style.textContent = `
+      .screen {
+        background: linear-gradient(45deg, #333, #666);
+        color: white;
+        padding: 1rem 2rem;
+        border-radius: 8px;
+        margin: 0 auto;
+        max-width: 300px;
+        position: relative;
+      }
+      
+      .screen-text {
+        font-weight: bold;
+        letter-spacing: 2px;
+        margin-top: 0.5rem;
+      }
+      
+      .seat-row {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+      }
+      
+      .seat-row-label {
+        width: 20px;
+        font-weight: bold;
+        text-align: center;
+      }
+      
+      .seat-legend-item {
+        width: 20px;
+        height: 20px;
+        border-radius: 4px;
+        display: inline-block;
+      }
+      
+      .seat-legend-item.available {
+        background-color: var(--button-bg);
+      }
+      
+      .seat-legend-item.selected {
+        background-color: var(--success-color);
+      }
+      
+      .seat-legend-item.occupied {
+        background-color: var(--error-color);
+      }
+    `;
+    document.head.appendChild(style);
+    
+    // Load loyalty points
+    async function loadLoyaltyPoints() {
+      try {
+        const response = await apiCall('/loyalty/points', 'GET', null, true);
+        loyaltyPoints = response.pointsBalance || 0;
+        document.getElementById('available-points').textContent = loyaltyPoints;
+        document.getElementById('loyalty-points').max = loyaltyPoints;
+      } catch (error) {
+        console.error('Error loading loyalty points:', error);
+        loyaltyPoints = 0;
+      }
+    }
+    
+    // Apply discount code
+    async function applyDiscountCode() {
+      const code = document.getElementById('discount-code').value.trim();
+      if (!code) {
+        showAlert('warning', 'Please enter a discount code');
+        return;
+      }
+      
+      const baseAmount = selectedSeats.length * seatPrice;
+      if (baseAmount === 0) {
+        showAlert('warning', 'Please select seats first');
+        return;
+      }
+      
+      try {
+        const discount = await apiCall(`/discounts/validate?code=${code}&amount=${baseAmount}`, 'GET', null, true);
+        appliedDiscount = discount || 0;
+        
+        if (appliedDiscount > 0) {
+          document.getElementById('discount-message').innerHTML = 
+            `<small class="text-success"><i class="fas fa-check"></i> Discount applied: ${formatCurrency(appliedDiscount)}</small>`;
+        } else {
+          document.getElementById('discount-message').innerHTML = 
+            `<small class="text-danger"><i class="fas fa-times"></i> Invalid or expired discount code</small>`;
+        }
+        
+        updateBookingSummary();
+      } catch (error) {
+        console.error('Error applying discount code:', error);
+        document.getElementById('discount-message').innerHTML = 
+          `<small class="text-danger"><i class="fas fa-times"></i> Error applying discount code</small>`;
+      }
+    }
+    
+    // Update loyalty points discount
+    function updateLoyaltyDiscount() {
+      const pointsToRedeem = parseInt(document.getElementById('loyalty-points').value) || 0;
+      if (pointsToRedeem > loyaltyPoints) {
+        document.getElementById('loyalty-points').value = loyaltyPoints;
+        return;
+      }
+      
+      // Calculate discount (100 points = $1)
+      appliedLoyaltyDiscount = Math.floor(pointsToRedeem / 100);
+      updateBookingSummary();
+    }
+    
+    // Update discount rows visibility
+    function updateDiscountRows() {
+      const discountRow = document.getElementById('discount-row');
+      const loyaltyRow = document.getElementById('loyalty-row');
+      
+      if (appliedDiscount > 0) {
+        discountRow.style.display = 'flex';
+        document.getElementById('discount-amount').textContent = `-${formatCurrency(appliedDiscount)}`;
+      } else {
+        discountRow.style.display = 'none';
+      }
+      
+      if (appliedLoyaltyDiscount > 0) {
+        loyaltyRow.style.display = 'flex';
+        document.getElementById('loyalty-discount').textContent = `-${formatCurrency(appliedLoyaltyDiscount)}`;
+      } else {
+        loyaltyRow.style.display = 'none';
+      }
+    }
+    
+    // Start seat polling for real-time updates
+    function startSeatPolling(showtimeId) {
+      seatUpdateInterval = setInterval(async () => {
+        try {
+          const seats = await apiCall(`/seats/refresh/${showtimeId}`, 'GET', null, true);
+          if (seats && seats.length > 0) {
+            // Only update if seats have changed
+            const currentSeats = document.querySelectorAll('.seat');
+            if (currentSeats.length !== seats.length) {
+              displaySeats(seats);
+            } else {
+              // Check if any seat status has changed
+              let hasChanged = false;
+              seats.forEach(seat => {
+                const seatElement = document.querySelector(`[data-seat-id="${seat.seatId}"]`);
+                if (seatElement && !seatElement.classList.contains(seat.status.toLowerCase())) {
+                  hasChanged = true;
+                }
+              });
+              if (hasChanged) {
+                displaySeats(seats);
+              }
+            }
+          }
+        } catch (error) {
+          console.warn('Error refreshing seats:', error);
+        }
+      }, 5000); // Poll every 5 seconds
+    }
+    
+    // Stop seat polling
+    function stopSeatPolling() {
+      if (seatUpdateInterval) {
+        clearInterval(seatUpdateInterval);
+        seatUpdateInterval = null;
+      }
+    }
+    
+    // Add event listeners
+    document.getElementById('loyalty-points').addEventListener('input', updateLoyaltyDiscount);
+    document.getElementById('discount-code').addEventListener('keypress', function(e) {
+      if (e.key === 'Enter') {
+        applyDiscountCode();
+      }
+    });
+    
+    // Clean up polling when page is unloaded
+    window.addEventListener('beforeunload', stopSeatPolling);
+  </script>
+</body>
+</html>
+

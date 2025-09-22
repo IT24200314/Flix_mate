@@ -1,0 +1,1237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Movie Management - FlixMate</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #000000 0%, #1a1a1a 100%);
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .admin-container {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        .admin-header {
+            background: rgba(0, 0, 0, 0.95);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.8);
+            padding: 1rem 0;
+            color: white;
+            border-bottom: 3px solid #0066cc;
+        }
+        .admin-content {
+            flex: 1;
+            padding: 2rem 0;
+        }
+        .movie-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            border: none;
+            margin-bottom: 2rem;
+            transition: all 0.3s ease;
+        }
+        .movie-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+        }
+        .movie-poster {
+            width: 100%;
+            height: 300px;
+            object-fit: cover;
+            border-radius: 10px;
+        }
+        .movie-actions {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+        .btn-edit {
+            background: linear-gradient(135deg, #28a745, #20c997);
+            border: none;
+            border-radius: 8px;
+            color: white;
+            padding: 0.5rem 1rem;
+            transition: all 0.3s ease;
+        }
+        .btn-edit:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 15px rgba(40, 167, 69, 0.4);
+            color: white;
+        }
+        .btn-delete {
+            background: linear-gradient(135deg, #dc3545, #c82333);
+            border: none;
+            border-radius: 8px;
+            color: white;
+            padding: 0.5rem 1rem;
+            transition: all 0.3s ease;
+        }
+        .btn-delete:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 15px rgba(220, 53, 69, 0.4);
+            color: white;
+        }
+        .btn-add {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border: none;
+            border-radius: 10px;
+            color: white;
+            padding: 0.75rem 1.5rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        .btn-add:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+            color: white;
+        }
+        .back-btn {
+            background: #6c757d;
+            border: none;
+            border-radius: 10px;
+            padding: 0.75rem 1.5rem;
+            color: white;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+        .back-btn:hover {
+            background: #5a6268;
+            color: white;
+            transform: translateY(-1px);
+        }
+        
+        /* Image Upload Styles */
+        .image-upload-container:hover {
+            border-color: #667eea !important;
+            background-color: rgba(102, 126, 234, 0.05);
+        }
+        
+        .image-preview img {
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+        
+        .image-preview img:hover {
+            transform: scale(1.02);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+        }
+        .search-bar {
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 10px;
+            padding: 1rem;
+            margin-bottom: 2rem;
+        }
+        .movie-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+        .loading-spinner {
+            text-align: center;
+            padding: 3rem;
+        }
+        .error-message {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 1rem;
+            border-radius: 10px;
+            margin: 1rem 0;
+        }
+        .success-message {
+            background: #d4edda;
+            color: #155724;
+            padding: 1rem;
+            border-radius: 10px;
+            margin: 1rem 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="admin-container">
+        <!-- Admin Header -->
+        <div class="admin-header">
+            <div class="container">
+                <div class="row align-items-center">
+                    <div class="col-md-6">
+                        <h2 class="mb-0">
+                            <i class="fas fa-film me-2"></i>
+                            Movie Management
+                        </h2>
+                    </div>
+                    <div class="col-md-6 text-end">
+                        <a href="admin-home.html" class="back-btn me-2">
+                            <i class="fas fa-arrow-left me-1"></i>
+                            Back to Dashboard
+                        </a>
+                        <a href="#" class="logout-btn" onclick="logout()">
+                            <i class="fas fa-sign-out-alt me-1"></i>
+                            Logout
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Admin Content -->
+        <div class="admin-content">
+            <div class="container">
+                <!-- Navigation Tabs -->
+                <ul class="nav nav-tabs mb-4" id="adminTabs" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active" id="movies-tab" data-bs-toggle="tab" data-bs-target="#movies-pane" type="button" role="tab">
+                            <i class="fas fa-film me-2"></i>Movies
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="cinema-halls-tab" data-bs-toggle="tab" data-bs-target="#cinema-halls-pane" type="button" role="tab">
+                            <i class="fas fa-building me-2"></i>Cinema Halls
+                        </button>
+                    </li>
+                </ul>
+
+                <!-- Tab Content -->
+                <div class="tab-content" id="adminTabContent">
+                    <!-- Movies Tab -->
+                    <div class="tab-pane fade show active" id="movies-pane" role="tabpanel">
+                        <!-- Search and Add Section -->
+                        <div class="search-bar">
+                            <div class="row align-items-center">
+                                <div class="col-md-8">
+                                    <div class="input-group">
+                                        <span class="input-group-text">
+                                            <i class="fas fa-search"></i>
+                                        </span>
+                                        <input type="text" class="form-control" id="searchInput" placeholder="Search movies by title, genre, or director...">
+                                    </div>
+                                </div>
+                                <div class="col-md-4 text-end">
+                                    <button class="btn-add" onclick="showAddMovieModal()">
+                                        <i class="fas fa-plus me-2"></i>
+                                        Add New Movie
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Messages -->
+                        <div id="messageContainer"></div>
+
+                        <!-- Movies Grid -->
+                        <div id="moviesContainer">
+                            <div class="loading-spinner">
+                                <div class="spinner-border text-primary" role="status">
+                                    <span class="visually-hidden">Loading movies...</span>
+                                </div>
+                                <p class="mt-2">Loading movies...</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Cinema Halls Tab -->
+                    <div class="tab-pane fade" id="cinema-halls-pane" role="tabpanel">
+                        <!-- Cinema Hall Management Section -->
+                        <div class="search-bar">
+                            <div class="row align-items-center">
+                                <div class="col-md-8">
+                                    <h5 class="mb-0">
+                                        <i class="fas fa-building me-2"></i>
+                                        Cinema Hall Management
+                                    </h5>
+                                </div>
+                                <div class="col-md-4 text-end">
+                                    <button class="btn-add" onclick="showAddCinemaHallModal()">
+                                        <i class="fas fa-plus me-2"></i>
+                                        Add New Cinema Hall
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Cinema Halls Grid -->
+                        <div id="cinemaHallsContainer">
+                            <div class="loading-spinner">
+                                <div class="spinner-border text-primary" role="status">
+                                    <span class="visually-hidden">Loading cinema halls...</span>
+                                </div>
+                                <p class="mt-2">Loading cinema halls...</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add/Edit Movie Modal -->
+    <div class="modal fade" id="movieModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="movieModalTitle">Add New Movie</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="movieForm">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Title *</label>
+                                    <input type="text" class="form-control" id="movieTitle" required>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Genre *</label>
+                                    <select class="form-select" id="movieGenre" required>
+                                        <option value="">Select Genre</option>
+                                        <option value="Action">Action</option>
+                                        <option value="Comedy">Comedy</option>
+                                        <option value="Drama">Drama</option>
+                                        <option value="Horror">Horror</option>
+                                        <option value="Romance">Romance</option>
+                                        <option value="Sci-Fi">Sci-Fi</option>
+                                        <option value="Thriller">Thriller</option>
+                                        <option value="Adventure">Adventure</option>
+                                        <option value="Fantasy">Fantasy</option>
+                                        <option value="Animation">Animation</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Director *</label>
+                                    <input type="text" class="form-control" id="movieDirector" required>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Release Year *</label>
+                                    <input type="number" class="form-control" id="movieReleaseYear" min="1900" max="2030" required>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Duration (minutes) *</label>
+                                    <input type="number" class="form-control" id="movieDuration" min="1" required>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Language *</label>
+                                    <input type="text" class="form-control" id="movieLanguage" required>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Rating</label>
+                                    <select class="form-select" id="movieRating">
+                                        <option value="G">G</option>
+                                        <option value="PG">PG</option>
+                                        <option value="PG-13">PG-13</option>
+                                        <option value="R">R</option>
+                                        <option value="NC-17">NC-17</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Language</label>
+                                    <input type="text" class="form-control" id="movieLanguage" value="English">
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Cast</label>
+                            <input type="text" class="form-control" id="movieCast" placeholder="Actor 1, Actor 2, Actor 3...">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Description</label>
+                            <textarea class="form-control" id="movieDescription" rows="3"></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Trailer URL</label>
+                            <input type="url" class="form-control" id="movieTrailerUrl">
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="movieIsActive" checked>
+                            <label class="form-check-label" for="movieIsActive">
+                                Active (Movie is available for booking)
+                            </label>
+                        </div>
+                        
+                        <!-- Showtimes Section (only shown when editing existing movies) -->
+                        <div id="showtimesSection" style="display: none;">
+                            <hr class="my-4">
+                            <h6 class="mb-3">
+                                <i class="fas fa-calendar-alt me-2"></i>
+                                Manage Showtimes
+                            </h6>
+                            
+                            <!-- Add New Showtime Form -->
+                            <div class="card mb-3">
+                                <div class="card-header">
+                                    <h6 class="mb-0">Add New Showtime</h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-md-4">
+                                            <div class="mb-3">
+                                                <label class="form-label">Cinema Hall</label>
+                                                <select class="form-select" id="showtimeHall">
+                                                    <option value="">Select Hall</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="mb-3">
+                                                <label class="form-label">Start Date & Time</label>
+                                                <input type="datetime-local" class="form-control" id="showtimeStartTime">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="mb-3">
+                                                <label class="form-label">Price ($)</label>
+                                                <input type="number" class="form-control" id="showtimePrice" min="0" step="0.01" placeholder="15.00">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <button type="button" class="btn btn-sm btn-success" onclick="addShowtime()">
+                                        <i class="fas fa-plus me-1"></i>
+                                        Add Showtime
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <!-- Existing Showtimes List -->
+                            <div class="card">
+                                <div class="card-header">
+                                    <h6 class="mb-0">Existing Showtimes</h6>
+                                </div>
+                                <div class="card-body">
+                                    <div id="showtimesList">
+                                        <div class="text-center text-muted py-3">
+                                            <i class="fas fa-clock fa-2x mb-2"></i>
+                                            <p>Loading showtimes...</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" onclick="saveMovie()">
+                        <i class="fas fa-save me-1"></i>
+                        Save Movie
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Delete Confirmation Modal -->
+    <div class="modal fade" id="deleteModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Confirm Delete</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Are you sure you want to delete this movie? This action cannot be undone.</p>
+                    <div class="alert alert-warning">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        This will also delete all associated showtimes and bookings.
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-danger" onclick="confirmDelete()">
+                        <i class="fas fa-trash me-1"></i>
+                        Delete Movie
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add/Edit Cinema Hall Modal -->
+    <div class="modal fade" id="cinemaHallModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="cinemaHallModalTitle">Add New Cinema Hall</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="cinemaHallForm">
+                        <div class="mb-3">
+                            <label class="form-label">Hall Name *</label>
+                            <input type="text" class="form-control" id="hallName" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Location</label>
+                            <input type="text" class="form-control" id="hallLocation" placeholder="e.g., Ground Floor, Main Building">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Capacity *</label>
+                            <input type="number" class="form-control" id="hallCapacity" min="1" required>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" onclick="saveCinemaHall()">
+                        <i class="fas fa-save me-1"></i>
+                        Save Cinema Hall
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Delete Cinema Hall Confirmation Modal -->
+    <div class="modal fade" id="deleteCinemaHallModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Confirm Delete</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Are you sure you want to delete this cinema hall? This action cannot be undone.</p>
+                    <div class="alert alert-warning">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        This will also delete all associated seats and showtimes.
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-danger" onclick="confirmDeleteCinemaHall()">
+                        <i class="fas fa-trash me-1"></i>
+                        Delete Cinema Hall
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Container -->
+    <div class="toast-container position-fixed top-0 end-0 p-3">
+        <div id="adminToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="toast-header">
+                <i class="fas fa-info-circle text-primary me-2"></i>
+                <strong class="me-auto">Admin Notification</strong>
+                <button type="button" class="btn-close" data-bs-dismiss="toast"></button>
+            </div>
+            <div class="toast-body" id="toastMessage">
+                <!-- Toast message will be inserted here -->
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="script.js"></script>
+    <script>
+        // Admin Movies functionality
+        let movies = [];
+        let currentMovieId = null;
+        let movieModal = null;
+        let deleteModal = null;
+        let cinemaHalls = [];
+        let currentShowtimes = [];
+        let cinemaHallModal = null;
+        let deleteCinemaHallModal = null;
+        let currentCinemaHallId = null;
+
+        document.addEventListener('DOMContentLoaded', function() {
+            checkAdminAuth();
+            loadMovies();
+            loadCinemaHalls();
+            initializeModals();
+            setupSearch();
+        });
+
+        function initializeModals() {
+            movieModal = new bootstrap.Modal(document.getElementById('movieModal'));
+            deleteModal = new bootstrap.Modal(document.getElementById('deleteModal'));
+            cinemaHallModal = new bootstrap.Modal(document.getElementById('cinemaHallModal'));
+            deleteCinemaHallModal = new bootstrap.Modal(document.getElementById('deleteCinemaHallModal'));
+        }
+
+        function setupSearch() {
+            const searchInput = document.getElementById('searchInput');
+            searchInput.addEventListener('input', function() {
+                const searchTerm = this.value.toLowerCase();
+                filterMovies(searchTerm);
+            });
+        }
+
+        async function checkAdminAuth() {
+            try {
+                const token = localStorage.getItem('authToken');
+                if (!token) {
+                    showToast('Please log in as admin', 'error');
+                    setTimeout(() => window.location.href = 'login.html', 2000);
+                    return;
+                }
+
+                const response = await fetch('/api/auth/user-role', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                if (!response.ok) throw new Error('Authentication failed');
+
+                const userData = await response.json();
+                const hasAdminRole = userData.authorities && 
+                    userData.authorities.some(auth => auth === 'ROLE_ADMIN');
+                
+                if (!hasAdminRole) {
+                    showToast('Access denied. Admin privileges required.', 'error');
+                    setTimeout(() => window.location.href = 'index.html', 2000);
+                    return;
+                }
+                
+            } catch (error) {
+                console.error('Admin auth check failed:', error);
+                showToast('Authentication failed. Please log in again.', 'error');
+                setTimeout(() => window.location.href = 'login.html', 2000);
+            }
+        }
+
+        async function loadMovies() {
+            try {
+                const token = localStorage.getItem('authToken');
+                const response = await fetch('/api/admin/movies', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                if (!response.ok) throw new Error('Failed to load movies');
+
+                movies = await response.json();
+                displayMovies(movies);
+                
+            } catch (error) {
+                console.error('Failed to load movies:', error);
+                showError('Failed to load movies: ' + error.message);
+            }
+        }
+
+        function displayMovies(moviesToDisplay) {
+            const container = document.getElementById('moviesContainer');
+            
+            if (moviesToDisplay.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-5">
+                        <i class="fas fa-film fa-3x text-muted mb-3"></i>
+                        <h4 class="text-muted">No movies found</h4>
+                        <p class="text-muted">Add your first movie to get started.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = `
+                <div class="movie-grid">
+                    ${moviesToDisplay.map(movie => `
+                        <div class="movie-card">
+                            <div class="card-body">
+                                <div class="col-md-12">
+                                    <h5 class="card-title">${movie.title}</h5>
+                                    <p class="card-text">
+                                        <strong>Genre:</strong> ${movie.genre}<br>
+                                        <strong>Director:</strong> ${movie.director}<br>
+                                        <strong>Year:</strong> ${movie.releaseYear}<br>
+                                        <strong>Duration:</strong> ${movie.duration} min<br>
+                                        <strong>Language:</strong> ${movie.language}<br>
+                                        <strong>Rating:</strong> ${movie.rating || 'N/A'}
+                                    </p>
+                                    <p class="card-text">
+                                        <small class="text-muted">${movie.description || 'No description available'}</small>
+                                    </p>
+                                    <div class="movie-actions">
+                                        <button class="btn btn-sm btn-primary" onclick="editMovie(${movie.movieId})">
+                                            <i class="fas fa-edit me-1"></i>Edit
+                                        </button>
+                                        <button class="btn btn-sm btn-danger" onclick="deleteMovie(${movie.movieId})">
+                                            <i class="fas fa-trash me-1"></i>Delete
+                                        </button>
+                                        ${movie.isActive ? 
+                                            '<span class="badge bg-success ms-2">Active</span>' : 
+                                            '<span class="badge bg-warning ms-2">Inactive</span>'
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+        }
+
+        function filterMovies(searchTerm) {
+            const filteredMovies = movies.filter(movie => 
+                movie.title.toLowerCase().includes(searchTerm) ||
+                movie.genre.toLowerCase().includes(searchTerm) ||
+                movie.director.toLowerCase().includes(searchTerm) ||
+                movie.cast?.toLowerCase().includes(searchTerm)
+            );
+            displayMovies(filteredMovies);
+        }
+
+        function showAddMovieModal() {
+            currentMovieId = null;
+            document.getElementById('movieModalTitle').textContent = 'Add New Movie';
+            document.getElementById('movieForm').reset();
+            document.getElementById('movieIsActive').checked = true;
+            
+            // Hide showtimes section for new movies
+            document.getElementById('showtimesSection').style.display = 'none';
+            
+            movieModal.show();
+        }
+
+        function editMovie(movieId) {
+            const movie = movies.find(m => m.movieId === movieId);
+            if (!movie) return;
+
+            currentMovieId = movieId;
+            document.getElementById('movieModalTitle').textContent = 'Edit Movie';
+            
+            // Populate form with movie data
+            document.getElementById('movieTitle').value = movie.title || '';
+            document.getElementById('movieGenre').value = movie.genre || '';
+            document.getElementById('movieDirector').value = movie.director || '';
+            document.getElementById('movieReleaseYear').value = movie.releaseYear || '';
+            document.getElementById('movieDuration').value = movie.duration || '';
+            document.getElementById('movieLanguage').value = movie.language || '';
+            document.getElementById('movieRating').value = movie.rating || '';
+            document.getElementById('movieCast').value = movie.cast || '';
+            document.getElementById('movieDescription').value = movie.description || '';
+            document.getElementById('movieTrailerUrl').value = movie.trailerUrl || '';
+            document.getElementById('movieIsActive').checked = movie.isActive;
+            
+            // Show showtimes section for existing movies
+            document.getElementById('showtimesSection').style.display = 'block';
+            loadShowtimes(movieId);
+            
+            movieModal.show();
+        }
+
+        async function saveMovie() {
+            try {
+                const formData = {
+                    title: document.getElementById('movieTitle').value,
+                    genre: document.getElementById('movieGenre').value,
+                    director: document.getElementById('movieDirector').value,
+                    releaseYear: parseInt(document.getElementById('movieReleaseYear').value),
+                    duration: parseInt(document.getElementById('movieDuration').value),
+                    language: document.getElementById('movieLanguage').value,
+                    rating: document.getElementById('movieRating').value,
+                    cast: document.getElementById('movieCast').value,
+                    description: document.getElementById('movieDescription').value,
+                    trailerUrl: document.getElementById('movieTrailerUrl').value,
+                    isActive: document.getElementById('movieIsActive').checked
+                };
+
+                // Validate required fields
+                if (!formData.title || !formData.genre || !formData.director || 
+                    !formData.releaseYear || !formData.duration || !formData.language) {
+                    showToast('Please fill in all required fields', 'error');
+                    return;
+                }
+
+                const token = localStorage.getItem('authToken');
+                const url = currentMovieId ? 
+                    `/api/admin/movies/${currentMovieId}` : 
+                    '/api/admin/movies';
+                const method = currentMovieId ? 'PUT' : 'POST';
+
+                const response = await fetch(url, {
+                    method: method,
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(formData)
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.message || 'Failed to save movie');
+                }
+
+                const savedMovie = await response.json();
+                
+                if (currentMovieId) {
+                    // Update existing movie
+                    const index = movies.findIndex(m => m.movieId === currentMovieId);
+                    if (index !== -1) {
+                        movies[index] = savedMovie;
+                    }
+                    showToast('Movie updated successfully', 'success');
+                } else {
+                    // Add new movie
+                    movies.unshift(savedMovie);
+                    showToast('Movie added successfully', 'success');
+                }
+
+                movieModal.hide();
+                displayMovies(movies);
+                
+            } catch (error) {
+                console.error('Failed to save movie:', error);
+                showToast('Failed to save movie: ' + error.message, 'error');
+            }
+        }
+
+        function deleteMovie(movieId) {
+            currentMovieId = movieId;
+            deleteModal.show();
+        }
+
+        async function confirmDelete() {
+            try {
+                const token = localStorage.getItem('authToken');
+                const response = await fetch(`/api/admin/movies/${currentMovieId}`, {
+                    method: 'DELETE',
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.message || 'Failed to delete movie');
+                }
+
+                // Remove from local array
+                movies = movies.filter(m => m.movieId !== currentMovieId);
+                displayMovies(movies);
+                deleteModal.hide();
+                showToast('Movie deleted successfully', 'success');
+                
+            } catch (error) {
+                console.error('Failed to delete movie:', error);
+                showToast('Failed to delete movie: ' + error.message, 'error');
+            }
+        }
+
+        function showError(message) {
+            const container = document.getElementById('messageContainer');
+            container.innerHTML = `
+                <div class="error-message">
+                    <i class="fas fa-exclamation-circle me-2"></i>
+                    ${message}
+                </div>
+            `;
+        }
+
+        function showSuccess(message) {
+            const container = document.getElementById('messageContainer');
+            container.innerHTML = `
+                <div class="success-message">
+                    <i class="fas fa-check-circle me-2"></i>
+                    ${message}
+                </div>
+            `;
+        }
+
+        function showToast(message, type = 'info') {
+            const toast = document.getElementById('adminToast');
+            const toastMessage = document.getElementById('toastMessage');
+            
+            toastMessage.textContent = message;
+            
+            const toastHeader = toast.querySelector('.toast-header');
+            const icon = toastHeader.querySelector('i');
+            
+            toastHeader.className = 'toast-header';
+            icon.className = 'fas me-2';
+            
+            switch (type) {
+                case 'success':
+                    toastHeader.classList.add('bg-success', 'text-white');
+                    icon.classList.add('fa-check-circle', 'text-white');
+                    break;
+                case 'error':
+                    toastHeader.classList.add('bg-danger', 'text-white');
+                    icon.classList.add('fa-exclamation-circle', 'text-white');
+                    break;
+                case 'warning':
+                    toastHeader.classList.add('bg-warning', 'text-dark');
+                    icon.classList.add('fa-exclamation-triangle', 'text-dark');
+                    break;
+                default:
+                    toastHeader.classList.add('bg-primary', 'text-white');
+                    icon.classList.add('fa-info-circle', 'text-white');
+            }
+            
+            const bsToast = new bootstrap.Toast(toast);
+            bsToast.show();
+        }
+
+        // ========== SHOWTIME MANAGEMENT FUNCTIONS ==========
+        
+        async function loadCinemaHalls() {
+            try {
+                const token = localStorage.getItem('authToken');
+                const response = await fetch('/api/admin/cinema-halls', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                if (!response.ok) throw new Error('Failed to load cinema halls');
+
+                cinemaHalls = await response.json();
+                populateHallDropdown();
+                displayCinemaHalls();
+            } catch (error) {
+                console.error('Failed to load cinema halls:', error);
+                showToast('Failed to load cinema halls: ' + error.message, 'error');
+            }
+        }
+        
+        function populateHallDropdown() {
+            const select = document.getElementById('showtimeHall');
+            select.innerHTML = '<option value="">Select Hall</option>';
+            
+            cinemaHalls.forEach(hall => {
+                const option = document.createElement('option');
+                option.value = hall.hallId;
+                option.textContent = `${hall.name} (Capacity: ${hall.capacity})`;
+                select.appendChild(option);
+            });
+        }
+        
+        async function loadShowtimes(movieId) {
+            try {
+                const token = localStorage.getItem('authToken');
+                const response = await fetch(`/api/admin/movies/${movieId}/showtimes`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                if (!response.ok) throw new Error('Failed to load showtimes');
+
+                currentShowtimes = await response.json();
+                displayShowtimes();
+            } catch (error) {
+                console.error('Failed to load showtimes:', error);
+                document.getElementById('showtimesList').innerHTML = `
+                    <div class="text-center text-muted py-3">
+                        <i class="fas fa-exclamation-triangle fa-2x mb-2"></i>
+                        <p>Failed to load showtimes: ${error.message}</p>
+                    </div>
+                `;
+            }
+        }
+        
+        function displayShowtimes() {
+            const container = document.getElementById('showtimesList');
+            
+            if (currentShowtimes.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center text-muted py-3">
+                        <i class="fas fa-calendar-alt fa-2x mb-2"></i>
+                        <p>No showtimes scheduled for this movie.</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            container.innerHTML = currentShowtimes.map(showtime => {
+                const startTime = new Date(showtime.startTime);
+                const endTime = new Date(showtime.endTime);
+                const hallName = showtime.cinemaHall ? showtime.cinemaHall.name : 'Unknown Hall';
+                
+                return `
+                    <div class="border rounded p-3 mb-2">
+                        <div class="row align-items-center">
+                            <div class="col-md-3">
+                                <strong>Hall:</strong> ${hallName}
+                            </div>
+                            <div class="col-md-3">
+                                <strong>Date:</strong><br>
+                                ${startTime.toLocaleDateString()}
+                            </div>
+                            <div class="col-md-3">
+                                <strong>Time:</strong><br>
+                                ${startTime.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})} - 
+                                ${endTime.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
+                            </div>
+                            <div class="col-md-2">
+                                <strong>Price:</strong><br>
+                                $${showtime.price.toFixed(2)}
+                            </div>
+                            <div class="col-md-1">
+                                <button class="btn btn-sm btn-danger" onclick="deleteShowtime(${showtime.showtimeId})" title="Delete Showtime">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+        
+        async function addShowtime() {
+            try {
+                const hallId = document.getElementById('showtimeHall').value;
+                const startTime = document.getElementById('showtimeStartTime').value;
+                const price = document.getElementById('showtimePrice').value;
+                
+                // Validate inputs
+                if (!hallId) {
+                    showToast('Please select a cinema hall', 'error');
+                    return;
+                }
+                if (!startTime) {
+                    showToast('Please select start date and time', 'error');
+                    return;
+                }
+                if (!price || price <= 0) {
+                    showToast('Please enter a valid price', 'error');
+                    return;
+                }
+                
+                const token = localStorage.getItem('authToken');
+                const response = await fetch(`/api/admin/movies/${currentMovieId}/showtimes`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        hallId: parseInt(hallId),
+                        startTime: startTime,
+                        price: parseFloat(price)
+                    })
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.message || 'Failed to create showtime');
+                }
+
+                const newShowtime = await response.json();
+                currentShowtimes.push(newShowtime);
+                displayShowtimes();
+                
+                // Clear form
+                document.getElementById('showtimeHall').value = '';
+                document.getElementById('showtimeStartTime').value = '';
+                document.getElementById('showtimePrice').value = '';
+                
+                showToast('Showtime added successfully', 'success');
+            } catch (error) {
+                console.error('Failed to add showtime:', error);
+                showToast('Failed to add showtime: ' + error.message, 'error');
+            }
+        }
+        
+        async function deleteShowtime(showtimeId) {
+            if (!confirm('Are you sure you want to delete this showtime? This action cannot be undone.')) {
+                return;
+            }
+            
+            try {
+                const token = localStorage.getItem('authToken');
+                const response = await fetch(`/api/admin/showtimes/${showtimeId}`, {
+                    method: 'DELETE',
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.message || 'Failed to delete showtime');
+                }
+
+                // Remove from current list
+                currentShowtimes = currentShowtimes.filter(st => st.showtimeId !== showtimeId);
+                displayShowtimes();
+                
+                showToast('Showtime deleted successfully', 'success');
+            } catch (error) {
+                console.error('Failed to delete showtime:', error);
+                showToast('Failed to delete showtime: ' + error.message, 'error');
+            }
+        }
+
+        // ========== CINEMA HALL MANAGEMENT FUNCTIONS ==========
+        
+        function displayCinemaHalls() {
+            const container = document.getElementById('cinemaHallsContainer');
+            
+            if (cinemaHalls.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-5">
+                        <i class="fas fa-building fa-3x text-muted mb-3"></i>
+                        <h4 class="text-muted">No cinema halls found</h4>
+                        <p class="text-muted">Add your first cinema hall to get started.</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            container.innerHTML = `
+                <div class="movie-grid">
+                    ${cinemaHalls.map(hall => `
+                        <div class="movie-card">
+                            <div class="card-body">
+                                <h5 class="card-title">
+                                    <i class="fas fa-building me-2"></i>
+                                    ${hall.name}
+                                </h5>
+                                <p class="card-text">
+                                    <strong>Location:</strong> ${hall.location || 'Not specified'}<br>
+                                    <strong>Capacity:</strong> ${hall.capacity} seats<br>
+                                    <strong>Hall ID:</strong> ${hall.hallId}
+                                </p>
+                                <div class="movie-actions">
+                                    <button class="btn btn-sm btn-primary" onclick="editCinemaHall(${hall.hallId})">
+                                        <i class="fas fa-edit me-1"></i>Edit
+                                    </button>
+                                    <button class="btn btn-sm btn-danger" onclick="deleteCinemaHall(${hall.hallId})">
+                                        <i class="fas fa-trash me-1"></i>Delete
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+        }
+        
+        function showAddCinemaHallModal() {
+            currentCinemaHallId = null;
+            document.getElementById('cinemaHallModalTitle').textContent = 'Add New Cinema Hall';
+            document.getElementById('cinemaHallForm').reset();
+            cinemaHallModal.show();
+        }
+        
+        function editCinemaHall(hallId) {
+            const hall = cinemaHalls.find(h => h.hallId === hallId);
+            if (!hall) return;
+
+            currentCinemaHallId = hallId;
+            document.getElementById('cinemaHallModalTitle').textContent = 'Edit Cinema Hall';
+            
+            // Populate form with hall data
+            document.getElementById('hallName').value = hall.name || '';
+            document.getElementById('hallLocation').value = hall.location || '';
+            document.getElementById('hallCapacity').value = hall.capacity || '';
+            
+            cinemaHallModal.show();
+        }
+        
+        async function saveCinemaHall() {
+            try {
+                const formData = {
+                    name: document.getElementById('hallName').value,
+                    location: document.getElementById('hallLocation').value,
+                    capacity: parseInt(document.getElementById('hallCapacity').value)
+                };
+
+                // Validate required fields
+                if (!formData.name || !formData.capacity) {
+                    showToast('Please fill in all required fields', 'error');
+                    return;
+                }
+
+                const token = localStorage.getItem('authToken');
+                const url = currentCinemaHallId ? 
+                    `/api/admin/cinema-halls/${currentCinemaHallId}` : 
+                    '/api/admin/cinema-halls';
+                const method = currentCinemaHallId ? 'PUT' : 'POST';
+
+                const response = await fetch(url, {
+                    method: method,
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(formData)
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.message || 'Failed to save cinema hall');
+                }
+
+                const savedHall = await response.json();
+                
+                if (currentCinemaHallId) {
+                    // Update existing hall
+                    const index = cinemaHalls.findIndex(h => h.hallId === currentCinemaHallId);
+                    if (index !== -1) {
+                        cinemaHalls[index] = savedHall;
+                    }
+                    showToast('Cinema hall updated successfully', 'success');
+                } else {
+                    // Add new hall
+                    cinemaHalls.unshift(savedHall);
+                    showToast('Cinema hall added successfully', 'success');
+                }
+
+                cinemaHallModal.hide();
+                displayCinemaHalls();
+                populateHallDropdown(); // Update the dropdown in showtime form
+                
+            } catch (error) {
+                console.error('Failed to save cinema hall:', error);
+                showToast('Failed to save cinema hall: ' + error.message, 'error');
+            }
+        }
+        
+        function deleteCinemaHall(hallId) {
+            currentCinemaHallId = hallId;
+            deleteCinemaHallModal.show();
+        }
+        
+        async function confirmDeleteCinemaHall() {
+            try {
+                const token = localStorage.getItem('authToken');
+                const response = await fetch(`/api/admin/cinema-halls/${currentCinemaHallId}`, {
+                    method: 'DELETE',
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.message || 'Failed to delete cinema hall');
+                }
+
+                // Remove from local array
+                cinemaHalls = cinemaHalls.filter(h => h.hallId !== currentCinemaHallId);
+                displayCinemaHalls();
+                populateHallDropdown(); // Update the dropdown in showtime form
+                deleteCinemaHallModal.hide();
+                showToast('Cinema hall deleted successfully', 'success');
+                
+            } catch (error) {
+                console.error('Failed to delete cinema hall:', error);
+                showToast('Failed to delete cinema hall: ' + error.message, 'error');
+            }
+        }
+
+        function logout() {
+            localStorage.removeItem('authToken');
+            showToast('Logged out successfully', 'success');
+            setTimeout(() => window.location.href = 'index.html', 1000);
+        }
+    </script>
+</body>
+</html>

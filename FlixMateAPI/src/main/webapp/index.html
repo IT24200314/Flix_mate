@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FlixMate - Premium Cinema Experience | Scope Cinemas Style</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- Navigation -->
+  <div id="navbar-container"></div>
+
+  <!-- Promotional Banners -->
+  <section class="promotional-banners py-3">
+    <div class="container">
+      <div id="banners-container" class="row">
+        <!-- Banners will be loaded here -->
+      </div>
+    </div>
+  </section>
+
+  <!-- Hero Section -->
+  <section class="hero-section scope-cinemas-hero">
+    <div class="container">
+      <div class="row align-items-center min-vh-100">
+        <div class="col-lg-6">
+          <h1 class="hero-title fade-in">
+            <span class="text-accent">NOW SHOWING</span><br>
+            Experience Cinema Like Never Before
+          </h1>
+          <p class="hero-subtitle fade-in">
+            Discover the latest blockbusters, book your perfect seats, and enjoy premium cinema experience with FlixMate.
+          </p>
+          <div class="hero-buttons fade-in">
+            <a href="booking.html" class="btn btn-lg me-3">
+              <i class="fas fa-ticket-alt me-2"></i>Buy Tickets Online
+            </a>
+            <a href="movies.html" class="btn btn-outline btn-lg me-3">
+              <i class="fas fa-film me-2"></i>Browse Movies
+            </a>
+          </div>
+        </div>
+        <div class="col-lg-6">
+          <div class="hero-image text-center">
+            <div class="cinema-icon">
+              <i class="fas fa-video fa-10x text-accent"></i>
+              <div class="glow-effect"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Now Showing Section -->
+  <section class="now-showing py-5">
+    <div class="container">
+      <div class="d-flex justify-content-between align-items-center mb-5">
+        <h2 class="section-title">
+          <span class="text-accent">NOW SHOWING</span>
+        </h2>
+        <a href="movies.html" class="btn btn-outline">
+          <i class="fas fa-eye me-2"></i>View All
+        </a>
+      </div>
+      <div class="row" id="featured-movies">
+        <div class="col-12 text-center">
+          <div class="loading" id="loading">Loading featured movies...</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Coming Soon Section -->
+  <section class="coming-soon py-5" style="background: #f8fafc;">
+    <div class="container">
+      <div class="d-flex justify-content-between align-items-center mb-5">
+        <h2 class="section-title">
+          <span class="text-accent">COMING SOON</span>
+        </h2>
+        <a href="movies.html" class="btn btn-outline">
+          <i class="fas fa-calendar me-2"></i>View All
+        </a>
+      </div>
+      <div class="row" id="movie-list">
+        <div class="col-12 text-center">
+          <div class="loading" id="loading-movies">Loading movies...</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Features Section -->
+  <section class="features py-5">
+    <div class="container">
+      <h2 class="text-center mb-5">Why Choose FlixMate?</h2>
+      <div class="row">
+        <div class="col-md-4 mb-4">
+          <div class="card text-center h-100">
+            <div class="card-body">
+              <i class="fas fa-mobile-alt fa-3x text-accent mb-3"></i>
+              <h5 class="card-title">Easy Booking</h5>
+              <p class="card-text">Book your tickets in just a few clicks with our intuitive interface.</p>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-4 mb-4">
+          <div class="card text-center h-100">
+            <div class="card-body">
+              <i class="fas fa-shield-alt fa-3x text-accent mb-3"></i>
+              <h5 class="card-title">Secure Payment</h5>
+              <p class="card-text">Your payment information is safe with our secure payment processing.</p>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-4 mb-4">
+          <div class="card text-center h-100">
+            <div class="card-body">
+              <i class="fas fa-star fa-3x text-accent mb-3"></i>
+              <h5 class="card-title">User Reviews</h5>
+              <p class="card-text">Read reviews from other movie lovers to make informed decisions.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="text-light py-5">
+    <div class="container">
+      <div class="row">
+        <div class="col-lg-4 mb-4">
+          <h5 class="mb-3">
+            <i class="fas fa-film me-2 text-accent"></i>FlixMate
+          </h5>
+          <p class="text-muted">Experience premium cinema like never before. Book your tickets, choose your seats, and enjoy the latest blockbusters in our state-of-the-art theaters.</p>
+          <div class="social-links">
+            <a href="#" class="text-light me-3 fs-4"><i class="fab fa-facebook"></i></a>
+            <a href="#" class="text-light me-3 fs-4"><i class="fab fa-twitter"></i></a>
+            <a href="#" class="text-light me-3 fs-4"><i class="fab fa-instagram"></i></a>
+            <a href="#" class="text-light me-3 fs-4"><i class="fab fa-youtube"></i></a>
+          </div>
+        </div>
+        <div class="col-lg-2 col-md-6 mb-4">
+          <h6 class="text-accent mb-3">Quick Links</h6>
+          <ul class="list-unstyled">
+            <li><a href="movies.html" class="text-muted text-decoration-none">Movies</a></li>
+            <li><a href="booking.html" class="text-muted text-decoration-none">Book Tickets</a></li>
+            <li><a href="booking-history.html" class="text-muted text-decoration-none">My Bookings</a></li>
+            <li><a href="reviews.html" class="text-muted text-decoration-none">Reviews</a></li>
+          </ul>
+        </div>
+        <div class="col-lg-2 col-md-6 mb-4">
+          <h6 class="text-accent mb-3">Support</h6>
+          <ul class="list-unstyled">
+            <li><a href="#" class="text-muted text-decoration-none">Help Center</a></li>
+            <li><a href="#" class="text-muted text-decoration-none">Contact Us</a></li>
+            <li><a href="#" class="text-muted text-decoration-none">Terms of Service</a></li>
+            <li><a href="#" class="text-muted text-decoration-none">Privacy Policy</a></li>
+          </ul>
+        </div>
+        <div class="col-lg-4 mb-4">
+          <h6 class="text-accent mb-3">Newsletter</h6>
+          <p class="text-muted">Subscribe to get the latest movie updates and exclusive offers.</p>
+          <div class="input-group">
+            <input type="email" class="form-control" placeholder="Enter your email">
+            <button class="btn btn-accent" type="button">Subscribe</button>
+          </div>
+        </div>
+      </div>
+      <hr class="my-4" style="border-color: var(--border-color);">
+      <div class="row align-items-center">
+        <div class="col-md-6">
+          <p class="text-muted mb-0">&copy; 2025 FlixMate. All rights reserved.</p>
+        </div>
+        <div class="col-md-6 text-md-end">
+          <p class="text-muted mb-0">Developed with <i class="fas fa-heart text-accent"></i> for cinema lovers</p>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="js/error-boundary.js"></script>
+  <script src="script.js"></script>
+  <script>
+    // Load featured movies
+    async function loadFeaturedMovies() {
+      try {
+        const movies = await apiCall('/public/movies', 'GET', null, false);
+        const featuredContainer = document.getElementById('featured-movies');
+        const loading = document.getElementById('loading');
+        
+        if (loading) loading.style.display = 'none';
+        
+        // Show first 3 movies as featured
+        const featuredMovies = movies.slice(0, 3);
+        
+        featuredContainer.innerHTML = featuredMovies.map(movie => `
+          <div class="col-lg-4 col-md-6 mb-4">
+            <div class="card movie-card h-100">
+              <div class="card-body">
+                <h5 class="card-title">${movie.title || 'Unknown Movie'}</h5>
+                <p class="card-text">
+                  <small class="text-muted">${movie.genre || 'Action'} • ${movie.duration || 120} min • ${movie.releaseYear || '2025'}</small>
+                </p>
+                <p class="card-text">${(movie.description || 'No description available.').substring(0, 100)}...</p>
+                <a href="booking.html?movieId=${movie.movieId}" class="btn btn-sm">
+                  <i class="fas fa-ticket-alt me-1"></i> Book Now
+                </a>
+              </div>
+            </div>
+          </div>
+        `).join('');
+        
+        // Add animation to cards
+        document.querySelectorAll('.movie-card').forEach((card, index) => {
+          setTimeout(() => {
+            card.classList.add('fade-in');
+          }, index * 100);
+        });
+        
+      } catch (error) {
+        console.error('Error loading featured movies:', error);
+        showAlert('error', 'Failed to load featured movies');
+      }
+    }
+
+    // Load all movies
+    async function loadAllMovies() {
+      try {
+        const movies = await apiCall('/public/movies', 'GET', null, false);
+        const moviesContainer = document.getElementById('movie-list');
+        const loading = document.getElementById('loading-movies');
+        
+        if (loading) loading.style.display = 'none';
+        
+        moviesContainer.innerHTML = movies.map(movie => `
+          <div class="col-lg-3 col-md-4 col-sm-6 mb-4">
+            <div class="card movie-card h-100">
+              <div class="card-body">
+                <h6 class="card-title">${movie.title || 'Unknown Movie'}</h6>
+                <p class="card-text small">
+                  <small class="text-muted">${movie.genre || 'Action'} • ${movie.duration || 120} min</small>
+                </p>
+                <p class="card-text small">${(movie.description || 'No description available.').substring(0, 100)}...</p>
+                <div class="d-flex justify-content-between align-items-center">
+                  <span class="badge bg-secondary">${movie.releaseYear || '2025'}</span>
+                  <div>
+                    <a href="reviews.html?movieId=${movie.movieId}" class="btn btn-sm btn-outline me-1">
+                      <i class="fas fa-star"></i>
+                    </a>
+                    <a href="booking.html?movieId=${movie.movieId}" class="btn btn-sm">
+                      <i class="fas fa-ticket-alt"></i>
+                    </a>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        `).join('');
+        
+        // Add animation to cards
+        document.querySelectorAll('.movie-card').forEach((card, index) => {
+          setTimeout(() => {
+            card.classList.add('fade-in');
+          }, index * 50);
+        });
+        
+      } catch (error) {
+        console.error('Error loading movies:', error);
+        showAlert('error', 'Failed to load movies');
+      }
+    }
+
+    // Search movies
+    function searchMovies() {
+      const searchTerm = document.getElementById('movie-search').value.toLowerCase();
+      const movieCards = document.querySelectorAll('.movie-card');
+      
+      movieCards.forEach(card => {
+        const title = card.querySelector('.card-title').textContent.toLowerCase();
+        const description = card.querySelector('.card-text').textContent.toLowerCase();
+        
+        if (title.includes(searchTerm) || description.includes(searchTerm)) {
+          card.parentElement.style.display = 'block';
+        } else {
+          card.parentElement.style.display = 'none';
+        }
+      });
+    }
+
+    // Load promotional banners
+    async function loadPromotionalBanners() {
+      try {
+        const banners = await apiCall('/public/banners', 'GET', null, false);
+        const container = document.getElementById('banners-container');
+        
+        if (banners && banners.length > 0) {
+          container.innerHTML = banners.map(banner => `
+            <div class="col-md-6 col-lg-4 mb-3">
+              <div class="card banner-card" onclick="trackBannerClick(${banner.bannerId})" style="cursor: pointer;">
+                <img src="${banner.imageUrl || 'https://via.placeholder.com/300x150?text=Promotional+Banner'}" 
+                     class="card-img-top" alt="${banner.title}" style="height: 150px; object-fit: cover;">
+                <div class="card-body p-2">
+                  <h6 class="card-title mb-1">${banner.title}</h6>
+                  ${banner.description ? `<p class="card-text small mb-1">${banner.description}</p>` : ''}
+                  ${banner.discountCode ? `<span class="badge bg-success">${banner.discountCode}</span>` : ''}
+                </div>
+              </div>
+            </div>
+          `).join('');
+        } else {
+          container.innerHTML = '';
+        }
+      } catch (error) {
+        console.error('Error loading promotional banners:', error);
+        document.getElementById('banners-container').innerHTML = '';
+      }
+    }
+
+    // Track banner click
+    async function trackBannerClick(bannerId) {
+      try {
+        await apiCall(`/public/banners/${bannerId}/click`, 'POST', null, false);
+      } catch (error) {
+        console.warn('Error tracking banner click:', error);
+      }
+    }
+
+    // Load navigation
+    async function loadNavigation() {
+      try {
+        const response = await fetch('navigation.html');
+        const html = await response.text();
+        document.getElementById('navbar-container').innerHTML = html;
+      } catch (error) {
+        console.error('Error loading navigation:', error);
+      }
+    }
+
+    // Initialize page
+    document.addEventListener('DOMContentLoaded', () => {
+      loadNavigation();
+      loadPromotionalBanners();
+      loadFeaturedMovies();
+      loadAllMovies();
+      
+      // Add search functionality
+      const searchInput = document.getElementById('movie-search');
+      if (searchInput) {
+        searchInput.addEventListener('input', debounce(searchMovies, 300));
+      }
+    });
+  </script>
+</body>
+</html>
+
+
+

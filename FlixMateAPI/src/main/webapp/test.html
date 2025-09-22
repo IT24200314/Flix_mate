@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FlixMate - Test Page</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  
+  <div class="container mt-5">
+    <div class="row justify-content-center">
+      <div class="col-md-8">
+        <div class="card">
+          <div class="card-body text-center">
+            <h1 class="display-4 mb-4">
+              <i class="fas fa-film text-accent me-3"></i>
+              FlixMate Test Page
+            </h1>
+            <p class="lead mb-4">Testing the new modern theme and functionality</p>
+            
+            <div class="row mb-4">
+              <div class="col-md-6">
+                <div class="card">
+                  <div class="card-body">
+                    <h5 class="card-title">Theme Test</h5>
+                    <p class="card-text">This card tests the new orange theme and animations.</p>
+                    <button class="btn" onclick="testAlert()">Test Alert</button>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="card">
+                  <div class="card-body">
+                    <h5 class="card-title">Button Test</h5>
+                    <p class="card-text">Testing button functionality and styling.</p>
+                    <button class="btn btn-outline" onclick="testModal()">Test Modal</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <div class="mb-4">
+              <h5>Form Test</h5>
+              <div class="row">
+                <div class="col-md-6">
+                  <input type="text" class="form-control mb-3" placeholder="Test input field">
+                </div>
+                <div class="col-md-6">
+                  <select class="form-select mb-3">
+                    <option>Test select</option>
+                    <option>Option 1</option>
+                    <option>Option 2</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+            
+            <div class="d-flex justify-content-center gap-3">
+              <button class="btn" onclick="testSuccess()">Success Test</button>
+              <button class="btn btn-outline" onclick="testError()">Error Test</button>
+              <a href="index.html" class="btn">Go to Home</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+  <script>
+    function testAlert() {
+      showAlert('info', 'This is a test alert message!');
+    }
+    
+    function testModal() {
+      showModal('Test Modal', 'This is a test modal to verify functionality.', () => {
+        showAlert('success', 'Modal confirmed!');
+      });
+    }
+    
+    function testSuccess() {
+      showAlert('success', 'Success message test!');
+    }
+    
+    function testError() {
+      showAlert('error', 'Error message test!');
+    }
+  </script>
+</body>
+</html>

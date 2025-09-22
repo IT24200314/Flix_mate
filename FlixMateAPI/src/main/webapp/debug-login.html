@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Debug Login - FlixMate</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="container mt-5">
+    <div class="row justify-content-center">
+      <div class="col-md-8">
+        <div class="card">
+          <div class="card-header">
+            <h3><i class="fas fa-bug me-2"></i>Debug Login</h3>
+          </div>
+          <div class="card-body">
+            <div class="mb-3">
+              <button class="btn btn-primary" onclick="testAdminUser()">
+                <i class="fas fa-user-shield me-2"></i>Test Admin User
+              </button>
+            </div>
+            
+            <div class="mb-3">
+              <button class="btn btn-secondary" onclick="testLogin()">
+                <i class="fas fa-sign-in-alt me-2"></i>Test Login
+              </button>
+            </div>
+            
+            <div id="debug-output" class="mt-4">
+              <h5>Debug Output:</h5>
+              <pre id="debug-text" class="bg-dark text-light p-3 rounded"></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function log(message) {
+      const debugText = document.getElementById('debug-text');
+      debugText.textContent += new Date().toLocaleTimeString() + ': ' + message + '\n';
+      console.log(message);
+    }
+
+    async function testAdminUser() {
+      log('=== TESTING ADMIN USER ===');
+      try {
+        const response = await fetch('/api/auth/test-admin');
+        const result = await response.json();
+        log('Response status: ' + response.status);
+        log('Response data: ' + JSON.stringify(result, null, 2));
+      } catch (error) {
+        log('Error: ' + error.message);
+      }
+    }
+
+    async function testLogin() {
+      log('=== TESTING LOGIN ===');
+      try {
+        const response = await fetch('/api/auth/login', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            email: 'admin@example.com',
+            password: 'password123'
+          })
+        });
+        
+        const result = await response.json();
+        log('Login response status: ' + response.status);
+        log('Login response data: ' + JSON.stringify(result, null, 2));
+      } catch (error) {
+        log('Login error: ' + error.message);
+      }
+    }
+
+    // Clear debug output on page load
+    document.addEventListener('DOMContentLoaded', () => {
+      document.getElementById('debug-text').textContent = 'Debug output will appear here...\n';
+    });
+  </script>
+</body>
+</html>

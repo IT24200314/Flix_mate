@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FlixMate - Debug Booking</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="container mt-5">
+    <div class="row justify-content-center">
+      <div class="col-lg-8">
+        <div class="card">
+          <div class="card-body">
+            <h2 class="text-center mb-4">
+              <i class="fas fa-bug me-2"></i>Debug Booking System
+            </h2>
+            
+            <div class="row mb-4">
+              <div class="col-md-6">
+                <div class="card">
+                  <div class="card-body">
+                    <h5>Test Showtimes API</h5>
+                    <button class="btn btn-outline" onclick="testShowtimesAPI()">Test API</button>
+                    <div id="showtimes-result" class="mt-2"></div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="card">
+                  <div class="card-body">
+                    <h5>Test Movies API</h5>
+                    <button class="btn btn-outline" onclick="testMoviesAPI()">Test API</button>
+                    <div id="movies-result" class="mt-2"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <div class="row mb-4">
+              <div class="col-md-6">
+                <div class="card">
+                  <div class="card-body">
+                    <h5>Test Seats API</h5>
+                    <button class="btn btn-outline" onclick="testSeatsAPI()">Test API</button>
+                    <div id="seats-result" class="mt-2"></div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="card">
+                  <div class="card-body">
+                    <h5>Test Booking API</h5>
+                    <button class="btn btn-outline" onclick="testBookingAPI()">Test API</button>
+                    <div id="booking-result" class="mt-2"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <div class="text-center">
+              <a href="booking.html" class="btn">
+                <i class="fas fa-ticket-alt me-2"></i>Go to Booking Page
+              </a>
+              <a href="index.html" class="btn btn-outline ms-2">
+                <i class="fas fa-home me-2"></i>Go to Home
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="script.js"></script>
+  <script>
+    async function testShowtimesAPI() {
+      const resultDiv = document.getElementById('showtimes-result');
+      resultDiv.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Testing...';
+      
+      try {
+        const response = await fetch('/api/theatre/showtimes');
+        const data = await response.json();
+        
+        if (response.ok) {
+          resultDiv.innerHTML = `<span class="badge bg-success">✓ Success: ${data.length} showtimes found</span>`;
+          console.log('Showtimes data:', data);
+        } else {
+          resultDiv.innerHTML = `<span class="badge bg-danger">✗ Error: ${response.status} - ${data.message || 'Unknown error'}</span>`;
+        }
+      } catch (error) {
+        resultDiv.innerHTML = `<span class="badge bg-danger">✗ Error: ${error.message}</span>`;
+        console.error('Showtimes API error:', error);
+      }
+    }
+
+    async function testMoviesAPI() {
+      const resultDiv = document.getElementById('movies-result');
+      resultDiv.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Testing...';
+      
+      try {
+        const response = await fetch('/api/movies');
+        const data = await response.json();
+        
+        if (response.ok) {
+          resultDiv.innerHTML = `<span class="badge bg-success">✓ Success: ${data.length} movies found</span>`;
+          console.log('Movies data:', data);
+        } else {
+          resultDiv.innerHTML = `<span class="badge bg-danger">✗ Error: ${response.status} - ${data.message || 'Unknown error'}</span>`;
+        }
+      } catch (error) {
+        resultDiv.innerHTML = `<span class="badge bg-danger">✗ Error: ${error.message}</span>`;
+        console.error('Movies API error:', error);
+      }
+    }
+
+    async function testSeatsAPI() {
+      const resultDiv = document.getElementById('seats-result');
+      resultDiv.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Testing...';
+      
+      try {
+        const response = await fetch('/api/bookings/available/1');
+        const data = await response.json();
+        
+        if (response.ok) {
+          resultDiv.innerHTML = `<span class="badge bg-success">✓ Success: ${data.length} seats found</span>`;
+          console.log('Seats data:', data);
+        } else {
+          resultDiv.innerHTML = `<span class="badge bg-danger">✗ Error: ${response.status} - ${data.message || 'Unknown error'}</span>`;
+        }
+      } catch (error) {
+        resultDiv.innerHTML = `<span class="badge bg-danger">✗ Error: ${error.message}</span>`;
+        console.error('Seats API error:', error);
+      }
+    }
+
+    async function testBookingAPI() {
+      const resultDiv = document.getElementById('booking-result');
+      resultDiv.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Testing...';
+      
+      try {
+        const response = await fetch('/api/bookings/user', {
+          headers: {
+            'Authorization': 'Basic ' + btoa('admin@example.com:password123')
+          }
+        });
+        const data = await response.json();
+        
+        if (response.ok) {
+          resultDiv.innerHTML = `<span class="badge bg-success">✓ Success: ${data.length} bookings found</span>`;
+          console.log('Bookings data:', data);
+        } else {
+          resultDiv.innerHTML = `<span class="badge bg-danger">✗ Error: ${response.status} - ${data.message || 'Unknown error'}</span>`;
+        }
+      } catch (error) {
+        resultDiv.innerHTML = `<span class="badge bg-danger">✗ Error: ${error.message}</span>`;
+        console.error('Bookings API error:', error);
+      }
+    }
+  </script>
+</body>
+</html>
