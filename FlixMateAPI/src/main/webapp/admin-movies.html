@@ -4,8 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Movie Management - FlixMate</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
     <style>
         body {
             background: linear-gradient(135deg, #000000 0%, #1a1a1a 100%);
@@ -41,12 +42,6 @@
         .movie-card:hover {
             transform: translateY(-2px);
             box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
-        }
-        .movie-poster {
-            width: 100%;
-            height: 300px;
-            object-fit: cover;
-            border-radius: 10px;
         }
         .movie-actions {
             display: flex;
@@ -108,21 +103,6 @@
             transform: translateY(-1px);
         }
         
-        /* Image Upload Styles */
-        .image-upload-container:hover {
-            border-color: #667eea !important;
-            background-color: rgba(102, 126, 234, 0.05);
-        }
-        
-        .image-preview img {
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-            transition: all 0.3s ease;
-        }
-        
-        .image-preview img:hover {
-            transform: scale(1.02);
-            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
-        }
         .search-bar {
             background: rgba(255, 255, 255, 0.9);
             border-radius: 10px;
@@ -155,6 +135,9 @@
     </style>
 </head>
 <body>
+    <!-- Navigation -->
+    <div id="navbar-container"></div>
+    
     <div class="admin-container">
         <!-- Admin Header -->
         <div class="admin-header">
@@ -367,6 +350,7 @@
                             <label class="form-label">Trailer URL</label>
                             <input type="url" class="form-control" id="movieTrailerUrl">
                         </div>
+                        
                         <div class="form-check">
                             <input class="form-check-input" type="checkbox" id="movieIsActive" checked>
                             <label class="form-check-label" for="movieIsActive">
@@ -546,7 +530,8 @@
         </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="js/error-boundary.js"></script>
     <script src="script.js"></script>
     <script>
         // Admin Movies functionality
@@ -560,7 +545,19 @@
         let deleteCinemaHallModal = null;
         let currentCinemaHallId = null;
 
+        // Load navigation
+        async function loadNavigation() {
+            try {
+                const response = await fetch('navigation.html');
+                const html = await response.text();
+                document.getElementById('navbar-container').innerHTML = html;
+            } catch (error) {
+                console.error('Error loading navigation:', error);
+            }
+        }
+
         document.addEventListener('DOMContentLoaded', function() {
+            loadNavigation();
             checkAdminAuth();
             loadMovies();
             loadCinemaHalls();
@@ -582,6 +579,7 @@
                 filterMovies(searchTerm);
             });
         }
+
 
         async function checkAdminAuth() {
             try {
@@ -652,31 +650,29 @@
                     ${moviesToDisplay.map(movie => `
                         <div class="movie-card">
                             <div class="card-body">
-                                <div class="col-md-12">
-                                    <h5 class="card-title">${movie.title}</h5>
-                                    <p class="card-text">
-                                        <strong>Genre:</strong> ${movie.genre}<br>
-                                        <strong>Director:</strong> ${movie.director}<br>
-                                        <strong>Year:</strong> ${movie.releaseYear}<br>
-                                        <strong>Duration:</strong> ${movie.duration} min<br>
-                                        <strong>Language:</strong> ${movie.language}<br>
-                                        <strong>Rating:</strong> ${movie.rating || 'N/A'}
-                                    </p>
-                                    <p class="card-text">
-                                        <small class="text-muted">${movie.description || 'No description available'}</small>
-                                    </p>
-                                    <div class="movie-actions">
-                                        <button class="btn btn-sm btn-primary" onclick="editMovie(${movie.movieId})">
-                                            <i class="fas fa-edit me-1"></i>Edit
-                                        </button>
-                                        <button class="btn btn-sm btn-danger" onclick="deleteMovie(${movie.movieId})">
-                                            <i class="fas fa-trash me-1"></i>Delete
-                                        </button>
-                                        ${movie.isActive ? 
-                                            '<span class="badge bg-success ms-2">Active</span>' : 
-                                            '<span class="badge bg-warning ms-2">Inactive</span>'
-                                        }
-                                    </div>
+                                <h5 class="card-title">${movie.title}</h5>
+                                <p class="card-text">
+                                    <strong>Genre:</strong> ${movie.genre}<br>
+                                    <strong>Director:</strong> ${movie.director}<br>
+                                    <strong>Year:</strong> ${movie.releaseYear}<br>
+                                    <strong>Duration:</strong> ${movie.duration} min<br>
+                                    <strong>Language:</strong> ${movie.language}<br>
+                                    <strong>Rating:</strong> ${movie.rating || 'N/A'}
+                                </p>
+                                <p class="card-text">
+                                    <small class="text-muted">${movie.description || 'No description available'}</small>
+                                </p>
+                                <div class="movie-actions">
+                                    <button class="btn btn-sm btn-primary" onclick="editMovie(${movie.movieId})">
+                                        <i class="fas fa-edit me-1"></i>Edit
+                                    </button>
+                                    <button class="btn btn-sm btn-danger" onclick="deleteMovie(${movie.movieId})">
+                                        <i class="fas fa-trash me-1"></i>Delete
+                                    </button>
+                                    ${movie.isActive ? 
+                                        '<span class="badge bg-success ms-2">Active</span>' : 
+                                        '<span class="badge bg-warning ms-2">Inactive</span>'
+                                    }
                                 </div>
                             </div>
                         </div>
@@ -727,6 +723,7 @@
             document.getElementById('movieTrailerUrl').value = movie.trailerUrl || '';
             document.getElementById('movieIsActive').checked = movie.isActive;
             
+            
             // Show showtimes section for existing movies
             document.getElementById('showtimesSection').style.display = 'block';
             loadShowtimes(movieId);
@@ -749,6 +746,7 @@
                     trailerUrl: document.getElementById('movieTrailerUrl').value,
                     isActive: document.getElementById('movieIsActive').checked
                 };
+
 
                 // Validate required fields
                 if (!formData.title || !formData.genre || !formData.director || 

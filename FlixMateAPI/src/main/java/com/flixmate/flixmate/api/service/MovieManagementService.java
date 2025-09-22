@@ -145,6 +145,15 @@ public class MovieManagementService {
             existingMovie.setDirector(movie.getDirector());
             existingMovie.setDescription(movie.getDescription());
             existingMovie.setReleaseYear(movie.getReleaseYear());
+            existingMovie.setCast(movie.getCast());
+            existingMovie.setTrailerUrl(movie.getTrailerUrl());
+            existingMovie.setPosterUrl(movie.getPosterUrl());
+            existingMovie.setRating(movie.getRating());
+            existingMovie.setIsActive(movie.getIsActive());
+            
+            
+            // Update the updated_date
+            existingMovie.setUpdatedDate(java.time.LocalDateTime.now());
 
             Movie updatedMovie = movieRepository.save(existingMovie);
             System.out.println("Movie updated successfully");

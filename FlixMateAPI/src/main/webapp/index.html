@@ -202,13 +202,13 @@
         featuredContainer.innerHTML = featuredMovies.map(movie => `
           <div class="col-lg-4 col-md-6 mb-4">
             <div class="card movie-card h-100">
-              <div class="card-body">
+              <div class="card-body d-flex flex-column">
                 <h5 class="card-title">${movie.title || 'Unknown Movie'}</h5>
                 <p class="card-text">
                   <small class="text-muted">${movie.genre || 'Action'} • ${movie.duration || 120} min • ${movie.releaseYear || '2025'}</small>
                 </p>
-                <p class="card-text">${(movie.description || 'No description available.').substring(0, 100)}...</p>
-                <a href="booking.html?movieId=${movie.movieId}" class="btn btn-sm">
+                <p class="card-text flex-grow-1">${(movie.description || 'No description available.').substring(0, 100)}...</p>
+                <a href="booking.html?movieId=${movie.movieId}" class="btn btn-sm mt-auto">
                   <i class="fas fa-ticket-alt me-1"></i> Book Now
                 </a>
               </div>
@@ -241,13 +241,13 @@
         moviesContainer.innerHTML = movies.map(movie => `
           <div class="col-lg-3 col-md-4 col-sm-6 mb-4">
             <div class="card movie-card h-100">
-              <div class="card-body">
+              <div class="card-body d-flex flex-column">
                 <h6 class="card-title">${movie.title || 'Unknown Movie'}</h6>
                 <p class="card-text small">
                   <small class="text-muted">${movie.genre || 'Action'} • ${movie.duration || 120} min</small>
                 </p>
-                <p class="card-text small">${(movie.description || 'No description available.').substring(0, 100)}...</p>
-                <div class="d-flex justify-content-between align-items-center">
+                <p class="card-text small flex-grow-1">${(movie.description || 'No description available.').substring(0, 80)}...</p>
+                <div class="d-flex justify-content-between align-items-center mt-auto">
                   <span class="badge bg-secondary">${movie.releaseYear || '2025'}</span>
                   <div>
                     <a href="reviews.html?movieId=${movie.movieId}" class="btn btn-sm btn-outline me-1">
@@ -303,11 +303,9 @@
           container.innerHTML = banners.map(banner => `
             <div class="col-md-6 col-lg-4 mb-3">
               <div class="card banner-card" onclick="trackBannerClick(${banner.bannerId})" style="cursor: pointer;">
-                <img src="${banner.imageUrl || 'https://via.placeholder.com/300x150?text=Promotional+Banner'}" 
-                     class="card-img-top" alt="${banner.title}" style="height: 150px; object-fit: cover;">
-                <div class="card-body p-2">
-                  <h6 class="card-title mb-1">${banner.title}</h6>
-                  ${banner.description ? `<p class="card-text small mb-1">${banner.description}</p>` : ''}
+                <div class="card-body p-3">
+                  <h6 class="card-title mb-2">${banner.title}</h6>
+                  ${banner.description ? `<p class="card-text small mb-2">${banner.description}</p>` : ''}
                   ${banner.discountCode ? `<span class="badge bg-success">${banner.discountCode}</span>` : ''}
                 </div>
               </div>

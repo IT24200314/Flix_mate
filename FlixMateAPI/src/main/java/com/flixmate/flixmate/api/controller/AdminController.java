@@ -137,6 +137,14 @@ public class AdminController {
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> createMovie(@RequestBody Movie movie) {
         try {
+            // Set timestamps for new movie
+            movie.setCreatedDate(java.time.LocalDateTime.now());
+            movie.setUpdatedDate(java.time.LocalDateTime.now());
+            if (movie.getIsActive() == null) {
+                movie.setIsActive(true);
+            }
+            
+            
             Movie savedMovie = movieRepository.save(movie);
             return ResponseEntity.ok(savedMovie);
         } catch (Exception e) {
@@ -154,9 +162,21 @@ public class AdminController {
             if (!movieRepository.existsById(movieId)) {
                 return ResponseEntity.notFound().build();
             }
-            movie.setMovieId(movieId);
-            Movie savedMovie = movieRepository.save(movie);
-            return ResponseEntity.ok(savedMovie);
+            
+            // Get the existing movie to preserve the original created_date
+            Movie existingMovie = movieRepository.findById(movieId).orElse(null);
+            if (existingMovie != null) {
+                // Preserve the original created_date
+                movie.setCreatedDate(existingMovie.getCreatedDate());
+                movie.setMovieId(movieId);
+                movie.setUpdatedDate(java.time.LocalDateTime.now());
+                
+                
+                Movie savedMovie = movieRepository.save(movie);
+                return ResponseEntity.ok(savedMovie);
+            } else {
+                return ResponseEntity.notFound().build();
+            }
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(Map.of(
                 "error", "Failed to update movie",

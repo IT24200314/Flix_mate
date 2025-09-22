@@ -492,28 +492,9 @@
           return;
         }
         
-        container.innerHTML = moviesToShow.map((movie, index) => {
-          try {
-            // Generate a poster image path or use a default placeholder
-            const posterUrl = movie.posterUrl || generateMoviePosterUrl(movie.movieId) || 'https://via.placeholder.com/300x450/2c3e50/ffffff?text=' + encodeURIComponent(movie.title || 'Movie');
-            
-            return `
+        container.innerHTML = moviesToShow.map((movie, index) => `
         <div class="col-lg-4 col-md-6 mb-4">
           <div class="card movie-card h-100" style="animation-delay: ${index * 0.1}s">
-            <div class="position-relative overflow-hidden">
-              <img src="${posterUrl}" 
-                   class="card-img-top movie-poster" 
-                   alt="${movie.title || 'Movie Poster'}"
-                   style="height: 300px; object-fit: cover; transition: transform 0.3s ease;"
-                   onload="this.style.opacity='1'" 
-                   onerror="this.src='https://via.placeholder.com/300x450/2c3e50/ffffff?text=' + encodeURIComponent('${movie.title || 'Movie'}'); this.style.opacity='1';">
-              <div class="position-absolute top-0 end-0 m-2">
-                <span class="badge bg-primary">${movie.genre || 'Drama'}</span>
-              </div>
-              <div class="position-absolute bottom-0 start-0 end-0 bg-gradient-dark p-2 text-white">
-                <small><i class="fas fa-calendar me-1"></i>${movie.releaseYear || '2025'}</small>
-              </div>
-            </div>
             <div class="card-body d-flex flex-column">
               <h5 class="card-title text-truncate" title="${movie.title || 'Unknown Movie'}">${movie.title || 'Unknown Movie'}</h5>
               <p class="card-text small text-muted mb-2">
@@ -546,23 +527,7 @@
             </div>
           </div>
         </div>
-      `;
-          } catch (error) {
-            console.error('Error rendering movie card:', error, movie);
-            return `
-              <div class="col-lg-4 col-md-6 mb-4">
-                <div class="card movie-card h-100">
-                  <div class="card-body text-center d-flex flex-column justify-content-center">
-                    <i class="fas fa-exclamation-triangle text-warning fa-3x mb-3"></i>
-                    <h6>Error loading movie</h6>
-                    <p class="text-muted small">Movie ID: ${movie.movieId || 'Unknown'}</p>
-                    <button class="btn btn-sm btn-outline-primary" onclick="loadMovies()">Retry</button>
-                  </div>
-                </div>
-              </div>
-            `;
-          }
-        }).join('');
+      `).join('');
         
         // Add animation to cards
         document.querySelectorAll('.movie-card').forEach((card, index) => {
@@ -572,11 +537,6 @@
           }, index * 100);
         });
         
-        // Add interactive effects to movie cards
-        setTimeout(() => {
-          addMovieCardInteractions();
-          console.log('✅ Movie card interactions added');
-        }, moviesToShow.length * 100 + 200);
         
         console.log('🎭 ========== DISPLAY MOVIES COMPLETE ==========');
         
@@ -847,49 +807,12 @@
       modal.hide();
     }
 
-    // Generate movie poster URL from available static images
-    function generateMoviePosterUrl(movieId) {
-      if (!movieId) return null;
-      
-      // List of available movie poster images in the static folder
-      const availablePosters = [
-        'movie_12bcc189-4bcf-4780-aaa4-1c5360b1e8f1.png',
-        'movie_1ea930ff-f2e9-42d6-b560-5eba79dc4112.png',
-        'movie_244ff64f-00d4-4c7d-91f8-6a186603ff41.png',
-        'movie_9c136ae0-1345-4de0-8205-3c9d7a74ccae.png',
-        'movie_9c3b2a8e-de38-4374-8608-41ccdacef4ac.png',
-        'movie_a3c0501b-7516-4be0-8804-0b9ff66cbbf9.png',
-        'movie_ad41b530-1a80-4db6-91af-c318e8a3b2d3.png',
-        'movie_b1b55829-8f62-4e42-8e97-5e7b4209835c.png',
-        'movie_b92cb7c6-bd0c-4e39-8a48-7d805c0944ac.png',
-        'movie_bc4bbf60-c9d4-46c5-a95b-7ce8c44ed68c.png',
-        'movie_e2f1ce42-0f35-4e2f-bb6c-fcf57f8c02cd.png'
-      ];
-      
-      // Use movie ID to consistently assign a poster image
-      const posterIndex = (movieId % availablePosters.length);
-      return `static/images/${availablePosters[posterIndex]}`;
-    }
 
     // Enhanced search with live results
     const debouncedSearch = debounce(() => {
       searchMovies();
     }, 300);
 
-    // Add hover effects to movie cards
-    function addMovieCardInteractions() {
-      document.querySelectorAll('.movie-card').forEach(card => {
-        const poster = card.querySelector('.movie-poster');
-        if (poster) {
-          card.addEventListener('mouseenter', () => {
-            poster.style.transform = 'scale(1.05)';
-          });
-          card.addEventListener('mouseleave', () => {
-            poster.style.transform = 'scale(1)';
-          });
-        }
-      });
-    }
 
     // Enhanced error state with retry functionality
     function displayErrorState() {

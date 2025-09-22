@@ -1,6 +1,8 @@
 package com.flixmate.flixmate.api.entity;
 
 import jakarta.persistence.*;
+import jakarta.persistence.PrePersist;
+import jakarta.persistence.PreUpdate;
 
 @Entity
 @Table(name = "movies")
@@ -54,7 +56,7 @@ public class Movie {
     private java.time.LocalDateTime updatedDate;
     
     // Add JPA lifecycle callbacks for automatic timestamp management
-    @jakarta.persistence.PrePersist
+    @PrePersist
     protected void onCreate() {
         if (createdDate == null) {
             createdDate = java.time.LocalDateTime.now();
@@ -64,7 +66,7 @@ public class Movie {
         }
     }
     
-    @jakarta.persistence.PreUpdate
+    @PreUpdate
     protected void onUpdate() {
         updatedDate = java.time.LocalDateTime.now();
     }

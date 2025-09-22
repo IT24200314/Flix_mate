@@ -161,7 +161,7 @@ function addNavigation() {
   const nav = document.createElement('nav');
   nav.className = 'navbar navbar-expand-lg scope-cinemas-navbar';
 
-  const adminLink = currentUser && currentUser.role === 'ADMIN'
+  const adminLink = currentUser && (currentUser.role === 'ADMIN' || currentUser.role === 'admin')
     ? '<li class="nav-item"><a class="nav-link" href="admin-home.html"><i class="fas fa-user-shield me-1"></i>Admin</a></li>'
     : '';
 
@@ -475,7 +475,7 @@ async function login(email, password) {
     showAlert('success', 'Login successful!');
     
     // Redirect admin users to admin dashboard
-    if (currentUser.role === 'admin') {
+    if (currentUser.role === 'admin' || currentUser.role === 'ADMIN') {
       setTimeout(() => {
         window.location.href = 'admin-home.html';
       }, 1000);
@@ -559,7 +559,7 @@ function isAuthenticated() {
 
 // Check if user is admin
 function isAdmin() {
-  return currentUser && currentUser.role === 'admin';
+  return currentUser && (currentUser.role === 'admin' || currentUser.role === 'ADMIN');
 }
 
 // Require authentication for protected pages

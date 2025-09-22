@@ -39,12 +39,18 @@ public class MovieService {
 
     public boolean updateMovie(Integer id, Movie movie) {
         if (movieRepository.existsById(id)) {
-            movie.setMovieId(id);
-            movie.setUpdatedDate(LocalDateTime.now());
-            System.out.println("Updating movie ID: " + id + ", Title: " + movie.getTitle());
-            movieRepository.save(movie);
-            System.out.println("Movie updated successfully");
-            return true;
+            // Get the existing movie to preserve the original created_date
+            Movie existingMovie = movieRepository.findById(id).orElse(null);
+            if (existingMovie != null) {
+                // Preserve the original created_date
+                movie.setCreatedDate(existingMovie.getCreatedDate());
+                movie.setMovieId(id);
+                movie.setUpdatedDate(LocalDateTime.now());
+                System.out.println("Updating movie ID: " + id + ", Title: " + movie.getTitle());
+                movieRepository.save(movie);
+                System.out.println("Movie updated successfully");
+                return true;
+            }
         }
         System.out.println("Movie not found for update, ID: " + id);
         return false;

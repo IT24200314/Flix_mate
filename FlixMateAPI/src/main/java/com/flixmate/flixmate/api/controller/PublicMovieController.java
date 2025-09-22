@@ -45,10 +45,6 @@ public class PublicMovieController {
                                  ", Active: " + movie.getIsActive() +
                                  ", Poster: " + movie.getPosterUrl());
                 
-                // Auto-assign poster URLs if missing
-                if (movie.getPosterUrl() == null || movie.getPosterUrl().isEmpty()) {
-                    movie.setPosterUrl(generatePosterUrl(movie.getMovieId()));
-                }
             }
             
             // Filter out inactive movies for public access
@@ -225,25 +221,4 @@ public class PublicMovieController {
         }
     }
 
-    // Helper method to generate poster URLs
-    private String generatePosterUrl(Integer movieId) {
-        if (movieId == null) return null;
-        
-        String[] availablePosters = {
-            "movie_12bcc189-4bcf-4780-aaa4-1c5360b1e8f1.png",
-            "movie_1ea930ff-f2e9-42d6-b560-5eba79dc4112.png",
-            "movie_244ff64f-00d4-4c7d-91f8-6a186603ff41.png",
-            "movie_9c136ae0-1345-4de0-8205-3c9d7a74ccae.png",
-            "movie_9c3b2a8e-de38-4374-8608-41ccdacef4ac.png",
-            "movie_a3c0501b-7516-4be0-8804-0b9ff66cbbf9.png",
-            "movie_ad41b530-1a80-4db6-91af-c318e8a3b2d3.png",
-            "movie_b1b55829-8f62-4e42-8e97-5e7b4209835c.png",
-            "movie_b92cb7c6-bd0c-4e39-8a48-7d805c0944ac.png",
-            "movie_bc4bbf60-c9d4-46c5-a95b-7ce8c44ed68c.png",
-            "movie_e2f1ce42-0f35-4e2f-bb6c-fcf57f8c02cd.png"
-        };
-        
-        int posterIndex = movieId % availablePosters.length;
-        return "static/images/" + availablePosters[posterIndex];
-    }
 }
