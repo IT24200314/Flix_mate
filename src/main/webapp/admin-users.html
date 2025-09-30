@@ -1,0 +1,629 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Management - FlixMate Admin</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .admin-container {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        .admin-header {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.98) 0%, rgba(248, 250, 252, 0.98) 100%);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            padding: 1rem 0;
+            color: #1f2937;
+            border-bottom: 3px solid #2563eb;
+        }
+        .admin-content {
+            flex: 1;
+            padding: 2rem 0;
+        }
+        .stats-card {
+            background: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+            border: 1px solid #d1d5db;
+            transition: all 0.3s ease;
+            height: 100%;
+        }
+        .stats-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        }
+        .stat-icon {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+        .stat-number {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #2563eb;
+        }
+        .stat-label {
+            color: #6b7280;
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
+        }
+        .user-table {
+            background: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+            border: 1px solid #d1d5db;
+        }
+        .table-header {
+            background: linear-gradient(135deg, #2563eb, #1d4ed8);
+            color: white;
+            border-radius: 12px 12px 0 0;
+            padding: 1.5rem;
+        }
+        .role-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+        .role-admin {
+            background: #fef3c7;
+            color: #92400e;
+        }
+        .role-user {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+        .role-suspended {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+        .role-inactive {
+            background: #f3f4f6;
+            color: #6b7280;
+        }
+        .action-btn {
+            padding: 0.375rem 0.75rem;
+            border-radius: 6px;
+            border: none;
+            font-size: 0.8rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            margin: 2px;
+        }
+        .btn-change-role {
+            background: #f59e0b;
+            color: white;
+        }
+        .btn-change-role:hover {
+            background: #d97706;
+            color: white;
+        }
+        .btn-suspend {
+            background: #ef4444;
+            color: white;
+        }
+        .btn-suspend:hover {
+            background: #dc2626;
+            color: white;
+        }
+        .btn-activate {
+            background: #10b981;
+            color: white;
+        }
+        .btn-activate:hover {
+            background: #059669;
+            color: white;
+        }
+        .back-btn {
+            background: #6b7280;
+            border: none;
+            border-radius: 8px;
+            padding: 0.5rem 1rem;
+            color: white;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+        .back-btn:hover {
+            background: #4b5563;
+            color: white;
+            transform: translateY(-1px);
+        }
+    </style>
+</head>
+<body>
+    <div class="admin-container">
+        <!-- Admin Header -->
+        <div class="admin-header">
+            <div class="container">
+                <div class="row align-items-center">
+                    <div class="col-md-6">
+                        <h2 class="mb-0">
+                            <i class="fas fa-users me-2"></i>
+                            User Management
+                        </h2>
+                    </div>
+                    <div class="col-md-6 text-end">
+                        <a href="admin-home.html" class="back-btn me-3">
+                            <i class="fas fa-arrow-left me-1"></i>
+                            Back to Dashboard
+                        </a>
+                        <span class="me-3">Welcome, Admin</span>
+                        <a href="#" class="btn btn-danger" onclick="logout()">
+                            <i class="fas fa-sign-out-alt me-1"></i>
+                            Logout
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Admin Content -->
+        <div class="admin-content">
+            <div class="container">
+                <!-- User Statistics -->
+                <div class="row mb-4">
+                    <div class="col-md-3 mb-3">
+                        <div class="stats-card">
+                            <div class="card-body text-center p-4">
+                                <div class="stat-icon text-primary">
+                                    <i class="fas fa-users"></i>
+                                </div>
+                                <div class="stat-number" id="totalUsers">-</div>
+                                <div class="stat-label">Total Users</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <div class="stats-card">
+                            <div class="card-body text-center p-4">
+                                <div class="stat-icon text-success">
+                                    <i class="fas fa-user-check"></i>
+                                </div>
+                                <div class="stat-number" id="activeUsers">-</div>
+                                <div class="stat-label">Active Users</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <div class="stats-card">
+                            <div class="card-body text-center p-4">
+                                <div class="stat-icon text-warning">
+                                    <i class="fas fa-user-shield"></i>
+                                </div>
+                                <div class="stat-number" id="adminUsers">-</div>
+                                <div class="stat-label">Admin Users</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <div class="stats-card">
+                            <div class="card-body text-center p-4">
+                                <div class="stat-icon text-danger">
+                                    <i class="fas fa-user-times"></i>
+                                </div>
+                                <div class="stat-number" id="suspendedUsers">-</div>
+                                <div class="stat-label">Suspended Users</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- User Management Table -->
+                <div class="user-table">
+                    <div class="table-header">
+                        <div class="row align-items-center">
+                            <div class="col-md-6">
+                                <h4 class="mb-0">
+                                    <i class="fas fa-list me-2"></i>
+                                    User List
+                                </h4>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <input type="text" class="form-control" id="searchUsers" 
+                                               placeholder="Search users...">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <select class="form-control" id="filterRole">
+                                            <option value="">All Roles</option>
+                                            <option value="Active">Active Users</option>
+                                            <option value="Admin">Admin Users</option>
+                                            <option value="Suspended">Suspended Users</option>
+                                            <option value="Inactive">Inactive Users</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>User ID</th>
+                                    <th>Name</th>
+                                    <th>Email</th>
+                                    <th>Phone</th>
+                                    <th>Role</th>
+                                    <th>Registration Date</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="usersTableBody">
+                                <tr>
+                                    <td colspan="7" class="text-center py-4">
+                                        <div class="spinner-border text-primary" role="status">
+                                            <span class="visually-hidden">Loading...</span>
+                                        </div>
+                                        <p class="mt-2">Loading users...</p>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Role Change Modal -->
+    <div class="modal fade" id="roleChangeModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="fas fa-user-cog me-2"></i>
+                        Change User Role
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">User Information</label>
+                        <div class="card">
+                            <div class="card-body">
+                                <p class="mb-1"><strong>Name:</strong> <span id="modalUserName"></span></p>
+                                <p class="mb-1"><strong>Email:</strong> <span id="modalUserEmail"></span></p>
+                                <p class="mb-0"><strong>Current Role:</strong> <span id="modalCurrentRole"></span></p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="newRole" class="form-label">Select New Role</label>
+                        <select class="form-control" id="newRole">
+                            <option value="Active">Active User</option>
+                            <option value="Admin">Admin User</option>
+                            <option value="Suspended">Suspended User</option>
+                            <option value="Inactive">Inactive User</option>
+                        </select>
+                    </div>
+                    <div class="alert alert-warning">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        <strong>Warning:</strong> Changing user roles will immediately affect their access permissions.
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" id="confirmRoleChange">
+                        <i class="fas fa-save me-2"></i>
+                        Change Role
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Container -->
+    <div class="toast-container position-fixed top-0 end-0 p-3">
+        <div id="adminToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="toast-header">
+                <i class="fas fa-info-circle text-primary me-2"></i>
+                <strong class="me-auto">User Management</strong>
+                <button type="button" class="btn-close" data-bs-dismiss="toast"></button>
+            </div>
+            <div class="toast-body" id="toastMessage">
+                <!-- Toast message will be inserted here -->
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        let allUsers = [];
+        let filteredUsers = [];
+
+        // Load data immediately on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Admin users page loaded, starting data loading...');
+            loadUserStatistics();
+            loadUsers();
+            setupEventListeners();
+        });
+
+        async function loadUserStatistics() {
+            try {
+                console.log('Loading user statistics...');
+                const response = await fetch('/api/auth/list-users');
+                console.log('Statistics response status:', response.status);
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    console.log('Statistics data received:', data);
+                    const users = data.users || [];
+                    
+                    const totalUsers = users.length;
+                    const adminUsers = users.filter(user => user.status === 'Admin').length;
+                    const activeUsers = users.filter(user => user.status === 'Active').length;
+                    const suspendedUsers = users.filter(user => user.status === 'Suspended').length;
+                    
+                    document.getElementById('totalUsers').textContent = totalUsers;
+                    document.getElementById('activeUsers').textContent = activeUsers;
+                    document.getElementById('adminUsers').textContent = adminUsers;
+                    document.getElementById('suspendedUsers').textContent = suspendedUsers;
+                    
+                    console.log('Statistics loaded successfully:', {
+                        totalUsers, activeUsers, adminUsers, suspendedUsers
+                    });
+                } else {
+                    console.error('Failed to load statistics:', response.status);
+                    showToast('Failed to load user statistics', 'error');
+                }
+            } catch (error) {
+                console.error('Failed to load user statistics:', error);
+                showToast('Failed to load user statistics', 'error');
+            }
+        }
+
+        async function loadUsers() {
+            try {
+                console.log('Loading users...');
+                const response = await fetch('/api/auth/list-users');
+                console.log('Users response status:', response.status);
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    console.log('Users data received:', data);
+                    allUsers = data.users || [];
+                    filteredUsers = [...allUsers];
+                    console.log('Total users loaded:', allUsers.length);
+                    displayUsers();
+                } else {
+                    console.error('Failed to load users:', response.status);
+                    showToast('Failed to load users', 'error');
+                    document.getElementById('usersTableBody').innerHTML = `
+                        <tr>
+                            <td colspan="7" class="text-center py-4 text-danger">
+                                <i class="fas fa-exclamation-triangle me-2"></i>
+                                Failed to load users
+                            </td>
+                        </tr>
+                    `;
+                }
+            } catch (error) {
+                console.error('Failed to load users:', error);
+                showToast('Failed to load users', 'error');
+                document.getElementById('usersTableBody').innerHTML = `
+                    <tr>
+                        <td colspan="7" class="text-center py-4 text-danger">
+                            <i class="fas fa-exclamation-triangle me-2"></i>
+                            Failed to load users: ${error.message}
+                        </td>
+                    </tr>
+                `;
+            }
+        }
+
+        function displayUsers() {
+            const tbody = document.getElementById('usersTableBody');
+            
+            if (filteredUsers.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="7" class="text-center py-4 text-muted">
+                            <i class="fas fa-search me-2"></i>
+                            No users found
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            tbody.innerHTML = filteredUsers.map(user => `
+                <tr>
+                    <td>${user.userId}</td>
+                    <td>${user.userName}</td>
+                    <td>${user.email}</td>
+                    <td>${user.phone || 'N/A'}</td>
+                    <td>
+                        <span class="role-badge role-${user.status.toLowerCase()}">
+                            ${user.status}
+                        </span>
+                    </td>
+                    <td>${formatDate(user.registrationDate)}</td>
+                    <td>
+                        <button class="action-btn btn-change-role" 
+                                onclick="openRoleChangeModal(${user.userId}, '${user.userName}', '${user.email}', '${user.status}')">
+                            <i class="fas fa-user-cog me-1"></i>
+                            Change Role
+                        </button>
+                        ${user.status === 'Suspended' ? 
+                            `<button class="action-btn btn-activate" onclick="changeUserStatus(${user.userId}, 'Active')">
+                                <i class="fas fa-user-check me-1"></i>
+                                Activate
+                            </button>` :
+                            `<button class="action-btn btn-suspend" onclick="changeUserStatus(${user.userId}, 'Suspended')">
+                                <i class="fas fa-user-times me-1"></i>
+                                Suspend
+                            </button>`
+                        }
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function setupEventListeners() {
+            // Search functionality
+            document.getElementById('searchUsers').addEventListener('input', function() {
+                const searchTerm = this.value.toLowerCase();
+                filteredUsers = allUsers.filter(user => 
+                    user.userName.toLowerCase().includes(searchTerm) ||
+                    user.email.toLowerCase().includes(searchTerm) ||
+                    (user.phone && user.phone.toLowerCase().includes(searchTerm))
+                );
+                displayUsers();
+            });
+
+            // Filter functionality
+            document.getElementById('filterRole').addEventListener('change', function() {
+                const selectedRole = this.value;
+                if (selectedRole === '') {
+                    filteredUsers = [...allUsers];
+                } else {
+                    filteredUsers = allUsers.filter(user => user.status === selectedRole);
+                }
+                displayUsers();
+            });
+
+            // Role change confirmation
+            document.getElementById('confirmRoleChange').addEventListener('click', function() {
+                const userId = this.dataset.userId;
+                const newRole = document.getElementById('newRole').value;
+                changeUserRole(userId, newRole);
+            });
+        }
+
+        function openRoleChangeModal(userId, userName, userEmail, currentRole) {
+            document.getElementById('modalUserName').textContent = userName;
+            document.getElementById('modalUserEmail').textContent = userEmail;
+            document.getElementById('modalCurrentRole').textContent = currentRole;
+            document.getElementById('newRole').value = currentRole;
+            document.getElementById('confirmRoleChange').dataset.userId = userId;
+            
+            const modal = new bootstrap.Modal(document.getElementById('roleChangeModal'));
+            modal.show();
+        }
+
+        async function changeUserRole(userId, newRole) {
+            try {
+                console.log('Changing user role:', userId, 'to', newRole);
+                const response = await fetch(`/api/admin/users/${userId}/change-role`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ statusName: newRole })
+                });
+
+                console.log('Role change response status:', response.status);
+                
+                if (response.ok) {
+                    const result = await response.json();
+                    console.log('Role change successful:', result);
+                    showToast('User role updated successfully', 'success');
+                    bootstrap.Modal.getInstance(document.getElementById('roleChangeModal')).hide();
+                    
+                    // Reload data
+                    loadUsers();
+                    loadUserStatistics();
+                } else {
+                    const error = await response.text();
+                    console.error('Role change failed:', error);
+                    showToast(`Failed to update role: ${error}`, 'error');
+                }
+            } catch (error) {
+                console.error('Failed to change user role:', error);
+                showToast('Failed to update user role. Please try again.', 'error');
+            }
+        }
+
+        async function changeUserStatus(userId, newStatus) {
+            try {
+                console.log('Changing user status:', userId, 'to', newStatus);
+                const response = await fetch(`/api/admin/users/${userId}/change-role`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ statusName: newStatus })
+                });
+
+                if (response.ok) {
+                    const result = await response.json();
+                    console.log('Status change successful:', result);
+                    showToast(`User ${newStatus.toLowerCase()} successfully`, 'success');
+                    loadUsers();
+                    loadUserStatistics();
+                } else {
+                    const error = await response.text();
+                    console.error('Status change failed:', error);
+                    showToast(`Failed to update status: ${error}`, 'error');
+                }
+            } catch (error) {
+                console.error('Failed to change user status:', error);
+                showToast('Failed to update user status. Please try again.', 'error');
+            }
+        }
+
+        function formatDate(dateString) {
+            if (!dateString) return 'N/A';
+            try {
+                const date = new Date(dateString);
+                return date.toLocaleDateString() + ' ' + date.toLocaleTimeString();
+            } catch (error) {
+                return dateString;
+            }
+        }
+
+        function showToast(message, type = 'info') {
+            const toast = document.getElementById('adminToast');
+            const toastMessage = document.getElementById('toastMessage');
+            
+            toastMessage.textContent = message;
+            
+            const toastHeader = toast.querySelector('.toast-header');
+            const icon = toastHeader.querySelector('i');
+            
+            toastHeader.className = 'toast-header';
+            icon.className = 'fas me-2';
+            
+            switch (type) {
+                case 'success':
+                    toastHeader.classList.add('bg-success', 'text-white');
+                    icon.classList.add('fa-check-circle', 'text-white');
+                    break;
+                case 'error':
+                    toastHeader.classList.add('bg-danger', 'text-white');
+                    icon.classList.add('fa-exclamation-circle', 'text-white');
+                    break;
+                case 'warning':
+                    toastHeader.classList.add('bg-warning', 'text-dark');
+                    icon.classList.add('fa-exclamation-triangle', 'text-dark');
+                    break;
+                default:
+                    toastHeader.classList.add('bg-primary', 'text-white');
+                    icon.classList.add('fa-info-circle', 'text-white');
+            }
+            
+            const bsToast = new bootstrap.Toast(toast);
+            bsToast.show();
+        }
+
+        function logout() {
+            localStorage.removeItem('authToken');
+            showToast('Logged out successfully', 'success');
+            setTimeout(() => window.location.href = 'index.html', 1000);
+        }
+    </script>
+</body>
+</html>
