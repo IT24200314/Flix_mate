@@ -1,0 +1,1426 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Staff Management - FlixMate Admin</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        .staff-container {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            margin: 20px;
+            padding: 30px;
+            backdrop-filter: blur(10px);
+        }
+        
+        .back-btn {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 25px;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            margin-bottom: 30px;
+            transition: all 0.3s ease;
+            border: none;
+        }
+        
+        .back-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+            color: white;
+        }
+        
+        .staff-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+            transition: all 0.3s ease;
+        }
+        
+        .staff-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.15);
+        }
+        
+        .staff-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+        
+        .staff-title {
+            color: #333;
+            font-size: 1.8rem;
+            font-weight: 600;
+            margin: 0;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            border: none;
+            border-radius: 25px;
+            padding: 12px 24px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+        }
+        
+        .btn-success {
+            background: linear-gradient(45deg, #56ab2f, #a8e6cf);
+            border: none;
+            border-radius: 20px;
+            padding: 8px 16px;
+            font-weight: 500;
+        }
+        
+        .btn-warning {
+            background: linear-gradient(45deg, #f093fb, #f5576c);
+            border: none;
+            border-radius: 20px;
+            padding: 8px 16px;
+            font-weight: 500;
+        }
+        
+        .btn-danger {
+            background: linear-gradient(45deg, #ff6b6b, #ee5a24);
+            border: none;
+            border-radius: 20px;
+            padding: 8px 16px;
+            font-weight: 500;
+        }
+        
+        .table {
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .table thead th {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            font-weight: 600;
+            padding: 15px;
+        }
+        
+        .table tbody td {
+            padding: 15px;
+            border: none;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        
+        .table tbody tr:hover {
+            background: #f8f9fa;
+        }
+        
+        .status-badge {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+        
+        .status-active {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .status-scheduled {
+            background: #fff3cd;
+            color: #856404;
+        }
+        
+        .status-off {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        
+        .modal-content {
+            border-radius: 20px;
+            border: none;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+        }
+        
+        .modal-header {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border-radius: 20px 20px 0 0;
+            border: none;
+        }
+        
+        .form-control {
+            border-radius: 10px;
+            border: 2px solid #e9ecef;
+            padding: 12px 15px;
+            transition: all 0.3s ease;
+        }
+        
+        .form-control:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+        }
+        
+        .form-label {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
+        }
+        
+        .schedule-calendar {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        
+        .calendar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .calendar-nav {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .calendar-nav:hover {
+            transform: scale(1.1);
+        }
+        
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 5px;
+        }
+        
+        .calendar-day {
+            aspect-ratio: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+        
+        .calendar-day:hover {
+            background: #f8f9fa;
+        }
+        
+        .calendar-day.today {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+        }
+        
+        .calendar-day.has-schedule {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .calendar-day.other-month {
+            color: #ccc;
+        }
+        
+        .staff-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .stat-card {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .stat-number {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 5px;
+        }
+        
+        .stat-label {
+            color: #666;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="staff-container">
+        <a href="admin-home.html" class="back-btn">
+            <i class="fas fa-arrow-left me-2"></i>Back to Admin Dashboard
+        </a>
+        
+        <div class="staff-header">
+            <h1 class="staff-title">
+                <i class="fas fa-user-tie me-3"></i>Staff Management
+            </h1>
+            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addStaffModal">
+                <i class="fas fa-plus me-2"></i>Add Staff Member
+            </button>
+        </div>
+        
+        <!-- Staff Statistics -->
+        <div class="staff-stats">
+            <div class="stat-card">
+                <div class="stat-number" id="totalStaff">0</div>
+                <div class="stat-label">Total Staff</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="activeStaff">0</div>
+                <div class="stat-label">Active Today</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="scheduledShifts">0</div>
+                <div class="stat-label">Scheduled Shifts</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="availableHalls">0</div>
+                <div class="stat-label">Cinema Halls</div>
+            </div>
+        </div>
+        
+        <!-- Staff List -->
+        <div class="staff-card">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h3><i class="fas fa-users me-2"></i>Staff Members</h3>
+                <div>
+                    <button class="btn btn-success me-2" onclick="refreshStaff()">
+                        <i class="fas fa-sync me-1"></i>Refresh
+                    </button>
+                    <button class="btn btn-warning" onclick="exportStaffData()">
+                        <i class="fas fa-download me-1"></i>Export
+                    </button>
+                </div>
+            </div>
+            
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Name</th>
+                            <th>Position</th>
+                            <th>Email</th>
+                            <th>Phone</th>
+                            <th>Assigned Hall</th>
+                            <th>Salary</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="staffTableBody">
+                        <!-- Staff data will be loaded here -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        <!-- Schedule Management -->
+        <div class="staff-card">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h3><i class="fas fa-calendar-alt me-2"></i>Schedule Management</h3>
+                <div>
+                    <button class="btn btn-success me-2" onclick="refreshSchedules()">
+                        <i class="fas fa-sync me-1"></i>Refresh Schedules
+                    </button>
+                    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#scheduleModal">
+                        <i class="fas fa-plus me-1"></i>Add Schedule
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Schedule Filters -->
+            <div class="row mb-3">
+                <div class="col-md-3">
+                    <label class="form-label">Filter by Staff:</label>
+                    <select class="form-control" id="staffFilter" onchange="filterSchedules()">
+                        <option value="">All Staff</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Filter by Hall:</label>
+                    <select class="form-control" id="hallFilter" onchange="filterSchedules()">
+                        <option value="">All Halls</option>
+                        <option value="1">Hall 1</option>
+                        <option value="2">Hall 2</option>
+                        <option value="3">Hall 3</option>
+                        <option value="4">Hall 4</option>
+                        <option value="5">Hall 5</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Filter by Date:</label>
+                    <input type="date" class="form-control" id="dateFilter" onchange="filterSchedules()">
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Actions:</label>
+                    <div class="d-flex gap-2">
+                        <button class="btn btn-info btn-sm" onclick="exportSchedules()">
+                            <i class="fas fa-download"></i> Export
+                        </button>
+                        <button class="btn btn-warning btn-sm" onclick="clearFilters()">
+                            <i class="fas fa-times"></i> Clear
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Schedules Table -->
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Schedule ID</th>
+                            <th>Staff Name</th>
+                            <th>Start Time</th>
+                            <th>End Time</th>
+                            <th>Hall</th>
+                            <th>Date</th>
+                            <th>Duration</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="schedulesTableBody">
+                        <!-- Schedule data will be loaded here -->
+                    </tbody>
+                </table>
+            </div>
+            
+            <!-- Calendar View -->
+            <div class="schedule-calendar mt-4">
+                <div class="calendar-header">
+                    <button class="calendar-nav" onclick="previousMonth()">
+                        <i class="fas fa-chevron-left"></i>
+                    </button>
+                    <h4 id="currentMonth">January 2024</h4>
+                    <button class="calendar-nav" onclick="nextMonth()">
+                        <i class="fas fa-chevron-right"></i>
+                    </button>
+                </div>
+                <div class="calendar-grid" id="calendarGrid">
+                    <!-- Calendar will be generated here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Staff Modal -->
+    <div class="modal fade" id="addStaffModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="fas fa-user-plus me-2"></i>Add New Staff Member
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="addStaffForm">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">First Name</label>
+                                <input type="text" class="form-control" id="firstName" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Last Name</label>
+                                <input type="text" class="form-control" id="lastName" required>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Email</label>
+                                <input type="email" class="form-control" id="email" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Phone</label>
+                                <input type="tel" class="form-control" id="phone" required>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Position</label>
+                                <select class="form-control" id="position" required>
+                                    <option value="">Select Position</option>
+                                    <option value="Manager">Manager</option>
+                                    <option value="Ticket Seller">Ticket Seller</option>
+                                    <option value="Concession Staff">Concession Staff</option>
+                                    <option value="Usher">Usher</option>
+                                    <option value="Cleaner">Cleaner</option>
+                                    <option value="Security">Security</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Assigned Cinema Hall</label>
+                                <select class="form-control" id="assignedHallId">
+                                    <option value="">Select Hall (Optional)</option>
+                                    <option value="1">Hall A (Ground Floor)</option>
+                                    <option value="2">Hall B (First Floor)</option>
+                                    <option value="3">Hall C (Second Floor)</option>
+                                    <option value="4">Hall D (Ground Floor)</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Address</label>
+                            <textarea class="form-control" id="address" rows="3"></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Salary</label>
+                            <input type="number" class="form-control" id="salary" step="0.01" min="0" placeholder="Enter salary amount">
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" onclick="addStaff()">
+                        <i class="fas fa-save me-2"></i>Add Staff Member
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Staff Modal -->
+    <div class="modal fade" id="editStaffModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="fas fa-user-edit me-2"></i>Edit Staff Member
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="editStaffForm">
+                        <input type="hidden" id="editStaffId">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">First Name</label>
+                                <input type="text" class="form-control" id="editFirstName" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Last Name</label>
+                                <input type="text" class="form-control" id="editLastName" required>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Email</label>
+                                <input type="email" class="form-control" id="editEmail" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Phone</label>
+                                <input type="tel" class="form-control" id="editPhone" required>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Position</label>
+                                <select class="form-control" id="editPosition" required>
+                                    <option value="">Select Position</option>
+                                    <option value="Manager">Manager</option>
+                                    <option value="Usher">Usher</option>
+                                    <option value="Ticket Seller">Ticket Seller</option>
+                                    <option value="Concession Worker">Concession Worker</option>
+                                    <option value="Cleaner">Cleaner</option>
+                                    <option value="Security">Security</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Assigned Cinema Hall</label>
+                                <select class="form-control" id="editAssignedHallId">
+                                    <option value="">Not Assigned</option>
+                                    <option value="1">Hall A (Ground Floor)</option>
+                                    <option value="2">Hall B (Ground Floor)</option>
+                                    <option value="3">Hall C (First Floor)</option>
+                                    <option value="4">Hall D (First Floor)</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Status</label>
+                                <select class="form-control" id="editStatus" required>
+                                    <option value="Active">Active</option>
+                                    <option value="Inactive">Inactive</option>
+                                    <option value="On Leave">On Leave</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Address</label>
+                            <textarea class="form-control" id="editAddress" rows="3"></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Salary</label>
+                            <input type="number" class="form-control" id="editSalary" step="0.01" min="0" placeholder="Enter salary amount">
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" onclick="updateStaff()">
+                        <i class="fas fa-save me-2"></i>Update Staff Member
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Schedule Staff Modal -->
+    <div class="modal fade" id="scheduleModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="fas fa-calendar-plus me-2"></i>Schedule Staff
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="scheduleForm">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Staff Name</label>
+                                <select class="form-control" id="scheduleStaff" required>
+                                    <option value="">Select Staff Member</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Cinema Hall</label>
+                                <select class="form-control" id="scheduleHall" required>
+                                    <option value="">Select Cinema Hall</option>
+                                    <option value="1">Hall A (Ground Floor)</option>
+                                    <option value="2">Hall B (First Floor)</option>
+                                    <option value="3">Hall C (Second Floor)</option>
+                                    <option value="4">Hall D (Ground Floor)</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Start Date & Time</label>
+                                <input type="datetime-local" class="form-control" id="startDateTime" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">End Date & Time</label>
+                                <input type="datetime-local" class="form-control" id="endDateTime" required>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" onclick="saveSchedule()">
+                        <i class="fas fa-save me-2"></i>Save Schedule
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        let currentDate = new Date();
+        let staffData = [];
+        let scheduleData = [];
+        let filteredSchedules = [];
+        
+        // Initialize the page
+        document.addEventListener('DOMContentLoaded', function() {
+            loadStaffData();
+            loadSchedules();
+            generateCalendar();
+            loadStatistics();
+            
+            // Populate staff dropdown when schedule modal opens
+            document.getElementById('scheduleModal').addEventListener('show.bs.modal', function() {
+                populateStaffDropdown();
+            });
+        });
+        
+        // Load staff data
+        function loadStaffData() {
+            // Simulate API call - replace with actual API endpoint
+            fetch('/api/staff')
+                .then(response => response.json())
+                .then(data => {
+                    staffData = data;
+                    displayStaffTable();
+                    updateStatistics();
+                })
+                .catch(error => {
+                    console.error('Error loading staff data:', error);
+                    // Show sample data for demonstration
+                    staffData = [
+                        {
+                            id: 1,
+                            firstName: 'John',
+                            lastName: 'Smith',
+                            email: 'john.smith@flixmate.com',
+                            phone: '+1-555-0123',
+                            position: 'Manager',
+                            assignedHall: 'Hall 1',
+                            status: 'Active'
+                        },
+                        {
+                            id: 2,
+                            firstName: 'Sarah',
+                            lastName: 'Johnson',
+                            email: 'sarah.johnson@flixmate.com',
+                            phone: '+1-555-0124',
+                            position: 'Ticket Seller',
+                            assignedHall: 'Hall 2',
+                            status: 'Scheduled'
+                        },
+                        {
+                            id: 3,
+                            firstName: 'Mike',
+                            lastName: 'Wilson',
+                            email: 'mike.wilson@flixmate.com',
+                            phone: '+1-555-0125',
+                            position: 'Usher',
+                            assignedHall: 'Hall 3',
+                            status: 'Off'
+                        }
+                    ];
+                    displayStaffTable();
+                    updateStatistics();
+                });
+        }
+        
+        // Display staff table
+        function displayStaffTable() {
+            const tbody = document.getElementById('staffTableBody');
+            tbody.innerHTML = '';
+            
+            staffData.forEach(staff => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${staff.id}</td>
+                    <td>${staff.firstName} ${staff.lastName}</td>
+                    <td>${staff.position}</td>
+                    <td>${staff.email}</td>
+                    <td>${staff.phone}</td>
+                    <td>${staff.assignedHallId ? 'Hall ' + staff.assignedHallId : 'Not Assigned'}</td>
+                    <td>${staff.salary ? '$' + parseFloat(staff.salary).toFixed(2) : 'Not Set'}</td>
+                    <td><span class="status-badge status-${staff.status.toLowerCase()}">${staff.status}</span></td>
+                    <td>
+                        <button class="btn btn-warning btn-sm me-1" onclick="editStaff(${staff.id})">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="btn btn-success btn-sm me-1" onclick="scheduleStaff(${staff.id})">
+                            <i class="fas fa-calendar-plus"></i>
+                        </button>
+                        <button class="btn btn-danger btn-sm" onclick="deleteStaff(${staff.id})">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+        
+        // Update statistics
+        function updateStatistics() {
+            // Load statistics from API
+            fetch('/api/staff/statistics')
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(stats => {
+                    console.log('Statistics loaded:', stats);
+                    document.getElementById('totalStaff').textContent = stats.totalStaff;
+                    document.getElementById('activeStaff').textContent = stats.activeStaff;
+                    document.getElementById('scheduledShifts').textContent = stats.scheduledShifts;
+                    document.getElementById('availableHalls').textContent = stats.availableHalls;
+                })
+                .catch(error => {
+                    console.error('Error loading statistics:', error);
+                    // Fallback to local data
+                    document.getElementById('totalStaff').textContent = staffData.length;
+                    document.getElementById('activeStaff').textContent = staffData.filter(s => s.status === 'Active').length;
+                    document.getElementById('scheduledShifts').textContent = scheduleData.length;
+                    document.getElementById('availableHalls').textContent = 5; // Fallback
+                });
+        }
+        
+        // Generate calendar
+        function generateCalendar() {
+            const year = currentDate.getFullYear();
+            const month = currentDate.getMonth();
+            
+            document.getElementById('currentMonth').textContent = 
+                new Date(year, month).toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+            
+            const firstDay = new Date(year, month, 1);
+            const lastDay = new Date(year, month + 1, 0);
+            const startDate = new Date(firstDay);
+            startDate.setDate(startDate.getDate() - firstDay.getDay());
+            
+            const calendarGrid = document.getElementById('calendarGrid');
+            calendarGrid.innerHTML = '';
+            
+            // Add day headers
+            const dayHeaders = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+            dayHeaders.forEach(day => {
+                const dayHeader = document.createElement('div');
+                dayHeader.className = 'calendar-day';
+                dayHeader.style.fontWeight = 'bold';
+                dayHeader.style.background = '#f8f9fa';
+                dayHeader.textContent = day;
+                calendarGrid.appendChild(dayHeader);
+            });
+            
+            // Generate calendar days
+            for (let i = 0; i < 42; i++) {
+                const date = new Date(startDate);
+                date.setDate(startDate.getDate() + i);
+                
+                const dayElement = document.createElement('div');
+                dayElement.className = 'calendar-day';
+                dayElement.textContent = date.getDate();
+                
+                if (date.getMonth() !== month) {
+                    dayElement.classList.add('other-month');
+                } else if (date.toDateString() === new Date().toDateString()) {
+                    dayElement.classList.add('today');
+                }
+                
+                // Check if this date has schedules
+                const hasSchedule = scheduleData.some(schedule => {
+                    const scheduleDate = new Date(schedule.startTime);
+                    return scheduleDate.toDateString() === date.toDateString();
+                });
+                
+                if (hasSchedule) {
+                    dayElement.classList.add('has-schedule');
+                    // Add tooltip with schedule info
+                    const daySchedules = scheduleData.filter(schedule => {
+                        const scheduleDate = new Date(schedule.startTime);
+                        return scheduleDate.toDateString() === date.toDateString();
+                    });
+                    
+                    const scheduleInfo = daySchedules.map(s => `${s.staffName} (Hall ${s.hallId})`).join(', ');
+                    dayElement.title = `Schedules: ${scheduleInfo}`;
+                }
+                
+                dayElement.onclick = () => showDaySchedules(date);
+                calendarGrid.appendChild(dayElement);
+            }
+        }
+        
+        // Show schedules for a specific day
+        function showDaySchedules(date) {
+            const daySchedules = scheduleData.filter(schedule => {
+                const scheduleDate = new Date(schedule.startTime);
+                return scheduleDate.toDateString() === date.toDateString();
+            });
+            
+            if (daySchedules.length > 0) {
+                const scheduleDetails = daySchedules.map(s => {
+                    const startTime = new Date(s.startTime).toLocaleTimeString();
+                    const endTime = new Date(s.endTime).toLocaleTimeString();
+                    return `${s.staffName} - Hall ${s.hallId} (${startTime} - ${endTime})`;
+                }).join('\n');
+                
+                alert(`Schedules for ${date.toLocaleDateString()}:\n${scheduleDetails}`);
+            } else {
+                alert(`No schedules for ${date.toLocaleDateString()}`);
+            }
+        }
+        
+        // Navigation functions
+        function previousMonth() {
+            currentDate.setMonth(currentDate.getMonth() - 1);
+            generateCalendar();
+        }
+        
+        function nextMonth() {
+            currentDate.setMonth(currentDate.getMonth() + 1);
+            generateCalendar();
+        }
+        
+        // Add staff function
+        function addStaff() {
+            const formData = {
+                firstName: document.getElementById('firstName').value,
+                lastName: document.getElementById('lastName').value,
+                email: document.getElementById('email').value,
+                phone: document.getElementById('phone').value,
+                position: document.getElementById('position').value,
+                assignedHallId: document.getElementById('assignedHallId').value ? parseInt(document.getElementById('assignedHallId').value) : null,
+                address: document.getElementById('address').value,
+                salary: document.getElementById('salary').value ? parseFloat(document.getElementById('salary').value) : null,
+                status: 'Active'
+            };
+            
+            // Validate required fields
+            if (!formData.firstName || !formData.lastName || !formData.email || !formData.position) {
+                alert('Please fill in all required fields');
+                return;
+            }
+            
+            // Make API call to save staff
+            fetch('/api/staff', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(formData)
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Failed to create staff member');
+                }
+                return response.json();
+            })
+            .then(newStaff => {
+                console.log('Staff created successfully:', newStaff);
+                
+                // Add to local data
+                staffData.push(newStaff);
+                displayStaffTable();
+                updateStatistics();
+                
+                // Close modal
+                bootstrap.Modal.getInstance(document.getElementById('addStaffModal')).hide();
+                document.getElementById('addStaffForm').reset();
+                
+                alert('Staff member added successfully!');
+            })
+            .catch(error => {
+                console.error('Error creating staff:', error);
+                alert('Failed to add staff member: ' + error.message);
+            });
+        }
+        
+        // Schedule staff function
+        function scheduleStaff(staffId) {
+            const staff = staffData.find(s => s.id === staffId);
+            if (staff) {
+                // Populate staff dropdown first
+                populateStaffDropdown();
+                // Set the staff dropdown to show the staff name but store the ID
+                document.getElementById('scheduleStaff').value = staffId;
+                const modal = new bootstrap.Modal(document.getElementById('scheduleModal'));
+                modal.show();
+            }
+        }
+        
+        // Populate staff dropdown
+        function populateStaffDropdown() {
+            const staffDropdown = document.getElementById('scheduleStaff');
+            staffDropdown.innerHTML = '<option value="">Select Staff Member</option>';
+            
+            staffData.forEach(staff => {
+                const option = document.createElement('option');
+                option.value = staff.id;
+                option.textContent = staff.firstName + ' ' + staff.lastName;
+                staffDropdown.appendChild(option);
+            });
+        }
+        
+        // Save schedule function
+        function saveSchedule() {
+            const staffId = document.getElementById('scheduleStaff').value;
+            const hallId = parseInt(document.getElementById('scheduleHall').value);
+            const startTime = document.getElementById('startDateTime').value;
+            const endTime = document.getElementById('endDateTime').value;
+            
+            if (!staffId || !hallId || !startTime || !endTime) {
+                alert('Please fill in all required fields');
+                return;
+            }
+            
+            // Find the staff member to get their name
+            const staff = staffData.find(s => s.id == staffId);
+            if (!staff) {
+                alert('Staff member not found');
+                return;
+            }
+            
+            // Convert datetime-local format to proper format for database
+            // Parse the datetime-local string directly without timezone conversion
+            const parseDateTimeLocal = (dateTimeString) => {
+                // datetime-local format: "YYYY-MM-DDTHH:MM"
+                // We want to preserve the exact time without timezone conversion
+                const [datePart, timePart] = dateTimeString.split('T');
+                const [year, month, day] = datePart.split('-');
+                const [hours, minutes] = timePart.split(':');
+                return `${year}-${month}-${day}T${hours}:${minutes}:00`;
+            };
+            
+            const startTimeFormatted = parseDateTimeLocal(startTime);
+            const endTimeFormatted = parseDateTimeLocal(endTime);
+            
+            const newSchedule = {
+                staffId: parseInt(staffId),
+                staffName: staff.firstName + ' ' + staff.lastName,
+                hallId: hallId,
+                startTime: startTimeFormatted,
+                endTime: endTimeFormatted,
+                shiftType: 'Regular',
+                status: 'Scheduled',
+                notes: 'Schedule created via admin panel'
+            };
+            
+            // Send to API
+            fetch('/api/staff/schedules', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(newSchedule)
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Failed to save schedule to database');
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log('Schedule saved to database:', data);
+                // Add to local data
+                scheduleData.push(data);
+                filteredSchedules = [...scheduleData];
+                displaySchedulesTable();
+                generateCalendar();
+                updateStatistics();
+                
+                // Close modal
+                bootstrap.Modal.getInstance(document.getElementById('scheduleModal')).hide();
+                document.getElementById('scheduleForm').reset();
+                
+                alert('Schedule saved successfully to database!');
+            })
+            .catch(error => {
+                console.error('Error saving schedule:', error);
+                alert('Failed to save schedule: ' + error.message);
+            });
+        }
+        
+        // Other functions
+        function editStaff(id) {
+            const staff = staffData.find(s => s.id === id);
+            if (staff) {
+                // Populate edit modal with staff data
+                document.getElementById('editStaffId').value = staff.id;
+                document.getElementById('editFirstName').value = staff.firstName;
+                document.getElementById('editLastName').value = staff.lastName;
+                document.getElementById('editEmail').value = staff.email;
+                document.getElementById('editPhone').value = staff.phone;
+                document.getElementById('editPosition').value = staff.position;
+                document.getElementById('editAssignedHallId').value = staff.assignedHallId || '';
+                document.getElementById('editAddress').value = staff.address || '';
+                document.getElementById('editSalary').value = staff.salary || '';
+                document.getElementById('editStatus').value = staff.status;
+                
+                // Show edit modal
+                const modal = new bootstrap.Modal(document.getElementById('editStaffModal'));
+                modal.show();
+            }
+        }
+        
+        // Update staff function
+        function updateStaff() {
+            const staffId = document.getElementById('editStaffId').value;
+            const formData = {
+                firstName: document.getElementById('editFirstName').value,
+                lastName: document.getElementById('editLastName').value,
+                email: document.getElementById('editEmail').value,
+                phone: document.getElementById('editPhone').value,
+                position: document.getElementById('editPosition').value,
+                assignedHallId: document.getElementById('editAssignedHallId').value ? parseInt(document.getElementById('editAssignedHallId').value) : null,
+                address: document.getElementById('editAddress').value,
+                salary: document.getElementById('editSalary').value ? parseFloat(document.getElementById('editSalary').value) : null,
+                status: document.getElementById('editStatus').value
+            };
+            
+            // Validate required fields
+            if (!formData.firstName || !formData.lastName || !formData.email || !formData.position) {
+                alert('Please fill in all required fields');
+                return;
+            }
+            
+            // Make API call to update staff
+            fetch(`/api/staff/${staffId}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(formData)
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Failed to update staff member');
+                }
+                return response.json();
+            })
+            .then(updatedStaff => {
+                console.log('Staff updated successfully:', updatedStaff);
+                
+                // Update local data
+                const index = staffData.findIndex(s => s.id === parseInt(staffId));
+                if (index !== -1) {
+                    staffData[index] = updatedStaff;
+                }
+                displayStaffTable();
+                updateStatistics();
+                
+                // Close modal
+                bootstrap.Modal.getInstance(document.getElementById('editStaffModal')).hide();
+                document.getElementById('editStaffForm').reset();
+                
+                alert('Staff member updated successfully!');
+            })
+            .catch(error => {
+                console.error('Error updating staff:', error);
+                alert('Failed to update staff member: ' + error.message);
+            });
+        }
+        
+        function deleteStaff(id) {
+            if (confirm('Are you sure you want to delete this staff member?')) {
+                // Make API call to delete staff from database
+                fetch(`/api/staff/${id}`, {
+                    method: 'DELETE'
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Failed to delete staff member from database');
+                    }
+                    return response;
+                })
+                .then(() => {
+                    console.log('Staff deleted from database successfully');
+                    
+                    // Remove from local data
+                    staffData = staffData.filter(s => s.id !== id);
+                    displayStaffTable();
+                    updateStatistics();
+                    
+                    alert('Staff member deleted successfully from database!');
+                })
+                .catch(error => {
+                    console.error('Error deleting staff:', error);
+                    alert('Failed to delete staff member: ' + error.message);
+                });
+            }
+        }
+        
+        function refreshStaff() {
+            loadStaffData();
+            alert('Staff data refreshed!');
+        }
+        
+        function refreshSchedules() {
+            loadSchedules();
+            alert('Schedules refreshed!');
+        }
+        
+        function exportStaffData() {
+            // Convert staff data to CSV format
+            const csvContent = convertStaffToCSV(staffData);
+            const dataBlob = new Blob([csvContent], {type: 'text/csv;charset=utf-8;'});
+            const url = URL.createObjectURL(dataBlob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = 'staff-data.csv';
+            link.click();
+            URL.revokeObjectURL(url);
+        }
+        
+        function convertStaffToCSV(staffData) {
+            if (!staffData || staffData.length === 0) {
+                return 'No staff data available';
+            }
+            
+            // CSV headers
+            const headers = [
+                'ID',
+                'First Name',
+                'Last Name',
+                'Email',
+                'Phone',
+                'Position',
+                'Assigned Hall ID',
+                'Address',
+                'Status',
+                'Salary',
+                'Hire Date',
+                'Created At',
+                'Updated At'
+            ];
+            
+            // Convert data to CSV rows
+            const csvRows = [headers.join(',')];
+            
+            staffData.forEach(staff => {
+                const row = [
+                    staff.id || '',
+                    `"${(staff.firstName || '').replace(/"/g, '""')}"`,
+                    `"${(staff.lastName || '').replace(/"/g, '""')}"`,
+                    `"${(staff.email || '').replace(/"/g, '""')}"`,
+                    `"${(staff.phone || '').replace(/"/g, '""')}"`,
+                    `"${(staff.position || '').replace(/"/g, '""')}"`,
+                    staff.assignedHallId || '',
+                    `"${(staff.address || '').replace(/"/g, '""')}"`,
+                    `"${(staff.status || '').replace(/"/g, '""')}"`,
+                    staff.salary || '',
+                    staff.hireDate ? new Date(staff.hireDate).toLocaleDateString() : '',
+                    staff.createdAt ? new Date(staff.createdAt).toLocaleString() : '',
+                    staff.updatedAt ? new Date(staff.updatedAt).toLocaleString() : ''
+                ];
+                csvRows.push(row.join(','));
+            });
+            
+            return csvRows.join('\n');
+        }
+        
+        function loadStatistics() {
+            // This would typically load from API
+            updateStatistics();
+        }
+        
+        // Load schedules data
+        function loadSchedules() {
+            console.log('Loading schedules from API...');
+            fetch('/api/staff/schedules')
+                .then(response => {
+                    console.log('Response status:', response.status);
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status} - ${response.statusText}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('Schedules loaded from API:', data);
+                    scheduleData = data || [];
+                    filteredSchedules = [...scheduleData];
+                    displaySchedulesTable();
+                    populateStaffFilter();
+                    updateStatistics();
+                    generateCalendar(); // Regenerate calendar with new data
+                })
+                .catch(error => {
+                    console.error('Error loading schedules:', error);
+                    console.error('Error details:', error.message);
+                    alert(`Failed to load schedules from database: ${error.message}\n\nPlease ensure:\n1. The application is running\n2. Database tables are created\n3. Database connection is working`);
+                    // Keep existing data instead of showing sample data
+                    displaySchedulesTable();
+                    populateStaffFilter();
+                    updateStatistics();
+                });
+        }
+        
+        // Display schedules table
+        function displaySchedulesTable() {
+            const tbody = document.getElementById('schedulesTableBody');
+            tbody.innerHTML = '';
+            
+            filteredSchedules.forEach(schedule => {
+                const startTime = new Date(schedule.startTime);
+                const endTime = new Date(schedule.endTime);
+                const duration = Math.round((endTime - startTime) / (1000 * 60 * 60)); // hours
+                
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${schedule.scheduleId}</td>
+                    <td>${schedule.staffName}</td>
+                    <td>${startTime.toLocaleString()}</td>
+                    <td>${endTime.toLocaleString()}</td>
+                    <td>Hall ${schedule.hallId}</td>
+                    <td>${startTime.toLocaleDateString()}</td>
+                    <td>${duration} hours</td>
+                    <td>
+                        <button class="btn btn-warning btn-sm me-1" onclick="editSchedule(${schedule.scheduleId})">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="btn btn-danger btn-sm" onclick="deleteSchedule(${schedule.scheduleId})">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+        
+        // Populate staff filter dropdown
+        function populateStaffFilter() {
+            const staffFilter = document.getElementById('staffFilter');
+            const uniqueStaff = [...new Set(scheduleData.map(s => s.staffName))];
+            
+            staffFilter.innerHTML = '<option value="">All Staff</option>';
+            uniqueStaff.forEach(staff => {
+                staffFilter.innerHTML += `<option value="${staff}">${staff}</option>`;
+            });
+        }
+        
+        // Filter schedules
+        function filterSchedules() {
+            const staffFilter = document.getElementById('staffFilter').value;
+            const hallFilter = document.getElementById('hallFilter').value;
+            const dateFilter = document.getElementById('dateFilter').value;
+            
+            filteredSchedules = scheduleData.filter(schedule => {
+                const startDate = new Date(schedule.startTime);
+                const matchesStaff = !staffFilter || schedule.staffName === staffFilter;
+                const matchesHall = !hallFilter || schedule.hallId == hallFilter;
+                const matchesDate = !dateFilter || startDate.toISOString().split('T')[0] === dateFilter;
+                
+                return matchesStaff && matchesHall && matchesDate;
+            });
+            
+            displaySchedulesTable();
+        }
+        
+        // Clear filters
+        function clearFilters() {
+            document.getElementById('staffFilter').value = '';
+            document.getElementById('hallFilter').value = '';
+            document.getElementById('dateFilter').value = '';
+            filteredSchedules = [...scheduleData];
+            displaySchedulesTable();
+        }
+        
+        // Export schedules
+        function exportSchedules() {
+            // Convert schedule data to CSV format
+            const csvContent = convertSchedulesToCSV(filteredSchedules);
+            const dataBlob = new Blob([csvContent], {type: 'text/csv;charset=utf-8;'});
+            const url = URL.createObjectURL(dataBlob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = 'staff-schedules.csv';
+            link.click();
+            URL.revokeObjectURL(url);
+        }
+        
+        function convertSchedulesToCSV(scheduleData) {
+            if (!scheduleData || scheduleData.length === 0) {
+                return 'No schedule data available';
+            }
+            
+            // CSV headers
+            const headers = [
+                'Schedule ID',
+                'Staff ID',
+                'Staff Name',
+                'Start Time',
+                'End Time',
+                'Hall ID',
+                'Shift Type',
+                'Status',
+                'Notes',
+                'Created At',
+                'Updated At'
+            ];
+            
+            // Convert data to CSV rows
+            const csvRows = [headers.join(',')];
+            
+            scheduleData.forEach(schedule => {
+                const row = [
+                    schedule.scheduleId || '',
+                    schedule.staffId || '',
+                    `"${(schedule.staffName || '').replace(/"/g, '""')}"`,
+                    schedule.startTime ? new Date(schedule.startTime).toLocaleString() : '',
+                    schedule.endTime ? new Date(schedule.endTime).toLocaleString() : '',
+                    schedule.hallId || '',
+                    `"${(schedule.shiftType || '').replace(/"/g, '""')}"`,
+                    `"${(schedule.status || '').replace(/"/g, '""')}"`,
+                    `"${(schedule.notes || '').replace(/"/g, '""')}"`,
+                    schedule.createdAt ? new Date(schedule.createdAt).toLocaleString() : '',
+                    schedule.updatedAt ? new Date(schedule.updatedAt).toLocaleString() : ''
+                ];
+                csvRows.push(row.join(','));
+            });
+            
+            return csvRows.join('\n');
+        }
+        
+        // Edit schedule
+        function editSchedule(scheduleId) {
+            const schedule = scheduleData.find(s => s.scheduleId === scheduleId);
+            if (schedule) {
+                // Populate modal with schedule data
+                document.getElementById('scheduleStaff').value = schedule.staffName;
+                document.getElementById('scheduleHall').value = schedule.hallId;
+                document.getElementById('startDate').value = new Date(schedule.startTime).toISOString().split('T')[0];
+                document.getElementById('endDate').value = new Date(schedule.endTime).toISOString().split('T')[0];
+                document.getElementById('startTime').value = new Date(schedule.startTime).toTimeString().split(' ')[0].substring(0, 5);
+                document.getElementById('endTime').value = new Date(schedule.endTime).toTimeString().split(' ')[0].substring(0, 5);
+                
+                // Show modal
+                const modal = new bootstrap.Modal(document.getElementById('scheduleModal'));
+                modal.show();
+            }
+        }
+        
+        // Delete schedule
+        function deleteSchedule(scheduleId) {
+            if (confirm('Are you sure you want to delete this schedule?')) {
+                fetch(`/api/staff/schedules/${scheduleId}`, {
+                    method: 'DELETE'
+                })
+                .then(response => {
+                    if (response.ok) {
+                        scheduleData = scheduleData.filter(s => s.scheduleId !== scheduleId);
+                        filteredSchedules = [...scheduleData];
+                        displaySchedulesTable();
+                        updateStatistics();
+                        alert('Schedule deleted successfully!');
+                    } else {
+                        alert('Error deleting schedule');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error deleting schedule:', error);
+                    alert('Error deleting schedule');
+                });
+            }
+        }
+    </script>
+</body>
+</html>

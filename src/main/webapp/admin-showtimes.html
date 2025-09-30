@@ -1,0 +1,981 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Showtime Management - FlixMate Admin</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .admin-container {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        .admin-header {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.98) 0%, rgba(248, 250, 252, 0.98) 100%);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            padding: 1rem 0;
+            color: #1f2937;
+            border-bottom: 3px solid #2563eb;
+        }
+        .admin-content {
+            flex: 1;
+            padding: 2rem 0;
+        }
+        .admin-card {
+            background: #ffffff;
+            backdrop-filter: blur(10px);
+            border-radius: 12px;
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+            border: 1px solid #d1d5db;
+            transition: all 0.3s ease;
+            margin-bottom: 2rem;
+        }
+        .admin-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+        .admin-card-body {
+            padding: 2rem;
+        }
+        .form-control, .form-select {
+            border-radius: 8px;
+            border: 1px solid #d1d5db;
+            padding: 0.75rem 1rem;
+            transition: all 0.3s ease;
+        }
+        .form-control:focus, .form-select:focus {
+            border-color: #2563eb;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #0066cc, #004499);
+            border: none;
+            border-radius: 8px;
+            padding: 0.75rem 1.5rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        .btn-primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0, 102, 204, 0.3);
+        }
+        .btn-danger {
+            background: linear-gradient(135deg, #dc3545, #c82333);
+            border: none;
+            border-radius: 8px;
+            padding: 0.5rem 1rem;
+            font-weight: 600;
+        }
+        .btn-warning {
+            background: linear-gradient(135deg, #ffc107, #e0a800);
+            border: none;
+            border-radius: 8px;
+            padding: 0.5rem 1rem;
+            font-weight: 600;
+            color: #000;
+        }
+        .table {
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+        }
+        .table thead th {
+            background: linear-gradient(135deg, #0066cc, #004499);
+            color: white;
+            border: none;
+            font-weight: 600;
+            padding: 1rem;
+        }
+        .table tbody td {
+            padding: 1rem;
+            vertical-align: middle;
+            border-color: #e5e7eb;
+        }
+        .badge {
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-weight: 500;
+        }
+        .badge-success {
+            background: linear-gradient(135deg, #10b981, #059669);
+        }
+        .badge-warning {
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+        }
+        .badge-danger {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+        }
+        .logout-btn {
+            background: #dc3545;
+            border: none;
+            border-radius: 10px;
+            padding: 0.5rem 1rem;
+            color: white;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+        .logout-btn:hover {
+            background: #c82333;
+            color: white;
+            transform: translateY(-1px);
+        }
+        .loading-spinner {
+            display: none;
+        }
+        .loading-spinner.show {
+            display: inline-block;
+        }
+    </style>
+</head>
+<body>
+    <div class="admin-container">
+        <!-- Admin Header -->
+        <div class="admin-header">
+            <div class="container">
+                <div class="row align-items-center">
+                    <div class="col-md-6">
+                        <h2 class="mb-0">
+                            <i class="fas fa-clock me-2"></i>
+                            Showtime Management
+                        </h2>
+                    </div>
+                    <div class="col-md-6 text-end">
+                        <span class="me-3" id="adminUserInfo">Welcome, Admin</span>
+                        <a href="admin-home.html" class="btn btn-outline-primary me-2">
+                            <i class="fas fa-home me-1"></i>
+                            Dashboard
+                        </a>
+                        <a href="#" class="logout-btn" onclick="logout()">
+                            <i class="fas fa-sign-out-alt me-1"></i>
+                            Logout
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Admin Content -->
+        <div class="admin-content">
+            <div class="container">
+                <!-- Quick Stats -->
+                <div class="row mb-4">
+                    <div class="col-md-3">
+                        <div class="admin-card">
+                            <div class="admin-card-body text-center">
+                                <h3 class="text-primary mb-1" id="totalShowtimes">-</h3>
+                                <p class="text-muted mb-0">Total Showtimes</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="admin-card">
+                            <div class="admin-card-body text-center">
+                                <h3 class="text-success mb-1" id="activeShowtimes">-</h3>
+                                <p class="text-muted mb-0">Active Today</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="admin-card">
+                            <div class="admin-card-body text-center">
+                                <h3 class="text-warning mb-1" id="totalHalls">-</h3>
+                                <p class="text-muted mb-0">Available Halls</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="admin-card">
+                            <div class="admin-card-body text-center">
+                                <h3 class="text-info mb-1" id="totalMovies">-</h3>
+                                <p class="text-muted mb-0">Movies</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Add New Showtime Form -->
+                <div class="admin-card">
+                    <div class="admin-card-body">
+                        <h4 class="mb-4">
+                            <i class="fas fa-plus-circle me-2"></i>
+                            Add New Showtime
+                        </h4>
+                        <form id="showtimeForm">
+                            <div class="row">
+                                <div class="col-md-4 mb-3">
+                                    <label for="movieSelect" class="form-label">Movie</label>
+                                    <select class="form-select" id="movieSelect" required>
+                                        <option value="">Loading movies...</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <label for="hallSelect" class="form-label">Cinema Hall</label>
+                                    <select class="form-select" id="hallSelect" required>
+                                        <option value="">Loading halls...</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <label for="priceInput" class="form-label">Price ($)</label>
+                                    <input type="number" class="form-control" id="priceInput" step="0.01" min="0" required>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="startDateInput" class="form-label">Start Date</label>
+                                    <input type="date" class="form-control" id="startDateInput" required>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="startTimeInput" class="form-label">Start Time</label>
+                                    <input type="time" class="form-control" id="startTimeInput" required>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="endDateInput" class="form-label">End Date</label>
+                                    <input type="date" class="form-control" id="endDateInput" required>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="endTimeInput" class="form-label">End Time</label>
+                                    <input type="time" class="form-control" id="endTimeInput" required>
+                                </div>
+                            </div>
+                            <div class="text-end">
+                                <button type="button" class="btn btn-outline-secondary me-2" onclick="clearForm()">
+                                    <i class="fas fa-times me-1"></i>
+                                    Clear
+                                </button>
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-plus me-1"></i>
+                                    Create Showtime
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Showtimes Management Table -->
+                <div class="admin-card">
+                    <div class="admin-card-body">
+                        <div class="d-flex justify-content-between align-items-center mb-4">
+                            <h4 class="mb-0">
+                                <i class="fas fa-list me-2"></i>
+                                Manage Showtimes
+                            </h4>
+                            <div class="d-flex gap-2">
+                                <button class="btn btn-outline-primary" onclick="loadShowtimes()">
+                                    <i class="fas fa-refresh me-1"></i>
+                                    Refresh
+                                </button>
+                                <button class="btn btn-outline-success" onclick="exportShowtimes()">
+                                    <i class="fas fa-download me-1"></i>
+                                    Export
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Filters -->
+                        <div class="row mb-3">
+                            <div class="col-md-4">
+                                <input type="text" class="form-control" id="searchInput" placeholder="Search showtimes...">
+                            </div>
+                            <div class="col-md-3">
+                                <select class="form-select" id="movieFilter">
+                                    <option value="">All Movies</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <select class="form-select" id="hallFilter">
+                                    <option value="">All Halls</option>
+                                </select>
+                            </div>
+                            <div class="col-md-2">
+                                <button class="btn btn-outline-secondary w-100" onclick="applyFilters()">
+                                    <i class="fas fa-filter me-1"></i>
+                                    Filter
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Showtimes Table -->
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Movie</th>
+                                        <th>Hall</th>
+                                        <th>Start Time</th>
+                                        <th>End Time</th>
+                                        <th>Price</th>
+                                        <th>Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="showtimesTableBody">
+                                    <tr>
+                                        <td colspan="8" class="text-center">
+                                            <div class="loading-spinner">
+                                                <div class="spinner-border text-primary" role="status">
+                                                    <span class="visually-hidden">Loading...</span>
+                                                </div>
+                                                <p class="mt-2">Loading showtimes...</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Showtime Modal -->
+    <div class="modal fade" id="editShowtimeModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="fas fa-edit me-2"></i>
+                        Edit Showtime
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="editShowtimeForm">
+                        <input type="hidden" id="editShowtimeId">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="editMovieSelect" class="form-label">Movie</label>
+                                <select class="form-select" id="editMovieSelect" required>
+                                    <option value="">Select a movie...</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="editHallSelect" class="form-label">Cinema Hall</label>
+                                <select class="form-select" id="editHallSelect" required>
+                                    <option value="">Select a hall...</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="editStartDateInput" class="form-label">Start Date</label>
+                                <input type="date" class="form-control" id="editStartDateInput" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="editStartTimeInput" class="form-label">Start Time</label>
+                                <input type="time" class="form-control" id="editStartTimeInput" required>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="editEndDateInput" class="form-label">End Date</label>
+                                <input type="date" class="form-control" id="editEndDateInput" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="editEndTimeInput" class="form-label">End Time</label>
+                                <input type="time" class="form-control" id="editEndTimeInput" required>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12 mb-3">
+                                <label for="editPriceInput" class="form-label">Price ($)</label>
+                                <input type="number" class="form-control" id="editPriceInput" step="0.01" min="0" required>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" onclick="updateShowtime()">
+                        <i class="fas fa-save me-1"></i>
+                        Update Showtime
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Container -->
+    <div class="toast-container position-fixed top-0 end-0 p-3">
+        <div id="adminToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="toast-header">
+                <i class="fas fa-info-circle text-primary me-2"></i>
+                <strong class="me-auto">Admin Notification</strong>
+                <button type="button" class="btn-close" data-bs-dismiss="toast"></button>
+            </div>
+            <div class="toast-body" id="toastMessage">
+                <!-- Toast message will be inserted here -->
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="script.js"></script>
+    <script>
+        // Admin-specific functionality
+        let adminUser = null;
+        let allShowtimes = [];
+        let allMovies = [];
+        let allHalls = [];
+
+        // Check admin authentication on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            checkAdminAuth();
+            loadInitialData();
+        });
+
+        async function checkAdminAuth() {
+            try {
+                const token = localStorage.getItem('authToken');
+                if (!token) {
+                    showToast('Please log in as admin', 'error');
+                    setTimeout(() => window.location.href = 'login.html', 2000);
+                    return;
+                }
+
+                // Verify admin role
+                const response = await fetch('/api/auth/user-role', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error('Authentication failed');
+                }
+
+                const userData = await response.json();
+                adminUser = userData;
+                
+                // Check if user has admin role
+                const hasAdminRole = userData.authorities && 
+                    userData.authorities.some(auth => auth === 'ROLE_ADMIN');
+                
+                if (!hasAdminRole) {
+                    showToast('Access denied. Admin privileges required.', 'error');
+                    setTimeout(() => window.location.href = 'index.html', 2000);
+                    return;
+                }
+
+                // Update UI with admin info
+                document.getElementById('adminUserInfo').textContent = `Welcome, ${userData.email}`;
+                
+            } catch (error) {
+                console.error('Admin auth check failed:', error);
+                showToast('Authentication failed. Please log in again.', 'error');
+                setTimeout(() => window.location.href = 'login.html', 2000);
+            }
+        }
+
+        async function loadInitialData() {
+            try {
+                console.log('🔄 Loading initial data...');
+                showToast('Loading data from database...', 'info');
+                
+                // Load movies, halls, and showtimes in parallel
+                await Promise.all([
+                    loadMovies(),
+                    loadHalls(),
+                    loadShowtimes()
+                ]);
+                
+                console.log('✅ Initial data loaded successfully');
+                console.log('Movies:', allMovies.length);
+                console.log('Halls:', allHalls.length);
+                console.log('Showtimes:', allShowtimes.length);
+                
+                updateStats();
+                showToast('Data loaded successfully!', 'success');
+            } catch (error) {
+                console.error('Failed to load initial data:', error);
+                showToast('Failed to load data. Please refresh the page.', 'error');
+            }
+        }
+
+        async function loadMovies() {
+            try {
+                const token = localStorage.getItem('authToken');
+                let response = await fetch('/api/admin/movie-management', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                // If admin endpoint fails, try public endpoint
+                if (!response.ok) {
+                    console.log('Admin endpoint failed, trying public endpoint...');
+                    response = await fetch('/api/movies');
+                }
+                
+                if (response.ok) {
+                    allMovies = await response.json();
+                    console.log('Loaded movies:', allMovies);
+                    populateMovieSelects();
+                } else {
+                    console.error('Failed to load movies:', response.status, response.statusText);
+                    showToast('Failed to load movies', 'error');
+                }
+            } catch (error) {
+                console.error('Failed to load movies:', error);
+                showToast('Failed to load movies', 'error');
+            }
+        }
+
+        async function loadHalls() {
+            try {
+                const token = localStorage.getItem('authToken');
+                const response = await fetch('/api/theatre/halls', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+                if (response.ok) {
+                    allHalls = await response.json();
+                    console.log('Loaded halls:', allHalls);
+                    populateHallSelects();
+                } else {
+                    console.error('Failed to load halls:', response.status, response.statusText);
+                    showToast('Failed to load cinema halls', 'error');
+                }
+            } catch (error) {
+                console.error('Failed to load halls:', error);
+                showToast('Failed to load cinema halls', 'error');
+            }
+        }
+
+        async function loadShowtimes() {
+            try {
+                console.log('🔄 Loading showtimes...');
+                showLoading(true);
+                const token = localStorage.getItem('authToken');
+                console.log('Auth token available:', !!token);
+                console.log('Auth token value:', token ? token.substring(0, 20) + '...' : 'null');
+                
+                const response = await fetch('/api/theatre/showtimes', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                console.log('Response status:', response.status);
+                console.log('Response headers:', response.headers);
+                
+                if (response.ok) {
+                    const responseText = await response.text();
+                    console.log('Raw response:', responseText);
+                    
+                    try {
+                        allShowtimes = JSON.parse(responseText);
+                        console.log('Parsed showtimes:', allShowtimes);
+                        console.log('Showtimes type:', typeof allShowtimes);
+                        console.log('Showtimes length:', allShowtimes ? allShowtimes.length : 'undefined');
+                        
+                        if (Array.isArray(allShowtimes)) {
+                            displayShowtimes(allShowtimes);
+                            updateStats(); // Update statistics after loading showtimes
+                        } else {
+                            console.error('Response is not an array:', allShowtimes);
+                            showToast('Invalid showtimes data format', 'error');
+                        }
+                    } catch (parseError) {
+                        console.error('Failed to parse JSON:', parseError);
+                        console.error('Response text:', responseText);
+                        showToast('Failed to parse showtimes data', 'error');
+                    }
+                } else {
+                    const errorText = await response.text();
+                    console.error('Failed to load showtimes:', response.status, response.statusText);
+                    console.error('Error response:', errorText);
+                    throw new Error(`Failed to load showtimes: ${response.status} ${response.statusText}`);
+                }
+            } catch (error) {
+                console.error('Failed to load showtimes:', error);
+                showToast('Failed to load showtimes: ' + error.message, 'error');
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        function populateMovieSelects() {
+            console.log('Populating movie selects with', allMovies.length, 'movies');
+            const movieSelects = ['movieSelect', 'editMovieSelect', 'movieFilter'];
+            movieSelects.forEach(selectId => {
+                const select = document.getElementById(selectId);
+                if (select) {
+                    // Clear existing options except first
+                    select.innerHTML = selectId === 'movieFilter' ? '<option value="">All Movies</option>' : '<option value="">Select a movie...</option>';
+                    allMovies.forEach(movie => {
+                        const option = document.createElement('option');
+                        option.value = movie.movieId;
+                        option.textContent = movie.title;
+                        select.appendChild(option);
+                    });
+                    console.log(`Populated ${selectId} with ${allMovies.length} movies`);
+                }
+            });
+        }
+
+        function populateHallSelects() {
+            console.log('Populating hall selects with', allHalls.length, 'halls');
+            const hallSelects = ['hallSelect', 'editHallSelect', 'hallFilter'];
+            hallSelects.forEach(selectId => {
+                const select = document.getElementById(selectId);
+                if (select) {
+                    // Clear existing options except first
+                    select.innerHTML = selectId === 'hallFilter' ? '<option value="">All Halls</option>' : '<option value="">Select a hall...</option>';
+                    allHalls.forEach(hall => {
+                        const option = document.createElement('option');
+                        option.value = hall.hallId;
+                        option.textContent = `${hall.name} (${hall.capacity} seats)`;
+                        select.appendChild(option);
+                    });
+                    console.log(`Populated ${selectId} with ${allHalls.length} halls`);
+                }
+            });
+        }
+
+        function displayShowtimes(showtimes) {
+            console.log('displayShowtimes called with:', showtimes);
+            const tbody = document.getElementById('showtimesTableBody');
+            
+            if (!showtimes || showtimes.length === 0) {
+                console.log('No showtimes to display');
+                tbody.innerHTML = '<tr><td colspan="8" class="text-center text-muted">No showtimes found</td></tr>';
+                return;
+            }
+            
+            // Clear the table body
+            tbody.innerHTML = '';
+
+            console.log(`Displaying ${showtimes.length} showtimes`);
+            showtimes.forEach((showtime, index) => {
+                console.log(`Showtime ${index}:`, showtime);
+                const row = document.createElement('tr');
+                
+                try {
+                    const startTime = new Date(showtime.startTime);
+                    const endTime = new Date(showtime.endTime);
+                    const isActive = startTime > new Date();
+                    
+                    const movieTitle = showtime.movie ? showtime.movie.title : 'N/A';
+                    const hallName = showtime.cinemaHall ? showtime.cinemaHall.name : 'N/A';
+                    
+                    console.log(`Showtime ${index} - Movie: ${movieTitle}, Hall: ${hallName}`);
+                    
+                    row.innerHTML = `
+                        <td>${showtime.showtimeId}</td>
+                        <td>${movieTitle}</td>
+                        <td>${hallName}</td>
+                        <td>${formatDateTime(startTime)}</td>
+                        <td>${formatDateTime(endTime)}</td>
+                        <td>$${showtime.price.toFixed(2)}</td>
+                        <td><span class="badge ${isActive ? 'badge-success' : 'badge-warning'}">${isActive ? 'Active' : 'Past'}</span></td>
+                        <td>
+                            <button class="btn btn-warning btn-sm me-1" onclick="editShowtime(${showtime.showtimeId})">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="btn btn-danger btn-sm" onclick="deleteShowtime(${showtime.showtimeId})">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </td>
+                    `;
+                } catch (error) {
+                    console.error(`Error processing showtime ${index}:`, error);
+                    row.innerHTML = `
+                        <td colspan="8" class="text-center text-danger">
+                            Error displaying showtime: ${error.message}
+                        </td>
+                    `;
+                }
+                tbody.appendChild(row);
+            });
+        }
+
+        function formatDateTime(date) {
+            return date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+        }
+
+        function updateStats() {
+            document.getElementById('totalShowtimes').textContent = allShowtimes.length;
+            document.getElementById('totalMovies').textContent = allMovies.length;
+            document.getElementById('totalHalls').textContent = allHalls.length;
+            
+            const today = new Date();
+            const activeToday = allShowtimes.filter(st => {
+                const startTime = new Date(st.startTime);
+                return startTime.toDateString() === today.toDateString();
+            }).length;
+            document.getElementById('activeShowtimes').textContent = activeToday;
+        }
+
+        // Form handling
+        document.getElementById('showtimeForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            await createShowtime();
+        });
+
+        async function createShowtime() {
+            try {
+                const formData = {
+                    movieId: parseInt(document.getElementById('movieSelect').value),
+                    hallId: parseInt(document.getElementById('hallSelect').value),
+                    startTime: document.getElementById('startDateInput').value + 'T' + document.getElementById('startTimeInput').value,
+                    endTime: document.getElementById('endDateInput').value + 'T' + document.getElementById('endTimeInput').value,
+                    price: parseFloat(document.getElementById('priceInput').value)
+                };
+
+                const response = await fetch('/api/theatre/showtimes', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+                    },
+                    body: JSON.stringify(formData)
+                });
+
+                if (response.ok) {
+                    showToast('Showtime created successfully!', 'success');
+                    clearForm();
+                    loadShowtimes();
+                } else {
+                    const error = await response.text();
+                    showToast('Failed to create showtime: ' + error, 'error');
+                }
+            } catch (error) {
+                console.error('Error creating showtime:', error);
+                showToast('Failed to create showtime', 'error');
+            }
+        }
+
+        function clearForm() {
+            document.getElementById('showtimeForm').reset();
+        }
+
+        function editShowtime(showtimeId) {
+            const showtime = allShowtimes.find(st => st.showtimeId === showtimeId);
+            if (!showtime) return;
+
+            // Populate edit form
+            document.getElementById('editShowtimeId').value = showtimeId;
+            document.getElementById('editMovieSelect').value = showtime.movie ? showtime.movie.movieId : '';
+            document.getElementById('editHallSelect').value = showtime.cinemaHall ? showtime.cinemaHall.hallId : '';
+            document.getElementById('editPriceInput').value = showtime.price;
+
+            const startTime = new Date(showtime.startTime);
+            const endTime = new Date(showtime.endTime);
+            
+            document.getElementById('editStartDateInput').value = startTime.toISOString().split('T')[0];
+            document.getElementById('editStartTimeInput').value = startTime.toTimeString().slice(0, 5);
+            document.getElementById('editEndDateInput').value = endTime.toISOString().split('T')[0];
+            document.getElementById('editEndTimeInput').value = endTime.toTimeString().slice(0, 5);
+
+            // Show modal
+            new bootstrap.Modal(document.getElementById('editShowtimeModal')).show();
+        }
+
+        async function updateShowtime() {
+            try {
+                const showtimeId = document.getElementById('editShowtimeId').value;
+                const formData = {
+                    showtimeId: parseInt(showtimeId),
+                    movie: { movieId: parseInt(document.getElementById('editMovieSelect').value) },
+                    cinemaHall: { hallId: parseInt(document.getElementById('editHallSelect').value) },
+                    startTime: document.getElementById('editStartDateInput').value + 'T' + document.getElementById('editStartTimeInput').value,
+                    endTime: document.getElementById('editEndDateInput').value + 'T' + document.getElementById('editEndTimeInput').value,
+                    price: parseFloat(document.getElementById('editPriceInput').value)
+                };
+
+                const response = await fetch(`/api/admin/movie-management/showtimes/${showtimeId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+                    },
+                    body: JSON.stringify(formData)
+                });
+
+                if (response.ok) {
+                    showToast('Showtime updated successfully!', 'success');
+                    bootstrap.Modal.getInstance(document.getElementById('editShowtimeModal')).hide();
+                    loadShowtimes();
+                } else {
+                    const error = await response.text();
+                    showToast('Failed to update showtime: ' + error, 'error');
+                }
+            } catch (error) {
+                console.error('Error updating showtime:', error);
+                showToast('Failed to update showtime', 'error');
+            }
+        }
+
+        async function deleteShowtime(showtimeId) {
+            if (!confirm('Are you sure you want to delete this showtime? This action cannot be undone.')) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`/api/admin/movie-management/showtimes/${showtimeId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+                    }
+                });
+
+                if (response.ok) {
+                    showToast('Showtime deleted successfully!', 'success');
+                    loadShowtimes();
+                } else {
+                    const error = await response.text();
+                    showToast('Failed to delete showtime: ' + error, 'error');
+                }
+            } catch (error) {
+                console.error('Error deleting showtime:', error);
+                showToast('Failed to delete showtime', 'error');
+            }
+        }
+
+        function applyFilters() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const movieFilter = document.getElementById('movieFilter').value;
+            const hallFilter = document.getElementById('hallFilter').value;
+
+            let filteredShowtimes = allShowtimes;
+
+            if (searchTerm) {
+                filteredShowtimes = filteredShowtimes.filter(st => 
+                    (st.movie && st.movie.title.toLowerCase().includes(searchTerm)) ||
+                    (st.cinemaHall && st.cinemaHall.name.toLowerCase().includes(searchTerm))
+                );
+            }
+
+            if (movieFilter) {
+                filteredShowtimes = filteredShowtimes.filter(st => 
+                    st.movie && st.movie.movieId == movieFilter
+                );
+            }
+
+            if (hallFilter) {
+                filteredShowtimes = filteredShowtimes.filter(st => 
+                    st.cinemaHall && st.cinemaHall.hallId == hallFilter
+                );
+            }
+
+            displayShowtimes(filteredShowtimes);
+        }
+
+        function exportShowtimes() {
+            const csvContent = "data:text/csv;charset=utf-8," + 
+                "ID,Movie,Hall,Start Time,End Time,Price\n" +
+                allShowtimes.map(st => 
+                    `${st.showtimeId},"${st.movie ? st.movie.title : 'N/A'}","${st.cinemaHall ? st.cinemaHall.name : 'N/A'}","${st.startTime}","${st.endTime}",${st.price}`
+                ).join("\n");
+            
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", "showtimes.csv");
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        function showLoading(show) {
+            console.log('showLoading called with:', show);
+            let spinner = document.querySelector('.loading-spinner');
+            console.log('Spinner element found:', !!spinner);
+            
+            // If spinner doesn't exist and we need to show loading, create it
+            if (!spinner && show) {
+                const tbody = document.getElementById('showtimesTableBody');
+                if (tbody) {
+                    tbody.innerHTML = `
+                        <tr>
+                            <td colspan="8" class="text-center">
+                                <div class="loading-spinner">
+                                    <div class="spinner-border text-primary" role="status">
+                                        <span class="visually-hidden">Loading...</span>
+                                    </div>
+                                    <p class="mt-2">Loading showtimes...</p>
+                                </div>
+                            </td>
+                        </tr>
+                    `;
+                    spinner = document.querySelector('.loading-spinner');
+                    console.log('Created new spinner element');
+                }
+            }
+            
+            if (spinner) {
+                try {
+                    if (show) {
+                        spinner.classList.add('show');
+                        console.log('Added show class to spinner');
+                    } else {
+                        spinner.classList.remove('show');
+                        console.log('Removed show class from spinner');
+                    }
+                } catch (error) {
+                    console.error('Error manipulating spinner classes:', error);
+                }
+            } else {
+                console.warn('Loading spinner element not found and could not be created');
+            }
+        }
+
+        function showToast(message, type = 'info') {
+            const toast = document.getElementById('adminToast');
+            const toastMessage = document.getElementById('toastMessage');
+            
+            toastMessage.textContent = message;
+            
+            // Update toast styling based on type
+            const toastHeader = toast.querySelector('.toast-header');
+            const icon = toastHeader.querySelector('i');
+            
+            toastHeader.className = 'toast-header';
+            icon.className = 'fas me-2';
+            
+            switch (type) {
+                case 'success':
+                    toastHeader.classList.add('bg-success', 'text-white');
+                    icon.classList.add('fa-check-circle', 'text-white');
+                    break;
+                case 'error':
+                    toastHeader.classList.add('bg-danger', 'text-white');
+                    icon.classList.add('fa-exclamation-circle', 'text-white');
+                    break;
+                case 'warning':
+                    toastHeader.classList.add('bg-warning', 'text-dark');
+                    icon.classList.add('fa-exclamation-triangle', 'text-dark');
+                    break;
+                default:
+                    toastHeader.classList.add('bg-primary', 'text-white');
+                    icon.classList.add('fa-info-circle', 'text-white');
+            }
+            
+            const bsToast = new bootstrap.Toast(toast);
+            bsToast.show();
+        }
+
+        function logout() {
+            localStorage.removeItem('authToken');
+            showToast('Logged out successfully', 'success');
+            setTimeout(() => window.location.href = 'index.html', 1000);
+        }
+    </script>
+</body>
+</html>
