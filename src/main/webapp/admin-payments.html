@@ -1,0 +1,1084 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment Management - FlixMate Admin</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .admin-container {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        .admin-header {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.98) 0%, rgba(248, 250, 252, 0.98) 100%);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            padding: 1rem 0;
+            color: #1f2937;
+            border-bottom: 3px solid #2563eb;
+        }
+        .admin-content {
+            flex: 1;
+            padding: 2rem 0;
+        }
+        .payment-card {
+            background: #ffffff;
+            backdrop-filter: blur(10px);
+            border-radius: 12px;
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+            border: 1px solid #d1d5db;
+            transition: all 0.3s ease;
+            margin-bottom: 1.5rem;
+        }
+        .payment-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+        .payment-card-header {
+            background: linear-gradient(135deg, #0066cc, #004499);
+            color: white;
+            padding: 1rem 1.5rem;
+            border-radius: 12px 12px 0 0;
+            font-weight: 600;
+        }
+        .payment-card-body {
+            padding: 1.5rem;
+        }
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            text-align: center;
+            margin-bottom: 1rem;
+        }
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+        .stat-label {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+        .success-stat {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        }
+        .warning-stat {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+        }
+        .danger-stat {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+        }
+        .payment-table {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+        }
+        .payment-table th {
+            background: #f8fafc;
+            border: none;
+            font-weight: 600;
+            color: #374151;
+            padding: 1rem;
+        }
+        .payment-table td {
+            border: none;
+            padding: 1rem;
+            vertical-align: middle;
+        }
+        .status-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        .status-success {
+            background: #d1fae5;
+            color: #065f46;
+        }
+        .status-failed {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+        .status-pending {
+            background: #fef3c7;
+            color: #92400e;
+        }
+        .notification-item {
+            background: white;
+            border-left: 4px solid #0066cc;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 0.5rem;
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+        .notification-item:hover {
+            transform: translateX(5px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+        .notification-new {
+            border-left-color: #10b981;
+            background: linear-gradient(90deg, #f0fdf4 0%, #ffffff 100%);
+        }
+        .notification-warning {
+            border-left-color: #f59e0b;
+            background: linear-gradient(90deg, #fffbeb 0%, #ffffff 100%);
+        }
+        .notification-error {
+            border-left-color: #ef4444;
+            background: linear-gradient(90deg, #fef2f2 0%, #ffffff 100%);
+        }
+        .filter-section {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+        }
+        .btn-filter {
+            background: #0066cc;
+            border: none;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+        .btn-filter:hover {
+            background: #004499;
+            transform: translateY(-1px);
+        }
+        .chart-container {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+            margin-bottom: 1.5rem;
+        }
+        .back-btn {
+            background: #6b7280;
+            border: none;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+        .back-btn:hover {
+            background: #4b5563;
+            color: white;
+            transform: translateY(-1px);
+        }
+    </style>
+</head>
+<body>
+    <div class="admin-container">
+        <!-- Admin Header -->
+        <div class="admin-header">
+            <div class="container">
+                <div class="row align-items-center">
+                    <div class="col-md-6">
+                        <h2 class="mb-0">
+                            <i class="fas fa-credit-card me-2"></i>
+                            Payment Management
+                        </h2>
+                    </div>
+                    <div class="col-md-6 text-end">
+                        <a href="admin-home.html" class="back-btn me-3">
+                            <i class="fas fa-arrow-left me-1"></i>
+                            Back to Dashboard
+                        </a>
+                        <span class="me-3" id="adminUserInfo">Welcome, Admin</span>
+                        <a href="#" class="btn btn-danger" onclick="logout()">
+                            <i class="fas fa-sign-out-alt me-1"></i>
+                            Logout
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Admin Content -->
+        <div class="admin-content">
+            <div class="container">
+                <!-- Payment Statistics -->
+                <div class="row mb-4">
+                    <div class="col-md-3">
+                        <div class="stat-card success-stat">
+                            <div class="stat-number" id="totalRevenue">$0</div>
+                            <div class="stat-label">Total Revenue</div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="stat-card">
+                            <div class="stat-number" id="successfulPayments">0</div>
+                            <div class="stat-label">Successful Payments</div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="stat-card warning-stat">
+                            <div class="stat-number" id="pendingPayments">0</div>
+                            <div class="stat-label">Pending Payments</div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="stat-card danger-stat">
+                            <div class="stat-number" id="failedPayments">0</div>
+                            <div class="stat-label">Failed Payments</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Filters and Controls -->
+                <div class="filter-section">
+                    <div class="row align-items-center">
+                        <div class="col-md-3">
+                            <label class="form-label">Date Range</label>
+                            <select class="form-select" id="dateRange">
+                                <option value="today">Today</option>
+                                <option value="week">This Week</option>
+                                <option value="month" selected>This Month</option>
+                                <option value="year">This Year</option>
+                                <option value="all">All Time</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Payment Status</label>
+                            <select class="form-select" id="statusFilter">
+                                <option value="all">All Status</option>
+                                <option value="success">Successful</option>
+                                <option value="failed">Failed</option>
+                                <option value="pending">Pending</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Amount Range</label>
+                            <select class="form-select" id="amountFilter">
+                                <option value="all">All Amounts</option>
+                                <option value="low">$0 - $50</option>
+                                <option value="medium">$50 - $200</option>
+                                <option value="high">$200+</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <button class="btn btn-filter w-100" onclick="applyFilters()">
+                                <i class="fas fa-filter me-2"></i>
+                                Apply Filters
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <!-- Payment Analytics Chart -->
+                    <div class="col-md-8">
+                        <div class="chart-container">
+                            <h5 class="mb-3">
+                                <i class="fas fa-chart-line me-2"></i>
+                                Payment Analytics
+                            </h5>
+                            <canvas id="paymentChart" width="400" height="200"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Payment Notifications -->
+                    <div class="col-md-4">
+                        <div class="payment-card">
+                            <div class="payment-card-header">
+                                <i class="fas fa-bell me-2"></i>
+                                Payment Notifications
+                                <span class="badge bg-light text-dark ms-2" id="notificationCount">0</span>
+                            </div>
+                            <div class="payment-card-body">
+                                <div id="notificationsList">
+                                    <!-- Notifications will be loaded here -->
+                                </div>
+                                <button class="btn btn-outline-primary btn-sm w-100 mt-2" onclick="loadAllNotifications()">
+                                    <i class="fas fa-refresh me-1"></i>
+                                    Refresh Notifications
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Payment Transactions Table -->
+                <div class="payment-card">
+                    <div class="payment-card-header">
+                        <i class="fas fa-list me-2"></i>
+                        Payment Transactions
+                        <div class="float-end">
+                            <button class="btn btn-light btn-sm me-2" onclick="exportPayments()">
+                                <i class="fas fa-download me-1"></i>
+                                Export
+                            </button>
+                            <button class="btn btn-light btn-sm" onclick="refreshPayments()">
+                                <i class="fas fa-sync me-1"></i>
+                                Refresh
+                            </button>
+                        </div>
+                    </div>
+                    <div class="payment-card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table payment-table mb-0">
+                                <thead>
+                                    <tr>
+                                        <th>Transaction ID</th>
+                                        <th>Customer</th>
+                                        <th>Amount</th>
+                                        <th>Status</th>
+                                        <th>Payment Method</th>
+                                        <th>Date</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="paymentsTableBody">
+                                    <!-- Payment data will be loaded here -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Payment Analysis Summary -->
+                <div class="row mt-4">
+                    <div class="col-md-12">
+                        <div class="payment-card">
+                            <div class="payment-card-header">
+                                <i class="fas fa-clock me-2"></i>
+                                Payment Trends
+                            </div>
+                            <div class="payment-card-body">
+                                <canvas id="paymentTrendsChart" width="600" height="200"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Payment Details Modal -->
+    <div class="modal fade" id="paymentDetailsModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="fas fa-receipt me-2"></i>
+                        Payment Details
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body" id="paymentDetailsContent">
+                    <!-- Payment details will be loaded here -->
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" onclick="printPaymentReceipt()">
+                        <i class="fas fa-print me-1"></i>
+                        Print Receipt
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Container -->
+    <div class="toast-container position-fixed top-0 end-0 p-3">
+        <div id="adminToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="toast-header">
+                <i class="fas fa-info-circle text-primary me-2"></i>
+                <strong class="me-auto">Payment Notification</strong>
+                <button type="button" class="btn-close" data-bs-dismiss="toast"></button>
+            </div>
+            <div class="toast-body" id="toastMessage">
+                <!-- Toast message will be inserted here -->
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+    <script src="script.js"></script>
+    <script>
+        // Payment Management JavaScript
+        let paymentChart, paymentTrendsChart;
+        let allPayments = [];
+        let filteredPayments = [];
+
+        // Check admin authentication on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            checkAdminAuth();
+            initializeCharts();
+            loadPaymentData();
+            loadNotifications();
+        });
+
+        async function checkAdminAuth() {
+            try {
+                const token = localStorage.getItem('authToken');
+                if (!token) {
+                    showToast('Please log in as admin', 'error');
+                    setTimeout(() => window.location.href = 'login.html', 2000);
+                    return;
+                }
+
+                const response = await fetch('/api/auth/user-role', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error('Authentication failed');
+                }
+
+                const userData = await response.json();
+                
+                const hasAdminRole = userData.authorities && 
+                    userData.authorities.some(auth => auth === 'ROLE_ADMIN');
+                
+                if (!hasAdminRole) {
+                    showToast('Access denied. Admin privileges required.', 'error');
+                    setTimeout(() => window.location.href = 'index.html', 2000);
+                    return;
+                }
+
+                document.getElementById('adminUserInfo').textContent = `Welcome, ${userData.email}`;
+                
+            } catch (error) {
+                console.error('Admin auth check failed:', error);
+                showToast('Authentication failed. Please log in again.', 'error');
+                setTimeout(() => window.location.href = 'login.html', 2000);
+            }
+        }
+
+        function initializeCharts() {
+            // Payment Analytics Chart
+            const ctx = document.getElementById('paymentChart').getContext('2d');
+            paymentChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+                    datasets: [{
+                        label: 'Revenue',
+                        data: [1200, 1900, 3000, 5000, 2000, 3000, 4500],
+                        borderColor: '#0066cc',
+                        backgroundColor: 'rgba(0, 102, 204, 0.1)',
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    }
+                }
+            });
+
+            // Payment Method Chart removed - system has only one payment method
+
+            // Payment Trends Chart
+            const trendsCtx = document.getElementById('paymentTrendsChart').getContext('2d');
+            paymentTrendsChart = new Chart(trendsCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['Loading...'],
+                    datasets: [{
+                        label: 'Successful Payments',
+                        data: [0],
+                        backgroundColor: '#10b981'
+                    }, {
+                        label: 'Failed Payments',
+                        data: [0],
+                        backgroundColor: '#ef4444'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'top'
+                        },
+                        title: {
+                            display: true,
+                            text: 'Payment Trends (Last 6 Months)'
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                stepSize: 1
+                            }
+                        },
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Month'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        async function loadPaymentData() {
+            try {
+                const token = localStorage.getItem('authToken');
+                if (!token) {
+                    showToast('Please log in to access payment data', 'error');
+                    return;
+                }
+
+                // Fetch admin dashboard data
+                const dashboardResponse = await fetch('/api/payments/admin-dashboard', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (!dashboardResponse.ok) {
+                    throw new Error('Failed to fetch dashboard data');
+                }
+
+                const dashboardData = await dashboardResponse.json();
+                console.log('Dashboard data received:', dashboardData);
+
+                // Update statistics
+                updateDashboardStats(dashboardData);
+                
+                // Convert recent payments to the format expected by the UI
+                if (dashboardData.recentPayments) {
+                    allPayments = dashboardData.recentPayments.map(payment => ({
+                        id: payment.paymentId,
+                        customer: payment.userName || 'Unknown User',
+                        email: payment.userEmail || 'unknown@example.com',
+                        amount: payment.amount,
+                        status: payment.status.toLowerCase(),
+                        method: payment.paymentMethod,
+                        date: payment.paymentDate,
+                        transactionId: payment.transactionId,
+                        bookingId: payment.bookingId,
+                        movieTitle: payment.movieTitle,
+                        totalSeats: payment.totalSeats
+                    }));
+                } else {
+                    allPayments = [];
+                }
+
+                filteredPayments = [...allPayments];
+                
+                updatePaymentStats();
+                updatePaymentsTable();
+                updateCharts();
+                
+                // Update charts with real data
+                updateChartsWithRealData(dashboardData);
+                
+                // Load notifications based on real data
+                loadRealNotifications(dashboardData);
+                
+            } catch (error) {
+                console.error('Failed to load payment data:', error);
+                showToast('Failed to load payment data: ' + error.message, 'error');
+                
+                // Fallback to empty data
+                allPayments = [];
+                filteredPayments = [];
+                updatePaymentStats();
+                updatePaymentsTable();
+            }
+        }
+
+        function updateDashboardStats(dashboardData) {
+            if (dashboardData.paymentStats) {
+                const stats = dashboardData.paymentStats;
+                document.getElementById('successfulPayments').textContent = stats.successfulPayments || 0;
+                document.getElementById('failedPayments').textContent = stats.failedPayments || 0;
+                document.getElementById('pendingPayments').textContent = stats.pendingPayments || 0;
+                document.getElementById('totalRevenue').textContent = `$${(stats.totalRevenue || 0).toFixed(2)}`;
+            }
+        }
+
+        function updatePaymentStats() {
+            const successful = filteredPayments.filter(p => p.status === 'success').length;
+            const failed = filteredPayments.filter(p => p.status === 'failed').length;
+            const pending = filteredPayments.filter(p => p.status === 'pending').length;
+            const totalRevenue = filteredPayments
+                .filter(p => p.status === 'success')
+                .reduce((sum, p) => sum + p.amount, 0);
+
+            document.getElementById('successfulPayments').textContent = successful;
+            document.getElementById('failedPayments').textContent = failed;
+            document.getElementById('pendingPayments').textContent = pending;
+            document.getElementById('totalRevenue').textContent = `$${totalRevenue.toFixed(2)}`;
+        }
+
+        function updatePaymentsTable() {
+            const tbody = document.getElementById('paymentsTableBody');
+            tbody.innerHTML = '';
+
+            filteredPayments.forEach(payment => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${payment.transactionId}</td>
+                    <td>
+                        <div>
+                            <strong>${payment.customer}</strong><br>
+                            <small class="text-muted">${payment.email}</small>
+                        </div>
+                    </td>
+                    <td><strong>$${payment.amount.toFixed(2)}</strong></td>
+                    <td><span class="status-badge status-${payment.status}">${payment.status}</span></td>
+                    <td>${payment.method}</td>
+                    <td>${new Date(payment.date).toLocaleDateString()}</td>
+                    <td>
+                        <button class="btn btn-sm btn-outline-primary" onclick="viewPaymentDetails('${payment.id}')">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        function updateCharts() {
+            // Update payment analytics chart with real data
+            const revenueData = filteredPayments
+                .filter(p => p.status === 'success')
+                .reduce((acc, p) => {
+                    const date = new Date(p.date).toLocaleDateString();
+                    acc[date] = (acc[date] || 0) + p.amount;
+                    return acc;
+                }, {});
+
+            // Payment method distribution removed - system has only one payment method
+        }
+
+        async function updateChartsWithRealData(dashboardData) {
+            try {
+                // Payment method distribution chart removed - system has only one payment method
+
+                // Update daily revenue chart
+                if (dashboardData.dailyRevenue) {
+                    const revenueData = dashboardData.dailyRevenue;
+                    const labels = Object.keys(revenueData).sort();
+                    const data = labels.map(date => revenueData[date]);
+                    
+                    paymentChart.data.labels = labels;
+                    paymentChart.data.datasets[0].data = data;
+                    paymentChart.update();
+                }
+
+                // Update payment trends chart with monthly data
+                if (dashboardData.monthlyTrends) {
+                    const monthlyData = dashboardData.monthlyTrends;
+                    const months = Object.keys(monthlyData).sort();
+                    const successfulData = months.map(month => monthlyData[month].successful || 0);
+                    const failedData = months.map(month => monthlyData[month].failed || 0);
+                    
+                    paymentTrendsChart.data.labels = months;
+                    paymentTrendsChart.data.datasets[0].data = successfulData;
+                    paymentTrendsChart.data.datasets[1].data = failedData;
+                    paymentTrendsChart.update();
+                } else if (dashboardData.paymentStats) {
+                    // Fallback to current month data
+                    const stats = dashboardData.paymentStats;
+                    const currentMonth = new Date().toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
+                    
+                    paymentTrendsChart.data.labels = [currentMonth];
+                    paymentTrendsChart.data.datasets[0].data = [stats.successfulPayments || 0];
+                    paymentTrendsChart.data.datasets[1].data = [stats.failedPayments || 0];
+                    paymentTrendsChart.update();
+                }
+
+            } catch (error) {
+                console.error('Error updating charts with real data:', error);
+            }
+        }
+
+        async function applyFilters() {
+            const dateRange = document.getElementById('dateRange').value;
+            const statusFilter = document.getElementById('statusFilter').value;
+            const amountFilter = document.getElementById('amountFilter').value;
+
+            try {
+                // If we have real data, use server-side filtering
+                if (allPayments.length > 0 && allPayments[0].id) {
+                    await applyServerSideFilters(dateRange, statusFilter, amountFilter);
+                } else {
+                    // Fallback to client-side filtering
+                    applyClientSideFilters(dateRange, statusFilter, amountFilter);
+                }
+            } catch (error) {
+                console.error('Error applying filters:', error);
+                showToast('Error applying filters', 'error');
+            }
+        }
+
+        async function applyServerSideFilters(dateRange, statusFilter, amountFilter) {
+            try {
+                const token = localStorage.getItem('authToken');
+                const params = new URLSearchParams();
+                
+                // Convert date range to actual dates
+                const now = new Date();
+                let startDate, endDate;
+                
+                switch (dateRange) {
+                    case 'today':
+                        startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+                        endDate = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
+                        break;
+                    case 'week':
+                        startDate = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+                        endDate = now;
+                        break;
+                    case 'month':
+                        startDate = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+                        endDate = now;
+                        break;
+                    case 'year':
+                        startDate = new Date(now.getTime() - 365 * 24 * 60 * 60 * 1000);
+                        endDate = now;
+                        break;
+                    default:
+                        startDate = null;
+                        endDate = null;
+                }
+                
+                if (startDate && endDate) {
+                    params.append('startDate', startDate.toISOString());
+                    params.append('endDate', endDate.toISOString());
+                }
+                
+                if (statusFilter && statusFilter !== 'all') {
+                    params.append('status', statusFilter.toUpperCase());
+                }
+                
+                const response = await fetch(`/api/payments/admin-analytics?${params.toString()}`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                if (response.ok) {
+                    const analyticsData = await response.json();
+                    updateUIWithFilteredData(analyticsData);
+                } else {
+                    throw new Error('Failed to fetch filtered data');
+                }
+            } catch (error) {
+                console.error('Server-side filtering failed:', error);
+                // Fallback to client-side filtering
+                applyClientSideFilters(dateRange, statusFilter, amountFilter);
+            }
+        }
+
+        function applyClientSideFilters(dateRange, statusFilter, amountFilter) {
+            filteredPayments = allPayments.filter(payment => {
+                // Date filter
+                const paymentDate = new Date(payment.date);
+                const now = new Date();
+                let dateMatch = true;
+
+                switch (dateRange) {
+                    case 'today':
+                        dateMatch = paymentDate.toDateString() === now.toDateString();
+                        break;
+                    case 'week':
+                        const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+                        dateMatch = paymentDate >= weekAgo;
+                        break;
+                    case 'month':
+                        const monthAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+                        dateMatch = paymentDate >= monthAgo;
+                        break;
+                    case 'year':
+                        const yearAgo = new Date(now.getTime() - 365 * 24 * 60 * 60 * 1000);
+                        dateMatch = paymentDate >= yearAgo;
+                        break;
+                }
+
+                // Status filter
+                const statusMatch = statusFilter === 'all' || payment.status === statusFilter;
+
+                // Amount filter
+                let amountMatch = true;
+                switch (amountFilter) {
+                    case 'low':
+                        amountMatch = payment.amount <= 50;
+                        break;
+                    case 'medium':
+                        amountMatch = payment.amount > 50 && payment.amount <= 200;
+                        break;
+                    case 'high':
+                        amountMatch = payment.amount > 200;
+                        break;
+                }
+
+                return dateMatch && statusMatch && amountMatch;
+            });
+
+            updatePaymentStats();
+            updatePaymentsTable();
+            updateCharts();
+        }
+
+        function updateUIWithFilteredData(analyticsData) {
+            // Update statistics
+            document.getElementById('successfulPayments').textContent = analyticsData.successfulPayments || 0;
+            document.getElementById('failedPayments').textContent = analyticsData.failedPayments || 0;
+            document.getElementById('pendingPayments').textContent = analyticsData.pendingPayments || 0;
+            document.getElementById('totalRevenue').textContent = `$${(analyticsData.totalRevenue || 0).toFixed(2)}`;
+            
+            // Payment method chart removed - system has only one payment method
+            
+            if (analyticsData.statusDistribution) {
+                paymentTrendsChart.data.datasets[0].data = [analyticsData.successfulPayments || 0];
+                paymentTrendsChart.data.datasets[1].data = [analyticsData.failedPayments || 0];
+                paymentTrendsChart.update();
+            }
+            
+            showToast('Filters applied successfully', 'success');
+        }
+
+        function viewPaymentDetails(paymentId) {
+            const payment = allPayments.find(p => p.id === paymentId);
+            if (!payment) return;
+
+            const content = document.getElementById('paymentDetailsContent');
+            content.innerHTML = `
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6>Transaction Information</h6>
+                        <table class="table table-sm">
+                            <tr><td><strong>Transaction ID:</strong></td><td>${payment.transactionId}</td></tr>
+                            <tr><td><strong>Status:</strong></td><td><span class="status-badge status-${payment.status}">${payment.status}</span></td></tr>
+                            <tr><td><strong>Amount:</strong></td><td>$${payment.amount.toFixed(2)}</td></tr>
+                            <tr><td><strong>Method:</strong></td><td>${payment.method}</td></tr>
+                            <tr><td><strong>Date:</strong></td><td>${new Date(payment.date).toLocaleString()}</td></tr>
+                        </table>
+                    </div>
+                    <div class="col-md-6">
+                        <h6>Customer Information</h6>
+                        <table class="table table-sm">
+                            <tr><td><strong>Name:</strong></td><td>${payment.customer}</td></tr>
+                            <tr><td><strong>Email:</strong></td><td>${payment.email}</td></tr>
+                        </table>
+                    </div>
+                </div>
+            `;
+
+            const modal = new bootstrap.Modal(document.getElementById('paymentDetailsModal'));
+            modal.show();
+        }
+
+        function loadRealNotifications(dashboardData) {
+            const notifications = [];
+            
+            // Generate notifications based on real data
+            if (dashboardData.recentPayments && dashboardData.recentPayments.length > 0) {
+                const recentPayments = dashboardData.recentPayments.slice(0, 5);
+                
+                recentPayments.forEach((payment, index) => {
+                    const timeAgo = getTimeAgo(payment.paymentDate);
+                    let notification = null;
+                    
+                    if (payment.status === 'SUCCESS') {
+                        notification = {
+                            id: payment.paymentId,
+                            type: 'new',
+                            title: 'Payment Successful',
+                            message: `Payment of $${payment.amount.toFixed(2)} from ${payment.userName || 'Customer'} completed successfully`,
+                            time: timeAgo,
+                            icon: 'fas fa-check-circle'
+                        };
+                    } else if (payment.status === 'FAILED') {
+                        notification = {
+                            id: payment.paymentId,
+                            type: 'warning',
+                            title: 'Payment Failed',
+                            message: `Payment of $${payment.amount.toFixed(2)} from ${payment.userName || 'Customer'} failed - ${payment.failureReason || 'Unknown reason'}`,
+                            time: timeAgo,
+                            icon: 'fas fa-exclamation-triangle'
+                        };
+                    } else if (payment.status === 'PENDING') {
+                        notification = {
+                            id: payment.paymentId,
+                            type: 'new',
+                            title: 'Payment Pending',
+                            message: `Payment of $${payment.amount.toFixed(2)} from ${payment.userName || 'Customer'} is pending approval`,
+                            time: timeAgo,
+                            icon: 'fas fa-clock'
+                        };
+                    }
+                    
+                    if (notification) {
+                        notifications.push(notification);
+                    }
+                });
+            }
+            
+            // Add system notifications based on statistics
+            if (dashboardData.paymentStats) {
+                const stats = dashboardData.paymentStats;
+                if (stats.failedPayments > 0) {
+                    notifications.push({
+                        id: 'system-1',
+                        type: 'error',
+                        title: 'Payment Failures Detected',
+                        message: `${stats.failedPayments} payment(s) failed recently. Check payment gateway status.`,
+                        time: 'Just now',
+                        icon: 'fas fa-exclamation-circle'
+                    });
+                }
+                
+                if (stats.successRate < 80 && stats.totalPayments > 0) {
+                    notifications.push({
+                        id: 'system-2',
+                        type: 'warning',
+                        title: 'Low Success Rate',
+                        message: `Payment success rate is ${stats.successRate.toFixed(1)}%. Consider reviewing payment methods.`,
+                        time: 'Just now',
+                        icon: 'fas fa-chart-line'
+                    });
+                }
+            }
+            
+            // Add discount code notifications
+            if (dashboardData.discountStats) {
+                const discountStats = dashboardData.discountStats;
+                if (discountStats.activeDiscountCodes > 0) {
+                    notifications.push({
+                        id: 'discount-1',
+                        type: 'new',
+                        title: 'Active Discount Codes',
+                        message: `${discountStats.activeDiscountCodes} discount code(s) are currently active`,
+                        time: 'Just now',
+                        icon: 'fas fa-tag'
+                    });
+                }
+            }
+
+            const container = document.getElementById('notificationsList');
+            container.innerHTML = '';
+
+            notifications.forEach(notification => {
+                const item = document.createElement('div');
+                item.className = `notification-item notification-${notification.type}`;
+                item.innerHTML = `
+                    <div class="d-flex align-items-start">
+                        <i class="${notification.icon} me-2 mt-1"></i>
+                        <div class="flex-grow-1">
+                            <h6 class="mb-1">${notification.title}</h6>
+                            <p class="mb-1 text-muted">${notification.message}</p>
+                            <small class="text-muted">${notification.time}</small>
+                        </div>
+                    </div>
+                `;
+                container.appendChild(item);
+            });
+
+            document.getElementById('notificationCount').textContent = notifications.length;
+        }
+
+        function getTimeAgo(dateString) {
+            const now = new Date();
+            const date = new Date(dateString);
+            const diffMs = now - date;
+            const diffMins = Math.floor(diffMs / 60000);
+            const diffHours = Math.floor(diffMins / 60);
+            const diffDays = Math.floor(diffHours / 24);
+            
+            if (diffMins < 1) return 'Just now';
+            if (diffMins < 60) return `${diffMins} minute(s) ago`;
+            if (diffHours < 24) return `${diffHours} hour(s) ago`;
+            return `${diffDays} day(s) ago`;
+        }
+
+        function loadNotifications() {
+            // This function is now replaced by loadRealNotifications
+            // Keep for backward compatibility
+            loadRealNotifications({});
+        }
+
+        function loadAllNotifications() {
+            showToast('Notifications refreshed', 'success');
+            loadNotifications();
+        }
+
+        function refreshPayments() {
+            showToast('Payment data refreshed', 'success');
+            loadPaymentData();
+        }
+
+        function exportPayments() {
+            showToast('Exporting payment data...', 'info');
+            // Implement export functionality
+        }
+
+        function printPaymentReceipt() {
+            showToast('Printing receipt...', 'info');
+            // Implement print functionality
+        }
+
+        function showToast(message, type = 'info') {
+            const toast = document.getElementById('adminToast');
+            const toastMessage = document.getElementById('toastMessage');
+            
+            toastMessage.textContent = message;
+            
+            const toastHeader = toast.querySelector('.toast-header');
+            const icon = toastHeader.querySelector('i');
+            
+            toastHeader.className = 'toast-header';
+            icon.className = 'fas me-2';
+            
+            switch (type) {
+                case 'success':
+                    toastHeader.classList.add('bg-success', 'text-white');
+                    icon.classList.add('fa-check-circle', 'text-white');
+                    break;
+                case 'error':
+                    toastHeader.classList.add('bg-danger', 'text-white');
+                    icon.classList.add('fa-exclamation-circle', 'text-white');
+                    break;
+                case 'warning':
+                    toastHeader.classList.add('bg-warning', 'text-dark');
+                    icon.classList.add('fa-exclamation-triangle', 'text-dark');
+                    break;
+                default:
+                    toastHeader.classList.add('bg-primary', 'text-white');
+                    icon.classList.add('fa-info-circle', 'text-white');
+            }
+            
+            const bsToast = new bootstrap.Toast(toast);
+            bsToast.show();
+        }
+
+        function logout() {
+            localStorage.removeItem('authToken');
+            showToast('Logged out successfully', 'success');
+            setTimeout(() => window.location.href = 'index.html', 1000);
+        }
+    </script>
+</body>
+</html>
