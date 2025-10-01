@@ -1,0 +1,458 @@
+<!-- Receipt Modal -->
+<div class="modal fade" id="receiptModal" tabindex="-1" aria-labelledby="receiptModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="receiptModalLabel">
+          <i class="fas fa-ticket-alt me-2"></i>Movie Ticket Receipt
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body p-0">
+        <!-- Movie Ticket Receipt -->
+        <div class="receipt-container">
+          <div class="receipt-header">
+            <div class="cinema-logo">
+              <i class="fas fa-film"></i>
+              <h3>FlixMate Cinema</h3>
+            </div>
+            <div class="receipt-number">
+              <small>Receipt #</small>
+              <span id="receipt-number">RCP-20241201123456-001</span>
+            </div>
+          </div>
+          
+          <div class="receipt-content">
+            <div class="movie-info">
+              <h4 id="receipt-movie-title">Movie Title</h4>
+              <div class="showtime-info">
+                <div class="date-time">
+                  <span class="label">Date:</span>
+                  <span id="receipt-showtime-date">2024-12-01</span>
+                </div>
+                <div class="date-time">
+                  <span class="label">Time:</span>
+                  <span id="receipt-showtime-time">14:30</span>
+                </div>
+                <div class="date-time">
+                  <span class="label">Hall:</span>
+                  <span id="receipt-cinema-hall">Hall 1</span>
+                </div>
+              </div>
+            </div>
+            
+            <div class="seat-info">
+              <div class="seats-section">
+                <span class="label">Seats:</span>
+                <div class="seat-numbers" id="receipt-seat-numbers">A1, A2</div>
+              </div>
+              <div class="total-seats">
+                <span class="label">Total Seats:</span>
+                <span id="receipt-total-seats">2</span>
+              </div>
+            </div>
+            
+            <div class="payment-info">
+              <div class="payment-details">
+                <div class="payment-row">
+                  <span class="label">Payment Method:</span>
+                  <span id="receipt-payment-method">Credit Card</span>
+                </div>
+                <div class="payment-row">
+                  <span class="label">Transaction ID:</span>
+                  <span id="receipt-transaction-id">TXN-123456789</span>
+                </div>
+                <div class="payment-row total-amount">
+                  <span class="label">Total Amount:</span>
+                  <span id="receipt-total-amount">$25.00</span>
+                </div>
+              </div>
+            </div>
+            
+            <div class="customer-info">
+              <div class="customer-details">
+                <div class="customer-row">
+                  <span class="label">Customer:</span>
+                  <span id="receipt-user-name">John Doe</span>
+                </div>
+                <div class="customer-row">
+                  <span class="label">Email:</span>
+                  <span id="receipt-user-email">john@example.com</span>
+                </div>
+              </div>
+            </div>
+            
+            <div class="receipt-footer">
+              <div class="receipt-date">
+                <span class="label">Receipt Date:</span>
+                <span id="receipt-date">2024-12-01 12:34:56</span>
+              </div>
+              <div class="thank-you">
+                <p>Thank you for choosing FlixMate Cinema!</p>
+                <p>Enjoy your movie experience!</p>
+              </div>
+            </div>
+          </div>
+          
+          <div class="receipt-perforation">
+            <div class="perforation-line"></div>
+            <div class="perforation-dots">
+              <span></span><span></span><span></span><span></span><span></span>
+              <span></span><span></span><span></span><span></span><span></span>
+            </div>
+            <div class="perforation-line"></div>
+          </div>
+          
+          <div class="receipt-stub">
+            <div class="stub-content">
+              <h5>Keep This Receipt</h5>
+              <p>Present this receipt at the cinema for entry</p>
+              <div class="stub-details">
+                <div class="stub-row">
+                  <span>Movie:</span>
+                  <span id="stub-movie-title">Movie Title</span>
+                </div>
+                <div class="stub-row">
+                  <span>Date & Time:</span>
+                  <span id="stub-showtime">2024-12-01 14:30</span>
+                </div>
+                <div class="stub-row">
+                  <span>Seats:</span>
+                  <span id="stub-seats">A1, A2</span>
+                </div>
+                <div class="stub-row">
+                  <span>Receipt #:</span>
+                  <span id="stub-receipt-number">RCP-20241201123456-001</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+          <i class="fas fa-times me-2"></i>Close
+        </button>
+        <button type="button" class="btn btn-primary" onclick="printReceipt()">
+          <i class="fas fa-print me-2"></i>Print Receipt
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+.receipt-container {
+  background: white;
+  font-family: 'Courier New', monospace;
+  max-width: 100%;
+  margin: 0 auto;
+  border: 2px solid #333;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.receipt-header {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.cinema-logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.cinema-logo i {
+  font-size: 2rem;
+}
+
+.cinema-logo h3 {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: bold;
+}
+
+.receipt-number {
+  text-align: right;
+}
+
+.receipt-number small {
+  display: block;
+  font-size: 0.8rem;
+  opacity: 0.8;
+}
+
+.receipt-number span {
+  font-size: 1.1rem;
+  font-weight: bold;
+}
+
+.receipt-content {
+  padding: 25px;
+}
+
+.movie-info h4 {
+  color: #333;
+  margin-bottom: 15px;
+  font-size: 1.4rem;
+  font-weight: bold;
+  text-align: center;
+  border-bottom: 2px solid #667eea;
+  padding-bottom: 10px;
+}
+
+.showtime-info {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 15px;
+  margin-bottom: 20px;
+}
+
+.date-time {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.date-time .label {
+  font-size: 0.9rem;
+  color: #666;
+  font-weight: bold;
+  margin-bottom: 5px;
+}
+
+.date-time span:last-child {
+  font-size: 1.1rem;
+  color: #333;
+  font-weight: bold;
+}
+
+.seat-info {
+  background: #f8f9fa;
+  padding: 15px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+}
+
+.seats-section {
+  margin-bottom: 10px;
+}
+
+.seat-numbers {
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: #667eea;
+  margin-top: 5px;
+}
+
+.total-seats {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.payment-info {
+  background: #e8f4fd;
+  padding: 15px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+}
+
+.payment-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.payment-row.total-amount {
+  border-top: 2px solid #667eea;
+  padding-top: 10px;
+  margin-top: 10px;
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: #333;
+}
+
+.customer-info {
+  background: #f0f8ff;
+  padding: 15px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+}
+
+.customer-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.receipt-footer {
+  text-align: center;
+  border-top: 2px solid #667eea;
+  padding-top: 15px;
+}
+
+.receipt-date {
+  margin-bottom: 15px;
+  font-size: 0.9rem;
+  color: #666;
+}
+
+.thank-you {
+  color: #667eea;
+  font-weight: bold;
+}
+
+.thank-you p {
+  margin: 5px 0;
+}
+
+.receipt-perforation {
+  background: #f0f0f0;
+  padding: 10px 0;
+  text-align: center;
+}
+
+.perforation-line {
+  height: 2px;
+  background: #333;
+  margin: 5px 0;
+}
+
+.perforation-dots {
+  display: flex;
+  justify-content: center;
+  gap: 5px;
+  margin: 5px 0;
+}
+
+.perforation-dots span {
+  width: 4px;
+  height: 4px;
+  background: #333;
+  border-radius: 50%;
+}
+
+.receipt-stub {
+  background: #f8f9fa;
+  padding: 15px;
+  border-top: 2px solid #333;
+}
+
+.stub-content h5 {
+  color: #667eea;
+  text-align: center;
+  margin-bottom: 10px;
+  font-size: 1.1rem;
+}
+
+.stub-content p {
+  text-align: center;
+  color: #666;
+  font-size: 0.9rem;
+  margin-bottom: 15px;
+}
+
+.stub-details {
+  background: white;
+  padding: 10px;
+  border-radius: 5px;
+}
+
+.stub-row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 5px;
+  font-size: 0.9rem;
+}
+
+.stub-row:last-child {
+  margin-bottom: 0;
+}
+
+.label {
+  font-weight: bold;
+  color: #333;
+}
+
+@media print {
+  .modal-footer {
+    display: none !important;
+  }
+  
+  .receipt-container {
+    border: none;
+    box-shadow: none;
+  }
+  
+  .receipt-perforation {
+    page-break-after: always;
+  }
+}
+
+@media (max-width: 768px) {
+  .showtime-info {
+    grid-template-columns: 1fr;
+  }
+  
+  .receipt-header {
+    flex-direction: column;
+    gap: 15px;
+    text-align: center;
+  }
+  
+  .receipt-number {
+    text-align: center;
+  }
+}
+</style>
+
+<script>
+function displayReceipt(receiptData) {
+  // Populate receipt data
+  document.getElementById('receipt-number').textContent = receiptData.receiptNumber;
+  document.getElementById('receipt-movie-title').textContent = receiptData.movieTitle;
+  document.getElementById('receipt-showtime-date').textContent = receiptData.showtimeDate;
+  document.getElementById('receipt-showtime-time').textContent = receiptData.showtimeTime;
+  document.getElementById('receipt-cinema-hall').textContent = receiptData.cinemaHall;
+  document.getElementById('receipt-seat-numbers').textContent = receiptData.seatNumbers;
+  document.getElementById('receipt-total-seats').textContent = receiptData.totalSeats;
+  document.getElementById('receipt-payment-method').textContent = receiptData.paymentMethod;
+  document.getElementById('receipt-transaction-id').textContent = receiptData.transactionId;
+  document.getElementById('receipt-total-amount').textContent = formatCurrency(receiptData.totalAmount);
+  document.getElementById('receipt-user-name').textContent = receiptData.userName;
+  document.getElementById('receipt-user-email').textContent = receiptData.userEmail;
+  document.getElementById('receipt-date').textContent = formatDateTime(receiptData.receiptDate);
+  
+  // Populate stub data
+  document.getElementById('stub-movie-title').textContent = receiptData.movieTitle;
+  document.getElementById('stub-showtime').textContent = receiptData.showtimeDate + ' ' + receiptData.showtimeTime;
+  document.getElementById('stub-seats').textContent = receiptData.seatNumbers;
+  document.getElementById('stub-receipt-number').textContent = receiptData.receiptNumber;
+  
+  // Show modal
+  const modal = new bootstrap.Modal(document.getElementById('receiptModal'));
+  modal.show();
+}
+
+function printReceipt() {
+  window.print();
+}
+
+function formatCurrency(amount) {
+  return '$' + parseFloat(amount).toFixed(2);
+}
+
+function formatDateTime(dateTimeString) {
+  const date = new Date(dateTimeString);
+  return date.toLocaleString();
+}
+</script>
