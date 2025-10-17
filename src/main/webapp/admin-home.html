@@ -531,7 +531,13 @@
             console.log('Loading admin stats...');
             
             try {
-                // Use the working test endpoint to get real data
+                const token = localStorage.getItem('authToken');
+                if (!token) {
+                    console.log('No auth token available');
+                    return;
+                }
+
+                // Load basic stats from test endpoint
                 const testRes = await fetch('/api/admin/test');
                 if (testRes.ok) {
                     const data = await testRes.json();
@@ -541,15 +547,38 @@
                     document.getElementById('totalMovies').textContent = data.movieCount || 0;
                     document.getElementById('totalBookings').textContent = data.bookingCount || 0;
                     document.getElementById('totalUsers').textContent = data.userCount || 0;
-                    
-                    // Calculate revenue (mock for now - you can enhance this later)
-                    const estimatedRevenue = (data.bookingCount || 0) * 15.99; // Average ticket price
-                    document.getElementById('totalRevenue').textContent = `$${estimatedRevenue.toFixed(2)}`;
-                    
-                    console.log('Stats updated with real data');
-                } else {
-                    console.log('Test endpoint failed, using fallback values');
                 }
+
+                // Load actual revenue from the corrected revenue endpoint
+                try {
+                    const revenueRes = await fetch('/api/admin/revenue', {
+                        headers: {
+                            'Authorization': `Bearer ${token}`
+                        }
+                    });
+                    
+                    if (revenueRes.ok) {
+                        const revenueData = await revenueRes.json();
+                        console.log('Revenue data received:', revenueData);
+                        
+                        // Use net revenue (which already deducts refunds)
+                        const netRevenue = revenueData.netRevenue || revenueData.revenue || 0;
+                        document.getElementById('totalRevenue').textContent = `$${netRevenue.toFixed(2)}`;
+                        
+                        console.log('Revenue updated with corrected calculation (net revenue after refunds)');
+                    } else {
+                        console.log('Revenue endpoint failed, using fallback calculation');
+                        // Fallback to estimated revenue if API fails
+                        const estimatedRevenue = (data.bookingCount || 0) * 15.99;
+                        document.getElementById('totalRevenue').textContent = `$${estimatedRevenue.toFixed(2)}`;
+                    }
+                } catch (revenueError) {
+                    console.log('Failed to load revenue:', revenueError.message);
+                    // Fallback to estimated revenue
+                    const estimatedRevenue = (data.bookingCount || 0) * 15.99;
+                    document.getElementById('totalRevenue').textContent = `$${estimatedRevenue.toFixed(2)}`;
+                }
+                
             } catch (error) {
                 console.log('Failed to load stats:', error.message);
                 // Keep the fallback values that were set on page load
