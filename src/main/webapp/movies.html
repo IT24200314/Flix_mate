@@ -536,12 +536,20 @@
                 <div class="movie-badges">
                   <span class="badge genre-badge">${movie.genre || 'Drama'}</span>
                   <span class="badge year-badge">${movie.releaseYear || '2025'}</span>
+                  ${!movie.isActive ? '<span class="badge coming-soon-badge">Coming Soon</span>' : ''}
                 </div>
                 <div class="movie-actions">
-                  <a href="booking.html?movieId=${movie.movieId}" class="btn btn-book-now">
-                    <i class="fas fa-ticket-alt"></i>
-                    <span>Book Now</span>
-                  </a>
+                  ${movie.isActive ? `
+                    <a href="booking.html?movieId=${movie.movieId}" class="btn btn-book-now">
+                      <i class="fas fa-ticket-alt"></i>
+                      <span>Book Now</span>
+                    </a>
+                  ` : `
+                    <button class="btn btn-coming-soon" onclick="showComingSoonInfo('${movie.title}', '${movie.releaseYear}')">
+                      <i class="fas fa-calendar-alt"></i>
+                      <span>Coming Soon</span>
+                    </button>
+                  `}
                 </div>
               </div>
             </div>
@@ -1160,6 +1168,21 @@
         promise: event.promise
       });
     });
+
+    // Show coming soon movie info
+    function showComingSoonInfo(movieTitle, releaseYear) {
+      // Create a modal or alert to show coming soon information
+      const message = `🎬 "${movieTitle}" (${releaseYear})\n\n🔔 This movie is coming soon!\n\n✨ We'll notify you when tickets become available.\n\n📅 Expected release: ${releaseYear}`;
+      
+      // For now, show an alert. In a real app, you might want to:
+      // 1. Show a proper modal
+      // 2. Allow users to sign up for notifications
+      // 3. Store their email for future notifications
+      alert(message);
+      
+      // Optional: Log the interest for analytics
+      console.log(`User showed interest in coming soon movie: ${movieTitle} (${releaseYear})`);
+    }
   </script>
   
   <!-- Footer -->
