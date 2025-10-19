@@ -38,10 +38,10 @@ public class MovieManagementService {
 
     @Autowired
     private CinemaHallRepository cinemaHallRepository;
-    
+
     @Autowired
     private PaymentRepository paymentRepository;
-    
+
     @Autowired
     private ReviewRepository reviewRepository;
 
@@ -65,7 +65,7 @@ public class MovieManagementService {
         try {
             System.out.println("=== MOVIE MANAGEMENT SERVICE: getMovieById ===");
             System.out.println("Movie ID: " + id);
-            
+
             Movie movie = movieRepository.findById(id).orElse(null);
             if (movie != null) {
                 System.out.println("Found movie: " + movie.getTitle());
@@ -87,7 +87,7 @@ public class MovieManagementService {
             System.out.println("Movie Title: " + movie.getTitle());
             System.out.println("Genre: " + movie.getGenre());
             System.out.println("Duration: " + movie.getDuration());
-            
+
             // Validate required fields
             if (movie.getTitle() == null || movie.getTitle().trim().isEmpty()) {
                 throw new IllegalArgumentException("Movie title is required");
@@ -112,6 +112,15 @@ public class MovieManagementService {
             if (movie.getReleaseYear() == null) {
                 movie.setReleaseYear(2025);
             }
+            if (movie.getCreatedDate() == null) {
+                movie.setCreatedDate(LocalDateTime.now());
+            }
+            if (movie.getUpdatedDate() == null) {
+                movie.setUpdatedDate(LocalDateTime.now());
+            }
+            if (movie.getIsActive() == null) {
+                movie.setIsActive(true);
+            }
 
             Movie savedMovie = movieRepository.save(movie);
             System.out.println("Movie created successfully with ID: " + savedMovie.getMovieId());
@@ -129,7 +138,7 @@ public class MovieManagementService {
             System.out.println("=== MOVIE MANAGEMENT SERVICE: updateMovie ===");
             System.out.println("Movie ID: " + movie.getMovieId());
             System.out.println("New Title: " + movie.getTitle());
-            
+
             // Check if movie exists
             Movie existingMovie = movieRepository.findById(movie.getMovieId())
                     .orElseThrow(() -> new IllegalArgumentException("Movie not found with ID: " + movie.getMovieId()));
@@ -170,7 +179,7 @@ public class MovieManagementService {
         try {
             System.out.println("=== MOVIE MANAGEMENT SERVICE: deleteMovie ===");
             System.out.println("Movie ID: " + id);
-            
+
             // Check if movie exists
             Movie movie = movieRepository.findById(id)
                     .orElseThrow(() -> new IllegalArgumentException("Movie not found with ID: " + id));
@@ -192,11 +201,11 @@ public class MovieManagementService {
                 System.out.println("Deleting payments for movie...");
                 deletedPaymentsCount = paymentRepository.deletePaymentsForMovie(id);
                 System.out.println("Successfully deleted " + deletedPaymentsCount + " payments");
-                
+
                 System.out.println("Deleting booking_seats associations for movie...");
                 deletedSeatsCount = bookingRepository.deleteBookingSeatsForMovie(id);
                 System.out.println("Successfully deleted " + deletedSeatsCount + " booking_seats associations");
-                
+
                 System.out.println("Deleting bookings for movie...");
                 deletedCount = bookingRepository.deleteBookingsForMovie(id);
                 System.out.println("Successfully deleted " + deletedCount + " bookings");
@@ -224,7 +233,7 @@ public class MovieManagementService {
         try {
             System.out.println("=== MOVIE MANAGEMENT SERVICE: archiveMovie ===");
             System.out.println("Movie ID: " + id);
-            
+
             Movie movie = movieRepository.findById(id)
                     .orElseThrow(() -> new IllegalArgumentException("Movie not found with ID: " + id));
 
@@ -241,7 +250,7 @@ public class MovieManagementService {
     }
 
     // ========== SHOWTIME MANAGEMENT ==========
-    
+
     public int getShowtimeCountForMovie(Integer movieId) {
         try {
             Movie movie = movieRepository.findById(movieId)
@@ -257,7 +266,7 @@ public class MovieManagementService {
         try {
             System.out.println("=== MOVIE MANAGEMENT SERVICE: getShowtimesForMovie ===");
             System.out.println("Movie ID: " + movieId);
-            
+
             Movie movie = movieRepository.findById(movieId)
                     .orElseThrow(() -> new IllegalArgumentException("Movie not found with ID: " + movieId));
 
@@ -277,7 +286,7 @@ public class MovieManagementService {
             System.out.println("=== MOVIE MANAGEMENT SERVICE: createShowtime ===");
             System.out.println("Movie ID: " + movieId);
             System.out.println("Start Time: " + showtime.getStartTime());
-            
+
             Movie movie = movieRepository.findById(movieId)
                     .orElseThrow(() -> new IllegalArgumentException("Movie not found with ID: " + movieId));
 
@@ -314,7 +323,7 @@ public class MovieManagementService {
         try {
             System.out.println("=== MOVIE MANAGEMENT SERVICE: updateShowtime ===");
             System.out.println("Showtime ID: " + showtime.getShowtimeId());
-            
+
             ShowTime existingShowtime = showTimeRepository.findById(showtime.getShowtimeId())
                     .orElseThrow(() -> new IllegalArgumentException("Showtime not found with ID: " + showtime.getShowtimeId()));
 
@@ -349,7 +358,7 @@ public class MovieManagementService {
         try {
             System.out.println("=== MOVIE MANAGEMENT SERVICE: deleteShowtime ===");
             System.out.println("Showtime ID: " + showtimeId);
-            
+
             ShowTime showtime = showTimeRepository.findById(showtimeId)
                     .orElseThrow(() -> new IllegalArgumentException("Showtime not found with ID: " + showtimeId));
 
@@ -376,13 +385,13 @@ public class MovieManagementService {
         try {
             System.out.println("=== MOVIE MANAGEMENT SERVICE: getSeatBookingsForShowtime ===");
             System.out.println("Showtime ID: " + showtimeId);
-            
+
             ShowTime showtime = showTimeRepository.findById(showtimeId)
                     .orElseThrow(() -> new IllegalArgumentException("Showtime not found with ID: " + showtimeId));
 
             List<Booking> bookings = bookingRepository.findByShowtime(showtime);
             List<Seat> allSeats = seatRepository.findByCinemaHall(showtime.getCinemaHall());
-            
+
             // Get booked seats
             Set<Seat> bookedSeats = bookings.stream()
                     .flatMap(booking -> booking.getSeats().stream())
@@ -396,8 +405,8 @@ public class MovieManagementService {
             result.put("bookings", bookings);
             result.put("bookedSeatsList", bookedSeats);
 
-            System.out.println("Retrieved booking information: " + bookings.size() + " bookings, " + 
-                             bookedSeats.size() + " booked seats out of " + allSeats.size() + " total seats");
+            System.out.println("Retrieved booking information: " + bookings.size() + " bookings, " +
+                    bookedSeats.size() + " booked seats out of " + allSeats.size() + " total seats");
             return result;
         } catch (Exception e) {
             System.err.println("=== MOVIE MANAGEMENT SERVICE ERROR: getSeatBookingsForShowtime ===");
@@ -411,13 +420,13 @@ public class MovieManagementService {
         try {
             System.out.println("=== MOVIE MANAGEMENT SERVICE: getSeatStatusForShowtime ===");
             System.out.println("Showtime ID: " + showtimeId);
-            
+
             ShowTime showtime = showTimeRepository.findById(showtimeId)
                     .orElseThrow(() -> new IllegalArgumentException("Showtime not found with ID: " + showtimeId));
 
             List<Seat> seats = seatRepository.findByCinemaHall(showtime.getCinemaHall());
             List<Booking> bookings = bookingRepository.findByShowtime(showtime);
-            
+
             // Get booked seats
             Set<Seat> bookedSeats = bookings.stream()
                     .flatMap(booking -> booking.getSeats().stream())
@@ -447,22 +456,22 @@ public class MovieManagementService {
     public Map<String, Object> getMovieStatistics() {
         try {
             System.out.println("=== MOVIE MANAGEMENT SERVICE: getMovieStatistics ===");
-            
+
             long totalMovies = movieRepository.count();
             long totalShowtimes = showTimeRepository.count();
             long totalBookings = bookingRepository.count();
-            
+
             // Get movies with most showtimes
             List<Object[]> movieShowtimeCounts = showTimeRepository.countShowtimesByMovie();
-            
+
             Map<String, Object> statistics = new HashMap<>();
             statistics.put("totalMovies", totalMovies);
             statistics.put("totalShowtimes", totalShowtimes);
             statistics.put("totalBookings", totalBookings);
             statistics.put("movieShowtimeCounts", movieShowtimeCounts);
 
-            System.out.println("Retrieved statistics: " + totalMovies + " movies, " + 
-                             totalShowtimes + " showtimes, " + totalBookings + " bookings");
+            System.out.println("Retrieved statistics: " + totalMovies + " movies, " +
+                    totalShowtimes + " showtimes, " + totalBookings + " bookings");
             return statistics;
         } catch (Exception e) {
             System.err.println("=== MOVIE MANAGEMENT SERVICE ERROR: getMovieStatistics ===");
@@ -476,7 +485,7 @@ public class MovieManagementService {
         try {
             System.out.println("=== MOVIE MANAGEMENT SERVICE: getMovieStatistics ===");
             System.out.println("Movie ID: " + movieId);
-            
+
             Movie movie = movieRepository.findById(movieId)
                     .orElseThrow(() -> new IllegalArgumentException("Movie not found with ID: " + movieId));
 
@@ -496,8 +505,8 @@ public class MovieManagementService {
             statistics.put("totalSeatsBooked", totalSeatsBooked);
             statistics.put("showtimes", showtimes);
 
-            System.out.println("Retrieved statistics for movie: " + showtimes.size() + " showtimes, " + 
-                             bookings.size() + " bookings, " + totalSeatsBooked + " seats booked");
+            System.out.println("Retrieved statistics for movie: " + showtimes.size() + " showtimes, " +
+                    bookings.size() + " bookings, " + totalSeatsBooked + " seats booked");
             return statistics;
         } catch (Exception e) {
             System.err.println("=== MOVIE MANAGEMENT SERVICE ERROR: getMovieStatistics ===");
