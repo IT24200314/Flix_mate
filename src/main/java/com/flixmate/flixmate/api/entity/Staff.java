@@ -3,9 +3,8 @@ package com.flixmate.flixmate.api.entity;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
-/**
- * Staff entity representing cinema staff members
- */
+//Staff entity representing cinema staff members
+
 @Entity
 @Table(name = "staff")
 public class Staff {

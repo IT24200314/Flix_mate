@@ -4,9 +4,8 @@ import jakarta.persistence.*;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import java.time.LocalDateTime;
 
-/**
- * StaffSchedule entity representing staff work schedules
- */
+//StaffSchedule entity representing staff work schedules
+
 @Entity
 @Table(name = "staff_schedules")
 public class StaffSchedule {
