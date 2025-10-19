@@ -12,9 +12,7 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
-/**
- * REST controller for staff management
- */
+//REST controller for staff management
 @RestController
 @RequestMapping("/api/staff")
 @CrossOrigin(origins = "*")

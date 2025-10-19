@@ -88,15 +88,29 @@ public class AdminController {
     @GetMapping("/revenue")
     public ResponseEntity<?> getRevenue() {
         try {
-            // Calculate total revenue from payments
-            Double totalRevenue = paymentRepository.findAll().stream()
+            List<Payment> allPayments = paymentRepository.findAll();
+            
+            // Calculate gross revenue from successful payments
+            Double grossRevenue = allPayments.stream()
                     .filter(payment -> "SUCCESS".equals(payment.getStatus()))
                     .mapToDouble(payment -> payment.getAmount() != null ? payment.getAmount() : 0.0)
                     .sum();
             
+            // Calculate total refunded amount
+            Double totalRefunded = allPayments.stream()
+                    .filter(payment -> "REFUNDED".equals(payment.getStatus()))
+                    .mapToDouble(payment -> payment.getRefundAmount() != null ? payment.getRefundAmount() : 0.0)
+                    .sum();
+            
+            // Calculate net revenue (gross revenue minus refunds)
+            Double netRevenue = grossRevenue - totalRefunded;
+            
             Map<String, Object> response = new HashMap<>();
-            response.put("revenue", totalRevenue);
-            response.put("total", totalRevenue);
+            response.put("grossRevenue", grossRevenue);
+            response.put("totalRefunded", totalRefunded);
+            response.put("netRevenue", netRevenue);
+            response.put("revenue", netRevenue); // Use net revenue as the main revenue figure
+            response.put("total", netRevenue);
             
             return ResponseEntity.ok(response);
         } catch (Exception e) {
